@@ -10,24 +10,21 @@
 #include "parse.h"
 
 
-node  rootNodes[rootNodePageSize];
-uint  rootNodeCount = 0;
 
-
-void freeArgs(node *toBeFreed) {
-	if (toBeFreed->arity) {
-		uint i = 0;
-		for (; i < toBeFreed->arity; i++)
-			freeArgs(&toBeFreed->arguments[i]);
-		free(toBeFreed->arguments);
-	}
-}
-
-void cleanUp(void) {
-	uint i = 0;
-	for (; i<rootNodeCount; i++)
-		freeArgs(&rootNodes[i]);
-}
+//void freeArgs(node *toBeFreed) {
+//	if (toBeFreed->arity) {
+//		uint i = 0;
+//		for (; i < toBeFreed->arity; i++)
+//			freeArgs(&toBeFreed->arguments[i]);
+//		free(toBeFreed->arguments);
+//	}
+//}
+//
+//void cleanUp(void) {
+//	uint i = 0;
+//	for (; i<currentRootNode; i++)
+//		freeArgs(&rootNodes[i]);
+//}
 
 
 int main(int argc, char **argv) {
@@ -43,35 +40,36 @@ int main(int argc, char **argv) {
 	}
 	
 	buildStdNodeTable();
-	//'numLit' is used to initialize the rootNode
-	rootNodes[0] = node_numLit;
 	
 	while (1) {
 		
-		getNode(&rootNodes[rootNodeCount]);
+		rootNodes[currentRootNode] = currentNode;
+		
+		getNode();
 		if (!noErrors || reachedEOF)
 			break;
-		//if the current rootNode is still 'numLit', then ignore it,
+		
+		//if the current rootNode is still "empty", then ignore it,
 		//otherwise, we count the root node to be evaluated
-		if ( strcmp(rootNodes[rootNodeCount].name, "numLit") ) {
-			rootNodeCount++;
-			//initialize next rootNode
-			rootNodes[rootNodeCount] = node_numLit;
+		if (strcmp( nodes[rootNodes[currentRootNode]].name, "empty" )) {
+			currentRootNode++;
+			// reallocate the rootNodes to a larger array if necessary
 		}
 		
 	}
+	
+	fclose(fileStream);
 	
 	if (noErrors) {
 		puts("results:");
 		uint i = 0;
-		for (; i<rootNodeCount; i++) {
-			rootNodes[i].evaluate(&rootNodes[i]);
-			printf("  %2d: %9.3f\n", i, rootNodes[i].output.n);
+		for (; i<currentRootNode; i++) {
+			nodes[rootNodes[i]].evaluate(rootNodes[i]);
+			printf("  %2d: %9.3f\n", i, nodes[rootNodes[i]].output.n);
 		}
 	}
 	
-	fclose(fileStream);
-	cleanUp();
+	//cleanUp();
 	return 0;
 }
 

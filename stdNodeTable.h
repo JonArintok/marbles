@@ -5,7 +5,7 @@ const node node_numLit = {
 	.typeString = "n",
 	.evaluated  = 0,
 	.arity      = 0,
-	.arguments  = NULL,
+	.arguments  = {},
 	.evaluate   = NULL,
 	.output.n   = 0
 };
@@ -16,7 +16,7 @@ const node node_add = {
 	.typeString = "nnn",
 	.evaluated  = 1,
 	.arity      = 2,
-	.arguments  = NULL,
+	.arguments  = {},
 	.evaluate   = eval_add,
 	.output.n   = 0
 };
@@ -25,7 +25,7 @@ const node node_sub = {
 	.typeString = "nnn",
 	.evaluated  = 1,
 	.arity      = 2,
-	.arguments  = NULL,
+	.arguments  = {},
 	.evaluate   = eval_sub,
 	.output.n   = 0
 };
@@ -34,7 +34,7 @@ const node node_mul = {
 	.typeString = "nnn",
 	.evaluated  = 1,
 	.arity      = 2,
-	.arguments  = NULL,
+	.arguments  = {},
 	.evaluate   = eval_mul,
 	.output.n   = 0
 };
@@ -43,7 +43,7 @@ const node node_div = {
 	.typeString = "nnn",
 	.evaluated  = 1,
 	.arity      = 2,
-	.arguments  = NULL,
+	.arguments  = {},
 	.evaluate   = eval_div,
 	.output.n   = 0
 };
@@ -53,6 +53,14 @@ const node node_div = {
 node stdNodeTable[stdNodeTableLength];
 
 int buildStdNodeTable(void) {
+	
+	// not sure if this loop is necessary
+	uint i = 0;
+	for (; i<nodePageSize; i++) {
+		nodes[i].name = "empty";
+	}
+	
+	
 	
 	stdNodeTable[0] = node_add;
 	stdNodeTable[1] = node_sub;

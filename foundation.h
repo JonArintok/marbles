@@ -1,6 +1,8 @@
 
 #include <stdint.h>
 
+#define maxArity 8
+
 typedef struct {
 	double    *data;
 	uint32_t   dimensionality;
@@ -18,13 +20,17 @@ typedef union {
 	array        N;//number array
 	nodeArray    F;//function array
 } UOE;         //union of everything
-typedef void (*evaluator)(struct node*);
+typedef void (*evaluator)(uint);
 typedef struct node {
-	char        *name;
-	char        *typeString;
-	char         evaluated;
-	uint8_t      arity;
-	struct node *arguments;
-	evaluator    evaluate;
-	UOE          output;
+	char      *name;
+	char      *typeString;
+	char       evaluated;
+	uint8_t    arity;
+	uint8_t    arguments[maxArity];
+	evaluator  evaluate;
+	UOE        output;
 } node;
+
+
+#define nodePageSize 100
+node  nodes[nodePageSize];

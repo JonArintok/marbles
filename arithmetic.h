@@ -1,42 +1,42 @@
 
 
 
-inline void getBothArgs(node *self) {
-	if (self->arguments[0].evaluated) {
-		self->arguments[0].evaluate( &(self->arguments[0]) );
+inline void getBothArgs(uint self) {
+	if (nodes[ nodes[self].arguments[0] ].evaluated) {
+		nodes[ nodes[self].arguments[0] ].evaluate( nodes[self].arguments[0] );
 	}
-	if (self->arguments[1].evaluated) {
-		self->arguments[1].evaluate( &(self->arguments[1]) );
+	if (nodes[ nodes[self].arguments[1] ].evaluated) {
+		nodes[ nodes[self].arguments[1] ].evaluate( nodes[self].arguments[1] );
 	}
 }
 
 
-void eval_add(node *self) {
+void eval_add(uint self) {
 	getBothArgs(self);
-	self->output.n
-		= self->arguments[0].output.n
-		+ self->arguments[1].output.n
+	nodes[self].output.n
+		= nodes[ nodes[self].arguments[0] ].output.n
+		+ nodes[ nodes[self].arguments[1] ].output.n
 	;
 }
-void eval_sub(node *self) {
+void eval_sub(uint self) {
 	getBothArgs(self);
-	self->output.n
-		= self->arguments[0].output.n
-		- self->arguments[1].output.n
+	nodes[self].output.n
+		= nodes[ nodes[self].arguments[0] ].output.n
+		- nodes[ nodes[self].arguments[1] ].output.n
 	;
 }
-void eval_mul(node *self) {
+void eval_mul(uint self) {
 	getBothArgs(self);
-	self->output.n
-		= self->arguments[0].output.n
-		* self->arguments[1].output.n
+	nodes[self].output.n
+		= nodes[ nodes[self].arguments[0] ].output.n
+		* nodes[ nodes[self].arguments[1] ].output.n
 	;
 }
-void eval_div(node *self) {
+void eval_div(uint self) {
 	getBothArgs(self);
-	self->output.n
-		= self->arguments[0].output.n
-		/ self->arguments[1].output.n
+	nodes[self].output.n
+		= nodes[ nodes[self].arguments[0] ].output.n
+		/ nodes[ nodes[self].arguments[1] ].output.n
 	;
 }
 

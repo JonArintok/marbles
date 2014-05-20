@@ -1,11 +1,8 @@
 
 
-#define maxTokenLength  120
-#define rootNodePageSize  20
-#define commentChar  '/'
-
 FILE *fileStream;
 char  fileChar;
+#define maxTokenLength 80
 char  tokenBuf[maxTokenLength];
 uint  expectedIndentation;
 uint  currentLine = 1;
@@ -13,19 +10,24 @@ uint  currentLine = 1;
 int   reachedEOF = 0;
 int   noErrors = 1;
 
+uint  currentNode = 0;
+#define rootNodePageSize 20
+uint  rootNodes[rootNodePageSize];
+uint  currentRootNode = 0;
 
-node *lookupNode(char *nameIn) {
+#define commentChar  '/'
+
+
+int  lookupNode(char *nameIn) {
 	uint i=0;
 	for (; i<stdNodeTableLength; i++)
 		if (!( strcmp(stdNodeTable[i].name, nameIn) ))
-			return &stdNodeTable[i];
+			return i;
 	noErrors = 0;
-	return NULL;
+	return -1;
 }
 
-void  getArgs(node *parent);
-
-void getNode(node *destination) {
+void  getNode() {
 	
 	uint tokenCharIndex = 0;
 	for (;; tokenCharIndex++) {
@@ -87,7 +89,6 @@ void getNode(node *destination) {
 					}
 				}
 			}
-			
 			currentLine++;
 			break;
 		}
@@ -104,7 +105,6 @@ void getNode(node *destination) {
 		return;
 	}
 	
-	node *nodeToGet;
 	
 	if (tokenBuf[0] >= '0'  &&  tokenBuf[0] <= '9') {
 		//make sure it's a valid number
@@ -130,14 +130,15 @@ void getNode(node *destination) {
 			}
 		}
 		
-		*destination = node_numLit;
-		sscanf(tokenBuf, "%lf", &destination->output.n);
+		nodes[currentNode] = node_numLit;
+		sscanf(tokenBuf, "%lf", &nodes[currentNode].output.n);
+		currentNode++;
+		// reallocate the nodes to a larger array if necessary
 		return;
 	}
 	
-	nodeToGet = lookupNode(tokenBuf);
-	
-	if (nodeToGet == NULL) {
+	int nodeToGet = lookupNode(tokenBuf);
+	if (nodeToGet == -1) {
 		noErrors = 0;
 		printf(
 			"error: '%s' at line %d is not recognized\n", 
@@ -146,36 +147,41 @@ void getNode(node *destination) {
 		return;
 	}
 	
-	*destination = *nodeToGet;
-	if (destination->arity) {
-		destination->arguments = malloc(sizeof(node)*destination->arity);
-		getArgs(destination);
-	}
+	nodes[currentNode] = stdNodeTable[nodeToGet];
 	
+	
+	// get arguments, if any
+	if (nodes[currentNode].arity) {
+		uint parentIndex = currentNode;
+		currentNode++;
+		expectedIndentation++;
+		uint indentation = 0;
+		uint currentArg = 0;
+		for (; currentArg < nodes[parentIndex].arity; currentArg++) {
+			indentation = 0;
+			while (indentation < expectedIndentation) {
+				fileChar = fgetc(fileStream);		
+				if (fileChar == '\t') 
+					indentation++;
+				else if (fileChar == EOF) {
+					reachedEOF = 1;
+					printf("error: file ended unexpectadly at line %d\n", currentLine);
+					return;
+				}
+				else {
+					printf("error: line %d, under-indented\n", currentLine);
+					return;
+				}
+			}
+			nodes[parentIndex].arguments[currentArg] = currentNode;
+			getNode();
+			//check that the node is of the requiredType
+		}
+		expectedIndentation--;
+	}
+	else currentNode++;
+	
+	// reallocate the nodes to a larger array if necessary
 }
 
-void getArgs(node *parent) {
-	expectedIndentation++;
-	uint indentation = 0;
-	uint currentArg = 0;
-	for (; currentArg < parent->arity; currentArg++) {
-		indentation = 0;
-		while (indentation < expectedIndentation) {
-			fileChar = fgetc(fileStream);		
-			if (fileChar == '\t') 
-				indentation++;
-			else if (fileChar == EOF) {
-				reachedEOF = 1;
-				printf("error: file ended unexpectadly at line %d\n", currentLine);
-				return;
-			}
-			else {
-				printf("error: line %d, under-indented\n", currentLine);
-				return;
-			}
-		}
-		getNode(&parent->arguments[currentArg]);
-		//check that the node is of the requiredType
-	}
-	expectedIndentation--;
-}
+

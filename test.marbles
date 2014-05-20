@@ -17,3 +17,18 @@ mul
 mul
 	1
 	0.5
+
+
+/now let's test variables
+/2
+//num  foo
+//	42
+
+/3
+//div
+//	foo
+//	2
+
+
+
+
