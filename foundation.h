@@ -26,7 +26,7 @@ typedef struct node {
 	char      *typeString;
 	char       evaluated;
 	uint8_t    arity;
-	uint8_t    arguments[maxArity];
+	uint16_t   arguments[maxArity];
 	evaluator  evaluate;
 	UOE        output;
 } node;
