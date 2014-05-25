@@ -7,8 +7,8 @@ char  tokenBuf[maxTokenLength];
 uint  expectedIndentation;
 uint  currentLine = 1;
 
-int   reachedEOF = 0;
-int   noErrors = 1;
+bool   reachedEOF = false;
+bool   noErrors = true;
 
 uint  currentNode = 0;
 #define rootNodePageSize 20
@@ -23,7 +23,7 @@ int  lookupNode(char *nameIn) {
 	for (; i<stdNodeTableLength; i++)
 		if (!( strcmp(stdNodeTable[i].name, nameIn) ))
 			return i;
-	noErrors = 0;
+	noErrors = false;
 	return -1;
 }
 
@@ -32,7 +32,7 @@ void  getNode() {
 	uint tokenCharIndex = 0;
 	for (;; tokenCharIndex++) {
 		if (tokenCharIndex == maxTokenLength) {
-			noErrors = 0;
+			noErrors = false;
 			printf(
 				"error: token at line %d exceeds maxTokenLength\n", 
 				currentLine
@@ -43,20 +43,20 @@ void  getNode() {
 		fileChar = fgetc(fileStream);
 		
 		if (!tokenCharIndex  &&  fileChar == ' ') {
-			noErrors = 0;
+			noErrors = false;
 			printf("error: leading space at line %d\n", currentLine);
 			return;
 		}
 		else if (fileChar == EOF) {
-			reachedEOF = 1;
+			reachedEOF = true;
 			if (expectedIndentation > 0) {
-				noErrors = 0;
+				noErrors = false;
 				printf("error: file ended unexpectadly at line %d\n", currentLine);
 			}
 			return;
 		}
 		else if (fileChar == '\t') {
-			noErrors = 0;
+			noErrors = false;
 			printf("error: line %d is over-indented\n", currentLine);
 			return;
 		}
@@ -80,9 +80,9 @@ void  getNode() {
 					if (fileChar == '\n')
 						break;
 					if (fileChar == EOF) {
-						reachedEOF = 1;
+						reachedEOF = true;
 						if (expectedIndentation > 0) {
-							noErrors = 0;
+							noErrors = false;
 							printf("error: file ended unexpectadly at line %d\n", currentLine);
 						}
 						return;
@@ -99,7 +99,7 @@ void  getNode() {
 	if (tokenBuf[0] == '\0') {
 		//if it was not at the root level
 		if (expectedIndentation > 0) {
-			noErrors = 0;
+			noErrors = false;
 			printf("error: expected an argument at line %d\n", currentLine-1);
 		}
 		return;
@@ -121,7 +121,7 @@ void  getNode() {
 					tokenBuf[tokenCharIndex] > '9'
 				) && tokenBuf[tokenCharIndex] != '.'
 			) {
-				noErrors = 0;
+				noErrors = false;
 				printf(
 					"error: invalid number literal '%s' at line %d\n",
 					tokenBuf, currentLine-1
@@ -139,7 +139,7 @@ void  getNode() {
 	
 	int nodeToGet = lookupNode(tokenBuf);
 	if (nodeToGet == -1) {
-		noErrors = 0;
+		noErrors = false;
 		printf(
 			"error: '%s' at line %d is not recognized\n", 
 			tokenBuf, currentLine
@@ -164,7 +164,7 @@ void  getNode() {
 				if (fileChar == '\t') 
 					indentation++;
 				else if (fileChar == EOF) {
-					reachedEOF = 1;
+					reachedEOF = true;
 					printf("error: file ended unexpectadly at line %d\n", currentLine);
 					return;
 				}

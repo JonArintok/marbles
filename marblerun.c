@@ -11,19 +11,8 @@
 
 
 
-//void freeArgs(node *toBeFreed) {
-//	if (toBeFreed->arity) {
-//		uint i = 0;
-//		for (; i < toBeFreed->arity; i++)
-//			freeArgs(&toBeFreed->arguments[i]);
-//		free(toBeFreed->arguments);
-//	}
-//}
-//
 //void cleanUp(void) {
-//	uint i = 0;
-//	for (; i<currentRootNode; i++)
-//		freeArgs(&rootNodes[i]);
+//	
 //}
 
 
@@ -41,7 +30,7 @@ int main(int argc, char **argv) {
 	
 	buildStdNodeTable();
 	
-	while (1) {
+	while (true) {
 		
 		rootNodes[currentRootNode] = currentNode;
 		
