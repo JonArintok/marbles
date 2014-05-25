@@ -1,26 +1,25 @@
 
 
-FILE *fileStream;
-char  fileChar;
-#define maxTokenLength 80
-char  tokenBuf[maxTokenLength];
-uint  expectedIndentation;
-uint  currentLine = 1;
+FILE     *fileStream;
+char      fileChar;
+#define   maxTokenLength 80
+char      tokenBuf[maxTokenLength];
+uint8_t   expectedIndentation;
+uint32_t  currentLine = 1;
 
-bool   reachedEOF = false;
-bool   noErrors = true;
+bool      reachedEOF = false;
+bool      noErrors = true;
 
-uint  currentNode = 0;
-#define rootNodePageSize 20
-uint  rootNodes[rootNodePageSize];
-uint  currentRootNode = 0;
+uint32_t  currentNode = 0;
+#define   rootNodePageSize 20
+uint32_t  rootNodes[rootNodePageSize];
+uint32_t  currentRootNode = 0;
 
 #define commentChar  '/'
 
 
 int  lookupNode(char *nameIn) {
-	uint i=0;
-	for (; i<stdNodeTableLength; i++)
+	for (uint32_t i=0; i<stdNodeTableLength; i++)
 		if (!( strcmp(stdNodeTable[i].name, nameIn) ))
 			return i;
 	noErrors = false;
@@ -29,7 +28,7 @@ int  lookupNode(char *nameIn) {
 
 void  getNode() {
 	
-	uint tokenCharIndex = 0;
+	uint32_t tokenCharIndex = 0;
 	for (;; tokenCharIndex++) {
 		if (tokenCharIndex == maxTokenLength) {
 			noErrors = false;
@@ -66,7 +65,7 @@ void  getNode() {
 			
 			//remove trailing whitespace, if any
 			if (tokenCharIndex > 1) {
-				uint backstep = 1;
+				uint32_t backstep = 1;
 				while (tokenBuf[tokenCharIndex-backstep] == ' ') {
 					tokenBuf[tokenCharIndex-backstep] = '\0';
 					backstep++;
@@ -152,11 +151,11 @@ void  getNode() {
 	
 	// get arguments, if any
 	if (nodes[currentNode].arity) {
-		uint parentIndex = currentNode;
+		uint32_t parentIndex = currentNode;
 		currentNode++;
 		expectedIndentation++;
-		uint indentation = 0;
-		uint currentArg = 0;
+		uint32_t indentation = 0;
+		uint32_t currentArg = 0;
 		for (; currentArg < nodes[parentIndex].arity; currentArg++) {
 			indentation = 0;
 			while (indentation < expectedIndentation) {

@@ -3,6 +3,8 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <stdint.h>
+#include <stdbool.h>
 
 #include "foundation.h"
 #include "arithmetic.h"
@@ -51,8 +53,8 @@ int main(int argc, char **argv) {
 	
 	if (noErrors) {
 		puts("results:");
-		uint i = 0;
-		for (; i<currentRootNode; i++) {
+		
+		for (uint32_t i = 0; i<currentRootNode; i++) {
 			nodes[rootNodes[i]].evaluate(rootNodes[i]);
 			printf("  %2d: %9.3f\n", i, nodes[rootNodes[i]].output.n);
 		}

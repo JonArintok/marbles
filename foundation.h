@@ -1,6 +1,4 @@
 
-#include <stdint.h>
-#include <stdbool.h>
 
 #define maxArity 8
 
@@ -21,7 +19,7 @@ typedef union {
 	array      N;//number array
 	nodeArray  F;//function array
 } UOE;         //union of everything
-typedef void (*evaluator)(uint);
+typedef void (*evaluator)(uint32_t);
 typedef struct node {
 	char      *name;
 	char      *typeString;

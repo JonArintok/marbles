@@ -54,8 +54,7 @@ node stdNodeTable[stdNodeTableLength];
 
 int buildStdNodeTable(void) {
 	
-	uint i = 0;
-	for (; i<nodePageSize; i++) {
+	for (uint32_t i = 0; i<nodePageSize; i++) {
 		nodes[i].name = "empty";
 	}
 	
