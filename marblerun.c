@@ -7,7 +7,7 @@
 #include <stdbool.h>
 
 #include "foundation.h"
-#include "arithmetic.h"
+#include "evaluate.h"
 #include "stdNodeTable.h"
 #include "parse.h"
 
@@ -55,7 +55,7 @@ int main(int argc, char **argv) {
 		puts("results:");
 		
 		for (uint32_t i = 0; i<currentRootNode; i++) {
-			nodes[rootNodes[i]].evaluate(rootNodes[i]);
+			evaluate( rootNodes[i] );
 			printf("  %2d: %9.3f\n", i, nodes[rootNodes[i]].output.n);
 		}
 	}
@@ -63,7 +63,4 @@ int main(int argc, char **argv) {
 	//cleanUp();
 	return 0;
 }
-
-
-
 

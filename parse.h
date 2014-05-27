@@ -104,7 +104,7 @@ void  getNode() {
 		return;
 	}
 	
-	
+	//check for number literal
 	if (tokenBuf[0] >= '0'  &&  tokenBuf[0] <= '9') {
 		//make sure it's a valid number
 		for (
