@@ -16,7 +16,7 @@ nodeIndex rootNodes[rootNodePageSize];
 typedef uint32_t rootNodeIndex;
 rootNodeIndex  currentRootNode = 0;
 
-#define commentChar  '/'
+#define commentChar  '`'
 
 
 int  lookupNode(char *nameIn) {

@@ -1,10 +1,10 @@
-/This is a test
+`This is a test
 
-/0
+`0
 mul
 	1.5
 	add
-		sub     /in line comment
+		sub     `in line comment
 			60
 			10
 		mul
@@ -13,21 +13,21 @@ mul
 				75
 				3
 
-/1
+`1
 mul
 	1
 	0.5
 
 
-/now let's test variables
-/2
-//num  foo
-//	42
+`now let's test variables
+`2
+``num  foo
+``	42
 
-/3
-//div
-//	foo
-//	2
+`3
+``div
+``	foo
+``	2
 
 
 
