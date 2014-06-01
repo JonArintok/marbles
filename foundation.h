@@ -2,37 +2,41 @@
 
 #define maxArity 8
 
+typedef uint32_t nodeIndex;
+typedef double   number;
 //byte
 //byte array
 typedef struct {
-	double    *data;
+	number    *data;
 	uint32_t   dimensionality;
 	uint32_t  *dimensions;
 	//transformation stack
-} array;
+} numArray;
 struct node;
 typedef struct {
-	uint32_t  *data;
+	nodeIndex *data;
 	uint32_t   dimensionality;
 	uint32_t  *dimensions;
 	//transformation stack
 } nodeArray;
 typedef union {
-	double     n;//number
-	uint32_t   f;//function
-	array      N;//number array
+	number     n;//number
+	nodeIndex  f;//function
+	numArray   N;//number array
 	nodeArray  F;//function array
 } UOE;         //union of everything
+typedef void (*evaluator)(nodeIndex toBeEvaluated);
 typedef struct node {
-	int        nodeID;
+	//int        nodeID;
 	char      *name;
-	char      *typeString;
+	char      *inTypeString;
+	char      *outTypeString;
 	uint8_t    arity;
 	uint16_t   arguments[maxArity];
+	evaluator  evaluate;
 	UOE        output;
 } node;
 
 
 #define nodePageSize 100
 node  nodes[nodePageSize];
-

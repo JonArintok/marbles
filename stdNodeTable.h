@@ -1,44 +1,54 @@
 
 
 const node node_numLit = {
-	.nodeID     = dex_numLit,
-	.name       = "numLit",
-	.typeString = "n",
-	.arity      = 0,
-	.arguments  = {},
-	.output.n   = 0
+	//.nodeID     = ID_numLit,
+	.name          = "numLit",
+	.inTypeString  = "",
+	.outTypeString = "num",
+	.arity         = 0,
+	.arguments     = {},
+	.evaluate      = eval_numLit,
+	.output.n      = 0
 };
 const node node_add = {
-	.nodeID     = dex_add,
-	.name       = "add",
-	.typeString = "nnn",
-	.arity      = 2,
-	.arguments  = {},
-	.output.n   = 0
+	//.nodeID     = ID_add,
+	.name          = "add",
+	.inTypeString  = "num\nnum",
+	.outTypeString = "num",
+	.arity         = 2,
+	.arguments     = {},
+	.evaluate      = eval_add,
+	.output.n      = 0
 };
 const node node_sub = {
-	.nodeID     = dex_sub,
-	.name       = "sub",
-	.typeString = "nnn",
-	.arity      = 2,
-	.arguments  = {},
-	.output.n   = 0
+	//.nodeID     = ID_sub,
+	.name          = "sub",
+	.inTypeString  = "num\nnum",
+	.outTypeString = "num",
+	.arity         = 2,
+	.arguments     = {},
+	.evaluate      = eval_sub,
+	.output.n      = 0
 };
 const node node_mul = {
-	.nodeID     = dex_mul,
-	.name       = "mul",
-	.typeString = "nnn",
-	.arity      = 2,
-	.arguments  = {},
-	.output.n   = 0
+	//.nodeID     = ID_mul,
+	.name          = "mul",
+	.inTypeString  = "num\nnum",
+	.outTypeString = "num",
+	.arity         = 2,
+	.arguments     = {},
+	.evaluate      = eval_mul,
+	.output.n      = 0
 };
 const node node_div = {
-	.nodeID     = dex_div,
-	.name       = "div",
-	.typeString = "nnn",
-	.arity      = 2,
-	.arguments  = {},
-	.output.n   = 0
+	//.nodeID     = ID_div,
+	.name          = "div",
+	.inTypeString  = "num\nnum",
+	.outTypeString = "num",
+	.arity         = 2,
+	.arguments     = {},
+	.evaluate      = eval_div,
+	.output.n      = 0
 };
 
 
@@ -47,15 +57,15 @@ node stdNodeTable[stdNodeTableLength];
 
 int buildStdNodeTable(void) {
 	
-	for (uint32_t i = 0; i<nodePageSize; i++) {
+	for (int i = 0; i<nodePageSize; i++) {
 		nodes[i].name = "empty";
 	}
 	
-	stdNodeTable[dex_numLit] = node_numLit;
-	stdNodeTable[dex_add] = node_add;
-	stdNodeTable[dex_sub] = node_sub;
-	stdNodeTable[dex_mul] = node_mul;
-	stdNodeTable[dex_div] = node_div;
+	stdNodeTable[0] = node_numLit;
+	stdNodeTable[1] = node_add;
+	stdNodeTable[2] = node_sub;
+	stdNodeTable[3] = node_mul;
+	stdNodeTable[4] = node_div;
 	return 0;
 }
 

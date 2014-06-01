@@ -10,16 +10,17 @@ uint32_t  currentLine = 1;
 bool      reachedEOF = false;
 bool      noErrors = true;
 
-uint32_t  currentNode = 0;
+nodeIndex currentNode = 0;
 #define   rootNodePageSize 20
-uint32_t  rootNodes[rootNodePageSize];
-uint32_t  currentRootNode = 0;
+nodeIndex rootNodes[rootNodePageSize];
+typedef uint32_t rootNodeIndex;
+rootNodeIndex  currentRootNode = 0;
 
 #define commentChar  '/'
 
 
 int  lookupNode(char *nameIn) {
-	for (uint32_t i=0; i<stdNodeTableLength; i++)
+	for (int i=0; i<stdNodeTableLength; i++)
 		if (!( strcmp(stdNodeTable[i].name, nameIn) ))
 			return i;
 	noErrors = false;
@@ -28,7 +29,7 @@ int  lookupNode(char *nameIn) {
 
 void  getNode() {
 	
-	uint32_t tokenCharIndex = 0;
+	int tokenCharIndex = 0;
 	for (;; tokenCharIndex++) {
 		if (tokenCharIndex == maxTokenLength) {
 			noErrors = false;
@@ -65,7 +66,7 @@ void  getNode() {
 			
 			//remove trailing whitespace, if any
 			if (tokenCharIndex > 1) {
-				uint32_t backstep = 1;
+				int backstep = 1;
 				while (tokenBuf[tokenCharIndex-backstep] == ' ') {
 					tokenBuf[tokenCharIndex-backstep] = '\0';
 					backstep++;
@@ -151,12 +152,12 @@ void  getNode() {
 	
 	// get arguments, if any
 	if (nodes[currentNode].arity) {
-		uint32_t parentIndex = currentNode;
+		nodeIndex parent = currentNode;
 		currentNode++;
 		expectedIndentation++;
-		uint32_t indentation = 0;
-		uint32_t currentArg = 0;
-		for (; currentArg < nodes[parentIndex].arity; currentArg++) {
+		int indentation = 0;
+		nodeIndex currentArg = 0;
+		for (; currentArg < nodes[parent].arity; currentArg++) {
 			indentation = 0;
 			while (indentation < expectedIndentation) {
 				fileChar = fgetc(fileStream);		
@@ -172,7 +173,7 @@ void  getNode() {
 					return;
 				}
 			}
-			nodes[parentIndex].arguments[currentArg] = currentNode;
+			nodes[parent].arguments[currentArg] = currentNode;
 			getNode();
 			//check that the node is of the requiredType
 		}

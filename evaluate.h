@@ -1,49 +1,73 @@
 
-enum {
-	dex_numLit,
-	dex_add,
-	dex_sub,
-	dex_mul,
-	dex_div
+
+void evaluateBranch(nodeIndex toBeEvaluated) {
+	for (int i=0; i < nodes[toBeEvaluated].arity; i++)
+		evaluateBranch( nodes[toBeEvaluated].arguments[i] );
+	nodes[toBeEvaluated].evaluate(toBeEvaluated);
+}
+
+
+void eval_numLit(nodeIndex self) {}
+
+void eval_add(nodeIndex self) {
+	nodes[self].output.n
+		= nodes[ nodes[self].arguments[0] ].output.n
+		+ nodes[ nodes[self].arguments[1] ].output.n
+	;
+}
+void eval_sub(nodeIndex self) {
+	nodes[self].output.n
+		= nodes[ nodes[self].arguments[0] ].output.n
+		- nodes[ nodes[self].arguments[1] ].output.n
+	;
+}
+void eval_mul(nodeIndex self) {
+	nodes[self].output.n
+		= nodes[ nodes[self].arguments[0] ].output.n
+		* nodes[ nodes[self].arguments[1] ].output.n
+	;
+}
+void eval_div(nodeIndex self) {
+	nodes[self].output.n
+		= nodes[ nodes[self].arguments[0] ].output.n
+		/ nodes[ nodes[self].arguments[1] ].output.n
+	;
+}
+
+/*
+
+
+typedef struct stackthing {
+	uint32_t  fnDef;
+	uint32_t  callSource;
 };
 
-void evaluate(uint32_t toBeEvaluated) {
-	//if toBeEvaluated is > stdNodeTableLength, 
-	//then toBeEvaluated-stdNodeTableLength is the index of
-	//the user defined function in usrNodeTable to be evaluated.
-	//else...
-	for (uint32_t i=0; i < nodes[toBeEvaluated].arity; i++) {
-		evaluate( nodes[toBeEvaluated].arguments[i] );
-	}
-	switch (nodes[toBeEvaluated].nodeID) {
-		case dex_numLit:
-			break;
-		case dex_add:
-			nodes[toBeEvaluated].output.n
-				= nodes[ nodes[toBeEvaluated].arguments[0] ].output.n
-				+ nodes[ nodes[toBeEvaluated].arguments[1] ].output.n
-			;
-			break;
-		case dex_sub:
-			nodes[toBeEvaluated].output.n
-				= nodes[ nodes[toBeEvaluated].arguments[0] ].output.n
-				- nodes[ nodes[toBeEvaluated].arguments[1] ].output.n
-			;
-			break;
-		case dex_mul:
-			nodes[toBeEvaluated].output.n
-				= nodes[ nodes[toBeEvaluated].arguments[0] ].output.n
-				* nodes[ nodes[toBeEvaluated].arguments[1] ].output.n
-			;
-			break;
-		case dex_div:
-			nodes[toBeEvaluated].output.n
-				= nodes[ nodes[toBeEvaluated].arguments[0] ].output.n
-				/ nodes[ nodes[toBeEvaluated].arguments[1] ].output.n
-			;
-			break;
-		default:
-			printf("evaluate defaulted! toBeEvaluated: %d\n", toBeEvaluated);
-	}
-}
+#define stacksize
+stackthing stack[stacksize]
+uint32_t stackPos;
+
+
+
+eval_varCall
+	//nothing to do, value only ever changes between frames or on edit
+
+
+eval_fnCall
+	
+	push the stack
+	if there are arguments, evaluate them
+	evaluate the function
+	pop the stack
+	
+
+
+
+eval_argCall
+	
+	refer to the stack
+	
+
+
+
+*/
 

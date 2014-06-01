@@ -54,8 +54,8 @@ int main(int argc, char **argv) {
 	if (noErrors) {
 		puts("results:");
 		
-		for (uint32_t i = 0; i<currentRootNode; i++) {
-			evaluate( rootNodes[i] );
+		for (int i = 0; i<currentRootNode; i++) {
+			evaluateBranch( rootNodes[i] );
 			printf("  %2d: %9.3f\n", i, nodes[rootNodes[i]].output.n);
 		}
 	}

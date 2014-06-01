@@ -1,4 +1,4 @@
 marbles
 =======
 
-implementation and specification of marbles programming language
+standard implementation of marbles programming language
