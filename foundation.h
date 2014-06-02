@@ -37,6 +37,50 @@ typedef struct node {
 	UOE        output;
 } node;
 
-
 #define nodePageSize 100
 node  nodes[nodePageSize];
+
+
+void evaluateBranch(nodeIndex toBeEvaluated) {
+	for (int i=0; i < nodes[toBeEvaluated].arity; i++)
+		evaluateBranch( nodes[toBeEvaluated].arguments[i] );
+	nodes[toBeEvaluated].evaluate(toBeEvaluated);
+}
+
+
+/*
+
+
+typedef struct stackthing {
+	uint32_t  fnDef;
+	uint32_t  callSource;
+};
+
+#define stacksize
+stackthing stack[stacksize]
+uint32_t stackPos;
+
+
+
+eval_varCall
+	//nothing to do, value only ever changes between frames or on edit
+
+
+eval_fnCall
+	
+	push the stack
+	if there are arguments, evaluate them
+	evaluate the function
+	pop the stack
+	
+
+
+
+eval_argCall
+	
+	refer to the stack
+
+
+
+*/
+

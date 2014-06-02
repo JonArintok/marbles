@@ -21,7 +21,7 @@ rootNodeIndex  currentRootNode = 0;
 
 int  lookupNode(char *nameIn) {
 	for (int i=0; i<stdNodeTableLength; i++)
-		if (!( strcmp(stdNodeTable[i].name, nameIn) ))
+		if (!( strcmp(stdNodeTable[i]->name, nameIn) ))
 			return i;
 	noErrors = false;
 	return -1;
@@ -147,7 +147,7 @@ void  getNode() {
 		return;
 	}
 	
-	nodes[currentNode] = stdNodeTable[nodeToGet];
+	nodes[currentNode] = *stdNodeTable[nodeToGet];
 	
 	
 	// get arguments, if any

@@ -7,7 +7,7 @@
 #include <stdbool.h>
 
 #include "foundation.h"
-#include "evaluate.h"
+//#include "evaluate.h"
 #include "stdNodeTable.h"
 #include "parse.h"
 
@@ -30,7 +30,10 @@ int main(int argc, char **argv) {
 		return 2;
 	}
 	
-	buildStdNodeTable();
+	//initialize nodes[]
+	for (int i = 0; i<nodePageSize; i++) {
+		nodes[i].name = "empty";
+	}
 	
 	while (true) {
 		
