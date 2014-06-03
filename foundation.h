@@ -27,7 +27,6 @@ typedef union {
 } UOE;         //union of everything
 typedef void (*evaluator)(nodeIndex toBeEvaluated);
 typedef struct node {
-	//int        nodeID;
 	char      *name;
 	char      *inTypeString;
 	char      *outTypeString;
