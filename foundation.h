@@ -1,6 +1,10 @@
 
 
-#define maxArity 8
+#define maxArity         8
+#define nodePageSize   100
+#define stackSize     1000
+#define maxFrameHeads  100
+
 
 typedef uint32_t nodeIndex;
 typedef double   number;
@@ -29,6 +33,7 @@ typedef void (*evaluator)(nodeIndex toBeEvaluated);
 typedef struct node {
 	char      *name;
 	char      *inTypeString;
+	char      *argString;
 	char      *outTypeString;
 	uint8_t    arity;
 	uint16_t   arguments[maxArity];
@@ -36,7 +41,6 @@ typedef struct node {
 	UOE        output;
 } node;
 
-#define nodePageSize 100
 node  nodes[nodePageSize];
 
 
@@ -47,39 +51,47 @@ void evaluateBranch(nodeIndex toBeEvaluated) {
 }
 
 
-/*
+
 
 
 typedef struct stackthing {
-	uint32_t  fnDef;
-	uint32_t  callSource;
+	nodeIndex  fnDef;
+	nodeIndex  callSource;
 };
 
-#define stacksize
-stackthing stack[stacksize]
+stackthing stack[stackSize]
 uint32_t stackPos;
 
 
 
-eval_varCall
-	//nothing to do, value only ever changes between frames or on edit
+void eval_varCall(nodeIndex self) {}
 
 
-eval_fnCall
+void eval_fnCall(nodeIndex self) {
 	
-	push the stack
-	if there are arguments, evaluate them
-	evaluate the function
-	pop the stack
-	
+	//push the stack
+	//if there are arguments, evaluate them
+	//evaluate the function
+	//pop the stack
+}
+
+void eval_argCall(nodeIndex self) {
+	//refer to the stack
+}
+
+void eval_State(nodeIndex self) {}
 
 
+typedef struct task {
+	int ID;
+};//not completely sure exactly what this is yet
+typedef struct frameHead {
+	char       name;
+	nodeIndex  beginning;
+	int        length;
+	task      *tasks;
+	UOE       *outputs;
+};
 
-eval_argCall
-	
-	refer to the stack
-
-
-
-*/
+frameHead frameHeads[maxFrameHeads];
 

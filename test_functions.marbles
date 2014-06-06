@@ -4,9 +4,8 @@ num  foo
 	34
 
 fn  add 2 mul 2
-	num in
-	is
-	num
+	num  in
+	is  num
 	mul
 		2
 		add
@@ -18,8 +17,7 @@ fn  do to it
 		num
 		num
 	num  with this
-	is
-	num
+	is  num
 	do this
 		with this
 
@@ -36,5 +34,4 @@ num  out B
 		add 2 mul 2
 			foo         ` should be 148
 
-END FRAME
 

@@ -4,6 +4,7 @@ void eval_numLit(nodeIndex self) {}
 const node node_numLit = {
 	.name          = "numLit",
 	.inTypeString  = "",
+	.argString     = "",
 	.outTypeString = "num",
 	.arity         = 0,
 	.arguments     = {},
@@ -21,6 +22,7 @@ void eval_add(nodeIndex self) {
 const node node_add = {
 	.name          = "add",
 	.inTypeString  = "num\nnum",
+	.argString     = "a\nb",
 	.outTypeString = "num",
 	.arity         = 2,
 	.arguments     = {},
@@ -38,6 +40,7 @@ void eval_sub(nodeIndex self) {
 const node node_sub = {
 	.name          = "sub",
 	.inTypeString  = "num\nnum",
+	.argString     = "a\nb",
 	.outTypeString = "num",
 	.arity         = 2,
 	.arguments     = {},
@@ -55,6 +58,7 @@ void eval_mul(nodeIndex self) {
 const node node_mul = {
 	.name          = "mul",
 	.inTypeString  = "num\nnum",
+	.argString     = "a\nb",
 	.outTypeString = "num",
 	.arity         = 2,
 	.arguments     = {},
@@ -72,6 +76,7 @@ void eval_div(nodeIndex self) {
 const node node_div = {
 	.name          = "div",
 	.inTypeString  = "num\nnum",
+	.argString     = "a\nb",
 	.outTypeString = "num",
 	.arity         = 2,
 	.arguments     = {},

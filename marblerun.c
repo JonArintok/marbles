@@ -7,7 +7,6 @@
 #include <stdbool.h>
 
 #include "foundation.h"
-//#include "evaluate.h"
 #include "stdNodeTable.h"
 #include "parse.h"
 
