@@ -18,26 +18,62 @@
 int main(void) {
 	
 	
+	//num  foo
+	nodes[0] = node_num_varDef;
+	nodes[0].name == "num  foo";
 	
-	nodes[0] = {
-		.name          = "foo",
-		.inTypeString  = "",
-		.outTypeString = "num",
-		.arity         = 0,
-		.arguments     = {},
-		.evaluate      = eval_varCall,
-		.output.n      = 34
-	};
-	nodes[???] = {
-		.name          = "add 2 mul 2",
+	//	34
+	nodes[1] = node_numLit;
+	nodes[1].output.n = 34;
+	
+	
+	
+	//fn  add 2 mul 2
+	nodes[2] = {
+		.name          = "fn  add 2 mul 2",
 		.inTypeString  = "num",
-		.argString     = "i",
+		.argString     = "in",
 		.outTypeString = "num",
 		.arity         = 1,
-		.arguments     = {},
-		.evaluate      = eval_fnCall,
+		.arguments     = {3},
+		.evaluate      = eval_fnDef,
 		.output.n      = 0
 	};
+	
+	//	mul
+	nodes[3] = node_mul;
+	nodes[3].arguments[0] = 4;// = {4,5};
+	nodes[3].arguments[1] = 5;
+	
+	//		2
+	nodes[4] = node_numLit;
+	nodes[4].output.n = 2;
+	
+	//		add
+	nodes[5] = node_add;
+	nodes[5].arguments[0] = 6;
+	nodes[5].arguments[1] = 7;
+	
+	//			2
+	nodes[6] = node_numLit;
+	nodes[6].output.n = 2;
+	
+	//			in
+	nodes[7] = 
+	
+	
+	
+	
+	
+	return 0;
+}
+
+
+
+/*
+
+
+	//fn  do to it
 	nodes[???] = {
 		.name          = "do to it",
 		.inTypeString  = "fn\n\tnum\n\tnum\nnum",
@@ -48,41 +84,7 @@ int main(void) {
 		.evaluate      = eval_fnCall,
 		.output.n      = 0
 	};
-	
-	
-	
-	
 
-	frameHead frameHeads[0] = {
-		.name       = "main",
-		.beginning  = ???,
-		.length     = 2,
-		.tasks      = ,
-		.outputs    = 
-	};
-	
-	
-	nodes[???] = {
-		.name          = "out A",
-		.inTypeString  = "num",
-		.outTypeString = "num",
-		.arity         = 1,
-		.arguments     = {},
-		.evaluate      = eval_State,
-		.output.n      = 0
-	};
-	nodes[???] = {
-		.name          = "out B",
-		.inTypeString  = "num",
-		.outTypeString = "num",
-		.arity         = 1,
-		.arguments     = {},
-		.evaluate      = eval_State,
-		.output.n      = 0
-	};
-	
-	
-	
-	return 0;
-}
+
+*/
 

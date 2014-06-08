@@ -12,26 +12,29 @@ fn  add 2 mul 2
 			2
 			in
 
-fn  do to it
-	fn  do this
-		num
-		num
-	num  with this
-	is  num
-	do this
-		with this
+
+``fn  do to it
+``	fn  do this
+``		num
+``		num
+``	num  with this
+``	is  num
+``	do this
+``		with this
 
 
 FRAME  main
 
+`should be 72
 num  out A
 	add 2 mul 2
-		foo           ` should be 72
+		foo
 
-num  out B
-	do to it
-		:add 2 mul 2
-		add 2 mul 2
-			foo         ` should be 148
+`should be 148
+``num  out B
+``	do to it
+``		:add 2 mul 2
+``		add 2 mul 2
+``			foo
 
 

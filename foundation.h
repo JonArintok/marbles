@@ -35,11 +35,12 @@ typedef struct node {
 	char      *inTypeString;
 	char      *argString;
 	char      *outTypeString;
+	nodeIndex  definition;
 	uint8_t    arity;
 	uint16_t   arguments[maxArity];
 	evaluator  evaluate;
 	UOE        output;
-} node;
+};
 
 node  nodes[nodePageSize];
 
@@ -64,11 +65,30 @@ uint32_t stackPos;
 
 
 
-void eval_varCall(nodeIndex self) {}
+
+void eval_varDef(nodeIndex self) {
+	//only reevaluate upon live source edit
+}
+const node node_num_vardef = {
+	.name          = "num  foo",
+	.inTypeString  = "num",
+	.outTypeString = "num",
+	.arity         = 1,
+	.arguments     = {1},
+	.evaluate      = eval_varDef,
+	.output.n      = 0
+};
+
+void eval_varCall(nodeIndex self) {
+	//refer to the varDef
+}
 
 
-void eval_fnCall(nodeIndex self) {
-	
+void eval_fnDef(nodeIndex self) {	
+	//only reevaluate upon live source edit
+}
+
+void eval_fnCall(nodeIndex self) {	
 	//push the stack
 	//if there are arguments, evaluate them
 	//evaluate the function
@@ -76,7 +96,7 @@ void eval_fnCall(nodeIndex self) {
 }
 
 void eval_argCall(nodeIndex self) {
-	//refer to the stack
+	//return stack[currentStackIndex].?.output
 }
 
 void eval_State(nodeIndex self) {}
@@ -90,8 +110,19 @@ typedef struct frameHead {
 	nodeIndex  beginning;
 	int        length;
 	task      *tasks;
-	UOE       *outputs;
+	UOE       *writeBuffers;
 };
 
 frameHead frameHeads[maxFrameHeads];
+
+
+
+
+
+
+
+
+
+
+
 
