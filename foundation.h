@@ -32,12 +32,13 @@ typedef union {
 typedef void (*evaluator)(nodeIndex toBeEvaluated);
 typedef struct node {
 	char      *name;
-	char      *inTypeString;
-	char      *argString;
-	char      *outTypeString;
-	nodeIndex  definition;
+	//char      *inTypeString;
+	//char      *argString;
+	//char      *outTypeString;
+	nodeIndex  definition;// just for argument calls
+	int8_t     argRefIndex;//just for argument calls
 	uint8_t    arity;
-	uint16_t   arguments[maxArity];
+	nodeIndex  arguments[maxArity];//if negative then already evaluated
 	evaluator  evaluate;
 	UOE        output;
 };
@@ -50,56 +51,17 @@ void evaluateBranch(nodeIndex toBeEvaluated) {
 		evaluateBranch( nodes[toBeEvaluated].arguments[i] );
 	nodes[toBeEvaluated].evaluate(toBeEvaluated);
 }
+// there is a problem with this which is that it might evaluate
+// arguments that need not be evaluated.(consider the "if" function)
 
 
 
 
 
-typedef struct stackthing {
-	nodeIndex  fnDef;
-	nodeIndex  callSource;
-};
-
-stackthing stack[stackSize]
+nodeIndex stack[stackSize]//holds the call sources
 uint32_t stackPos;
 
 
-
-
-void eval_varDef(nodeIndex self) {
-	//only reevaluate upon live source edit
-}
-const node node_num_vardef = {
-	.name          = "num  foo",
-	.inTypeString  = "num",
-	.outTypeString = "num",
-	.arity         = 1,
-	.arguments     = {1},
-	.evaluate      = eval_varDef,
-	.output.n      = 0
-};
-
-void eval_varCall(nodeIndex self) {
-	//refer to the varDef
-}
-
-
-void eval_fnDef(nodeIndex self) {	
-	//only reevaluate upon live source edit
-}
-
-void eval_fnCall(nodeIndex self) {	
-	//push the stack
-	//if there are arguments, evaluate them
-	//evaluate the function
-	//pop the stack
-}
-
-void eval_argCall(nodeIndex self) {
-	//return stack[currentStackIndex].?.output
-}
-
-void eval_State(nodeIndex self) {}
 
 
 typedef struct task {
@@ -118,6 +80,46 @@ frameHead frameHeads[maxFrameHeads];
 
 
 
+
+
+
+
+
+void eval_varDef(nodeIndex self) {
+	//not sure yet if this will be useful at all
+}
+
+void eval_varCall(nodeIndex self) {
+	//refer to the varDef
+}
+
+
+
+void eval_fnDef(nodeIndex self) {
+	//not sure yet if this will be useful at all
+}
+
+
+void eval_fnCall(nodeIndex self) {
+	//push the call source (self) to the stack
+	//currentStackIndex++;
+	//evaluate nodes[self.definition] and get the output
+	//pop the stack
+	//set argindexes positive
+}
+
+void eval_argCall(nodeIndex self) {
+	//if argindex from callsource is positive, then evaluate
+	//"return":
+	nodes[
+		nodes[
+			stack[currentStackIndex].callSource
+		].arguments[
+			nodes[self].argRefIndex
+		]
+	].output;
+	//set argindex from callsource negative
+}
 
 
 

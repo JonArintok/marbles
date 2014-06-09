@@ -2,10 +2,8 @@
 
 void eval_numLit(nodeIndex self) {}
 const node node_numLit = {
-	.name          = "numLit",
-	.inTypeString  = "",
-	.argString     = "",
-	.outTypeString = "num",
+	.name          = "numLit\n"
+	                 "	is  num",
 	.arity         = 0,
 	.arguments     = {},
 	.evaluate      = eval_numLit,
@@ -20,10 +18,10 @@ void eval_add(nodeIndex self) {
 	;
 }
 const node node_add = {
-	.name          = "add",
-	.inTypeString  = "num\nnum",
-	.argString     = "a\nb",
-	.outTypeString = "num",
+	.name          = "add\n"
+	                 "	num  a\n"
+	                 "	num  b\n"
+	                 "	is  num",
 	.arity         = 2,
 	.arguments     = {},
 	.evaluate      = eval_add,
@@ -38,10 +36,10 @@ void eval_sub(nodeIndex self) {
 	;
 }
 const node node_sub = {
-	.name          = "sub",
-	.inTypeString  = "num\nnum",
-	.argString     = "a\nb",
-	.outTypeString = "num",
+	.name          = "sub\n"
+	                 "	num  a\n"
+	                 "	num  b\n"
+	                 "	is  num",
 	.arity         = 2,
 	.arguments     = {},
 	.evaluate      = eval_sub,
@@ -56,10 +54,10 @@ void eval_mul(nodeIndex self) {
 	;
 }
 const node node_mul = {
-	.name          = "mul",
-	.inTypeString  = "num\nnum",
-	.argString     = "a\nb",
-	.outTypeString = "num",
+	.name          = "mul\n"
+	                 "	num  a\n"
+	                 "	num  b\n"
+	                 "	is  num",
 	.arity         = 2,
 	.arguments     = {},
 	.evaluate      = eval_mul,
@@ -74,10 +72,10 @@ void eval_div(nodeIndex self) {
 	;
 }
 const node node_div = {
-	.name          = "div",
-	.inTypeString  = "num\nnum",
-	.argString     = "a\nb",
-	.outTypeString = "num",
+	.name          = "div\n"
+	                 "	num  a\n"
+	                 "	num  b\n"
+	                 "	is  num",
 	.arity         = 2,
 	.arguments     = {},
 	.evaluate      = eval_div,

@@ -1,0 +1,22 @@
+
+
+num  foo  34
+
+fn  double
+	num  in
+	is  num
+	mul
+		2
+		in
+
+
+
+FRAME  main
+
+`should be 72
+num  out A
+	double
+		foo
+
+
+
