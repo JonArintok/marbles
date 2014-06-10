@@ -1,22 +1,21 @@
 
 
-num  foo  34
+num  foo  34    `0
 
-fn  double
+fn  double      `1
 	num  in
 	is  num
-	mul
-		2
-		in
+	mul           `2
+		2           `3
+		in          `4
 
 
 
 FRAME  main
 
+num  out A      `5
+	double        `6
+		foo         `7
+
 `should be 72
-num  out A
-	double
-		foo
-
-
 

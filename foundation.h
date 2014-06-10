@@ -35,7 +35,7 @@ typedef struct node {
 	//char      *inTypeString;
 	//char      *argString;
 	//char      *outTypeString;
-	nodeIndex  definition;// just for argument calls
+	nodeIndex  fnDef;// just for argument and variable calls
 	int8_t     argRefIndex;//just for argument calls
 	uint8_t    arity;
 	nodeIndex  arguments[maxArity];//if negative then already evaluated
@@ -51,8 +51,9 @@ void evaluateBranch(nodeIndex toBeEvaluated) {
 		evaluateBranch( nodes[toBeEvaluated].arguments[i] );
 	nodes[toBeEvaluated].evaluate(toBeEvaluated);
 }
-// there is a problem with this which is that it might evaluate
-// arguments that need not be evaluated.(consider the "if" function)
+// there is a problem with that 'for' statement which is that 
+// it might evaluate arguments that need not be evaluated.
+// (consider the "if" function)
 
 
 
@@ -122,7 +123,9 @@ void eval_argCall(nodeIndex self) {
 }
 
 
-
+void eval_state(nodeIndex self) {
+	//not sure yet if this will be useful at all
+}
 
 
 
