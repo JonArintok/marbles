@@ -27,9 +27,10 @@ int main(void) {
 	
 	//fn  double
 	nodes[1] = {
-		.name          = "fn  double\n"
-		                 "	num  in\n"
-		                 "	is  num",
+		.name = 
+			"fn  double\n"
+			"\tnum  in\n"
+			"\tis  num",
 		.arity         = 1,
 		.arguments     = {},
 		.evaluate      = eval_fnDef,
