@@ -13,8 +13,7 @@ bool      noErrors = true;
 nodeIndex currentNode = 0;
 #define   rootNodePageSize 20
 nodeIndex rootNodes[rootNodePageSize];
-typedef uint32_t rootNodeIndex;
-rootNodeIndex  currentRootNode = 0;
+int16_t   currentRootNode = 0;
 
 #define commentChar  '`'
 
@@ -61,7 +60,7 @@ void  getNode() {
 			return;
 		}
 		else if (fileChar == '\n'  ||  fileChar == commentChar) {
-			//terminate the token
+			//null terminate the token
 			tokenBuf[tokenCharIndex] = '\0';
 			
 			//remove trailing whitespace, if any
@@ -136,6 +135,7 @@ void  getNode() {
 		// reallocate the nodes to a larger array if necessary
 		return;
 	}
+	
 	
 	int nodeToGet = lookupNode(tokenBuf);
 	if (nodeToGet == -1) {

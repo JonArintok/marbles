@@ -29,10 +29,12 @@ int main(int argc, char **argv) {
 		return 2;
 	}
 	
-	//initialize nodes[]
+	//initialize nodes
 	for (int i = 0; i<nodePageSize; i++) {
 		nodes[i].name = "empty";
 	}
+	
+	
 	
 	while (true) {
 		

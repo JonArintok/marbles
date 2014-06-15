@@ -6,7 +6,7 @@
 #define maxFrameHeads  100
 
 
-typedef uint32_t nodeIndex;
+typedef int16_t  nodeIndex;
 typedef double   number;
 //byte
 //byte array
@@ -30,7 +30,7 @@ typedef union {
 	nodeArray  F;//function array
 } UOE;         //union of everything
 typedef void (*evaluator)(nodeIndex toBeEvaluated);
-typedef struct node {
+typedef struct {
 	char      *name;
 	//char      *inTypeString;
 	//char      *argString;
@@ -41,7 +41,7 @@ typedef struct node {
 	nodeIndex  arguments[maxArity];//if negative then already evaluated
 	evaluator  evaluate;
 	UOE        output;
-};
+} node;
 
 node  nodes[nodePageSize];
 
@@ -59,27 +59,8 @@ void evaluateBranch(nodeIndex toBeEvaluated) {
 
 
 
-nodeIndex stack[stackSize]//holds the call sources
+nodeIndex stack[stackSize];//holds the call sources
 uint32_t stackPos;
-
-
-
-
-typedef struct task {
-	int ID;
-};//not completely sure exactly what this is yet
-typedef struct frameHead {
-	char       name;
-	nodeIndex  beginning;
-	int        length;
-	task      *tasks;
-	UOE       *writeBuffers;
-};
-
-frameHead frameHeads[maxFrameHeads];
-
-
-
 
 
 
@@ -103,7 +84,7 @@ void eval_fnDef(nodeIndex self) {
 
 void eval_fnCall(nodeIndex self) {
 	//push the call source (self) to the stack
-	//currentStackIndex++;
+	//stackPos++;
 	//evaluate nodes[self.definition] and get the output
 	//pop the stack
 	//set argindexes positive
@@ -112,13 +93,15 @@ void eval_fnCall(nodeIndex self) {
 void eval_argCall(nodeIndex self) {
 	//if argindex from callsource is positive, then evaluate
 	//"return":
-	nodes[
-		nodes[
-			stack[currentStackIndex].callSource
-		].arguments[
-			nodes[self].argRefIndex
-		]
-	].output;
+	
+	//nodes[
+	//	nodes[
+	//		stack[stackPos]
+	//	].arguments[
+	//		nodes[self].argRefIndex
+	//	]
+	//].output;
+	
 	//set argindex from callsource negative
 }
 

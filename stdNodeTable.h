@@ -88,7 +88,7 @@ const node node_div = {
 };
 
 
-#define stdNodeTableLength 20
+#define stdNodeTableLength 5
 const node *stdNodeTable[stdNodeTableLength] = {
 	&node_numLit,
 	&node_add,
