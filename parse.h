@@ -2,7 +2,7 @@
 
 FILE     *fileStream;
 char      fileChar;
-#define   maxTokenLength 80
+#define   maxTokenLength  80
 char      tokenBuf[maxTokenLength];
 uint8_t   expectedIndentation;
 uint32_t  currentLine = 1;
@@ -15,21 +15,44 @@ nodeIndex currentNode = 0;
 nodeIndex rootNodes[rootNodePageSize];
 int16_t   currentRootNode = 0;
 
-#define commentChar  '`'
+#define   commentChar  '`'
 
 
 int  lookupNode(char *nameIn) {
-	for (int i=0; i<stdNodeTableLength; i++)
-		if (!( strcmp(stdNodeTable[i]->name, nameIn) ))
-			return i;
+	
+	//then match the name to a node from the nodeDefTable
+	for (
+		int nodeDefTableIndex=0;
+		nodeDefTableIndex < nodeDefTableLength; 
+		nodeDefTableIndex++
+	) {
+		for (
+			int tokenCharIndex = 0; 
+			tokenCharIndex < maxTokenLength; 
+			tokenCharIndex++
+		) {
+			if (
+				nodeDefTable[nodeDefTableIndex]->name[tokenCharIndex]
+				== nameIn[tokenCharIndex]
+			) 
+				continue;
+			else if (
+				nodeDefTable[nodeDefTableIndex]->name[tokenCharIndex] == '\n'
+				&& nameIn[tokenCharIndex] == '\0'
+			)
+				return nodeDefTableIndex;
+			else
+				break;//go to the next nodeDefTableIndex
+		}
+	}
+	//if you're here, then the name wasn't recognized...
 	noErrors = false;
 	return -1;
 }
 
 void  getNode() {
 	
-	int tokenCharIndex = 0;
-	for (;; tokenCharIndex++) {
+	for (int tokenCharIndex = 0;; tokenCharIndex++) {
 		if (tokenCharIndex == maxTokenLength) {
 			noErrors = false;
 			printf(
@@ -41,9 +64,14 @@ void  getNode() {
 		
 		fileChar = fgetc(fileStream);
 		
-		if (!tokenCharIndex  &&  fileChar == ' ') {
+		if (!tokenCharIndex && fileChar == ' ') {
 			noErrors = false;
 			printf("error: leading space at line %d\n", currentLine);
+			return;
+		}
+		else if (!tokenCharIndex && fileChar == 't') {
+			noErrors = false;
+			printf("error: line %d is over-indented\n", currentLine);
 			return;
 		}
 		else if (fileChar == EOF) {
@@ -52,11 +80,6 @@ void  getNode() {
 				noErrors = false;
 				printf("error: file ended unexpectadly at line %d\n", currentLine);
 			}
-			return;
-		}
-		else if (fileChar == '\t') {
-			noErrors = false;
-			printf("error: line %d is over-indented\n", currentLine);
 			return;
 		}
 		else if (fileChar == '\n'  ||  fileChar == commentChar) {
@@ -108,8 +131,8 @@ void  getNode() {
 	if (tokenBuf[0] >= '0'  &&  tokenBuf[0] <= '9') {
 		//make sure it's a valid number
 		for (
-			tokenCharIndex=0; 
-			tokenCharIndex < maxTokenLength; 
+			int tokenCharIndex = 0; 
+			;//tokenCharIndex < maxTokenLength; 
 			tokenCharIndex++
 		) {
 			if (tokenBuf[tokenCharIndex] == '\0')
@@ -147,7 +170,7 @@ void  getNode() {
 		return;
 	}
 	
-	nodes[currentNode] = *stdNodeTable[nodeToGet];
+	nodes[currentNode] = *nodeDefTable[nodeToGet];
 	
 	
 	// get arguments, if any
@@ -160,7 +183,7 @@ void  getNode() {
 		for (; currentArg < nodes[parent].arity; currentArg++) {
 			indentation = 0;
 			while (indentation < expectedIndentation) {
-				fileChar = fgetc(fileStream);		
+				fileChar = fgetc(fileStream);
 				if (fileChar == '\t') 
 					indentation++;
 				else if (fileChar == EOF) {

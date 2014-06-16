@@ -87,9 +87,9 @@ const node node_div = {
 	.output.n      = 0
 };
 
-
-#define stdNodeTableLength 5
-const node *stdNodeTable[stdNodeTableLength] = {
+#define nodeDefPageSize  100
+int nodeDefTableLength = 5;
+const node *nodeDefTable[nodeDefPageSize] = {
 	&node_numLit,
 	&node_add,
 	&node_sub,
