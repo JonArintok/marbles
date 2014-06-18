@@ -59,7 +59,7 @@ int main(int argc, char **argv) {
 		puts("results:");
 		
 		for (int i = 0; i<currentRootNode; i++) {
-			evaluateBranch( rootNodes[i] );
+			nodes[ rootNodes[i] ].evaluate( rootNodes[i] );
 			printf("  %2d: %9.3f\n", i, nodes[rootNodes[i]].output.n);
 		}
 	}

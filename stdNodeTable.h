@@ -13,6 +13,7 @@ const node node_numLit = {
 
 
 void eval_add(nodeIndex self) {
+	evalArgs(self);
 	nodes[self].output.n
 		= nodes[ nodes[self].arguments[0] ].output.n
 		+ nodes[ nodes[self].arguments[1] ].output.n
@@ -32,6 +33,7 @@ const node node_add = {
 
 
 void eval_sub(nodeIndex self) {
+	evalArgs(self);
 	nodes[self].output.n
 		= nodes[ nodes[self].arguments[0] ].output.n
 		- nodes[ nodes[self].arguments[1] ].output.n
@@ -51,6 +53,7 @@ const node node_sub = {
 
 
 void eval_mul(nodeIndex self) {
+	evalArgs(self);
 	nodes[self].output.n
 		= nodes[ nodes[self].arguments[0] ].output.n
 		* nodes[ nodes[self].arguments[1] ].output.n
@@ -70,6 +73,7 @@ const node node_mul = {
 
 
 void eval_div(nodeIndex self) {
+	evalArgs(self);
 	nodes[self].output.n
 		= nodes[ nodes[self].arguments[0] ].output.n
 		/ nodes[ nodes[self].arguments[1] ].output.n

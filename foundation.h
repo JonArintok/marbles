@@ -32,9 +32,6 @@ typedef union {
 typedef void (*evaluator)(nodeIndex toBeEvaluated);
 typedef struct {
 	char      *name;
-	//char      *inTypeString;
-	//char      *argString;
-	//char      *outTypeString;
 	nodeIndex  fnDef;// just for argument and variable calls
 	int8_t     argRefIndex;//just for argument calls
 	uint8_t    arity;
@@ -46,15 +43,20 @@ typedef struct {
 node  nodes[nodePageSize];
 
 
-void evaluateBranch(nodeIndex toBeEvaluated) {
-	for (int i=0; i < nodes[toBeEvaluated].arity; i++)
-		evaluateBranch( nodes[toBeEvaluated].arguments[i] );
-	nodes[toBeEvaluated].evaluate(toBeEvaluated);
-}
+//void evaluateBranch(nodeIndex toBeEvaluated) {
+//	for (int i=0; i < nodes[toBeEvaluated].arity; i++)
+//		evaluateBranch( nodes[toBeEvaluated].arguments[i] );
+//	nodes[toBeEvaluated].evaluate(toBeEvaluated);
+//}
 // there is a problem with that 'for' statement which is that 
 // it might evaluate arguments that need not be evaluated.
 // (consider the "if" function)
 
+
+void evalArgs(nodeIndex self) {
+	for (int i=0; i < nodes[self].arity; i++)
+		nodes[ nodes[self].arguments[i] ].evaluate( nodes[self].arguments[i] );
+}
 
 
 
@@ -68,7 +70,8 @@ uint32_t stackPos;
 
 
 void eval_varDef(nodeIndex self) {
-	//not sure yet if this will be useful at all
+	nodes[self+1].evaluate(self+1);//self+1 will always be the index of the first argument
+	nodes[self].output = nodes[self+1].output;
 }
 
 void eval_varCall(nodeIndex self) {
@@ -78,13 +81,14 @@ void eval_varCall(nodeIndex self) {
 
 
 void eval_fnDef(nodeIndex self) {
-	//not sure yet if this will be useful at all
+	nodes[self+1].evaluate(self+1);//self+1 will always be the index of the first argument
+	nodes[self].output = nodes[self+1].output;
 }
 
 
 void eval_fnCall(nodeIndex self) {
-	//push the call source (self) to the stack
 	//stackPos++;
+	//push the call source (self) to the stack
 	//evaluate nodes[self.definition] and get the output
 	//pop the stack
 	//set argindexes positive
