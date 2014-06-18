@@ -43,16 +43,6 @@ typedef struct {
 node  nodes[nodePageSize];
 
 
-//void evaluateBranch(nodeIndex toBeEvaluated) {
-//	for (int i=0; i < nodes[toBeEvaluated].arity; i++)
-//		evaluateBranch( nodes[toBeEvaluated].arguments[i] );
-//	nodes[toBeEvaluated].evaluate(toBeEvaluated);
-//}
-// there is a problem with that 'for' statement which is that 
-// it might evaluate arguments that need not be evaluated.
-// (consider the "if" function)
-
-
 void evalArgs(nodeIndex self) {
 	for (int i=0; i < nodes[self].arity; i++)
 		nodes[ nodes[self].arguments[i] ].evaluate( nodes[self].arguments[i] );
@@ -70,19 +60,25 @@ uint32_t stackPos;
 
 
 void eval_varDef(nodeIndex self) {
-	nodes[self+1].evaluate(self+1);//self+1 will always be the index of the first argument
-	nodes[self].output = nodes[self+1].output;
+	
+	//not sure if this is ever necessary
+	
+	//nodes[self+1].evaluate(self+1);//self+1 will always be the index of the first argument
+	//nodes[self].output = nodes[self+1].output;
 }
-
-void eval_varCall(nodeIndex self) {
-	//refer to the varDef
-}
-
-
 
 void eval_fnDef(nodeIndex self) {
-	nodes[self+1].evaluate(self+1);//self+1 will always be the index of the first argument
-	nodes[self].output = nodes[self+1].output;
+	
+	//not sure if this is ever necessary
+	
+	//nodes[self+1].evaluate(self+1);
+	//nodes[self].output = nodes[self+1].output;
+}
+
+
+
+void eval_varCall(nodeIndex self) {
+	nodes[self].output = nodes[ nodes[self].fnDef ].output;
 }
 
 
@@ -96,15 +92,16 @@ void eval_fnCall(nodeIndex self) {
 
 void eval_argCall(nodeIndex self) {
 	//if argindex from callsource is positive, then evaluate
-	//"return":
 	
-	//nodes[
-	//	nodes[
-	//		stack[stackPos]
-	//	].arguments[
-	//		nodes[self].argRefIndex
-	//	]
-	//].output;
+	nodes[self].output = 
+		nodes[
+			nodes[
+				stack[stackPos]
+			].arguments[
+				nodes[self].argRefIndex
+			]
+		].output
+	;
 	
 	//set argindex from callsource negative
 }

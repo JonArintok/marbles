@@ -86,7 +86,7 @@ int main(void) {
 	};
 	
 	
-	evaluateBranch(5);//evaluate "out A"
+	nodes[5].evaluate(5);//evaluate "out A"
 	
 	printf("%f\n" nodes[5].output.n);
 	

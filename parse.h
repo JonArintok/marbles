@@ -22,22 +22,26 @@ int  lookupNode(char *nameIn) {
 	
 	//then match the name to a node from the nodeDefTable
 	for (
-		int nodeDefTableIndex=0;
+		int nodeDefTableIndex = 0;
 		nodeDefTableIndex < nodeDefTableLength; 
 		nodeDefTableIndex++
 	) {
+		int typeDefLength = 0;
+		//get typeDefLength from the node's name
+		//...
+		
 		for (
 			int tokenCharIndex = 0; 
 			tokenCharIndex < maxTokenLength; 
 			tokenCharIndex++
 		) {
 			if (
-				nodeDefTable[nodeDefTableIndex]->name[tokenCharIndex]
+				nodeDefTable[nodeDefTableIndex]->name[tokenCharIndex+typeDefLength]
 				== nameIn[tokenCharIndex]
 			) 
 				continue;
 			else if (
-				nodeDefTable[nodeDefTableIndex]->name[tokenCharIndex] == '\n'
+				nodeDefTable[nodeDefTableIndex]->name[tokenCharIndex+typeDefLength] == '\n'
 				&& nameIn[tokenCharIndex] == '\0'
 			)
 				return nodeDefTableIndex;
