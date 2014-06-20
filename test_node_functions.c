@@ -26,16 +26,14 @@ int main(void) {
 	
 	
 	//fn  double
-	nodes[1] = {
-		.name = 
-			"fn  double\n"
-			"\tnum  in\n"
-			"\tis  num",
-		.arity     = 1,
-		.arguments = {2},
-		.evaluate  = eval_fnDef,
-		.output.n  = 0
-	};
+	nodes[1].name = 
+		"fn  double\n"
+		"\tnum  in\n"
+		"\tis  num";
+	nodes[1].arity        = 1;
+	nodes[1].arguments[0] = 2;
+	nodes[1].evaluate     = eval_fnDef;
+	nodes[1].output.n     = 0;
 	
 	//	mul
 	nodes[2] = node_mul;
@@ -47,48 +45,40 @@ int main(void) {
 	nodes[3].output.n = 2;
 	
 	//		in
-	nodes[4] = {
-		.name = 
-			"fn  double\n"
-			"\tnum  in\n"
-			"\tis  num",
-		.fnDef       = 1,  //the nodeIndex of "double"
-		.argRefIndex = 0,  //the argument index of "in"
-		.arity       = 0,
-		.evaluate    = eval_argCall,
-	};
+	nodes[4].name = 
+		"fn  double\n"
+		"\tnum  in\n"
+		"\tis  num";
+	nodes[4].fnDef       = 1; //the nodeIndex of "double"
+	nodes[4].argRefIndex = 0; //the argument index of "in"
+	nodes[4].arity       = 0;
+	nodes[4].evaluate    = eval_argCall;
 	
 	
 	
 	//num  out A
-	nodes[5] = {
-		.name      = "num  out A",
-		.arity     = 1,
-		.arguments = {6},
-		.evaluate  = eval_state
-	};
+	nodes[5].name         = "num  out A";
+	nodes[5].arity        = 1;
+	nodes[5].arguments[0] = 6;
+	nodes[5].evaluate     = eval_state;
 	
 	//	double
-	nodes[6] = {
-		.name      = "double",
-		.fnDef     = 1,         //the nodeIndex of "double"
-		.arity     = 1,
-		.arguments = {7},
-		.evaluate  = eval_fnCall
-	};
+	nodes[6].name         = "double";
+	nodes[6].fnDef        = 1; //the nodeIndex of "double"
+	nodes[6].arity        = 1;
+	nodes[6].arguments[0] = 7;
+	nodes[6].evaluate     = eval_fnCall;
 	
 	//		foo
-	nodes[7] = {
-		.name      = "foo",
-		.fnDef     = 0,         //the nodeIndex of "foo"
-		.arity     = 0,
-		.evaluate  = eval_varCall
-	};
+	nodes[7].name      = "foo";
+	nodes[7].fnDef     = 0; //the nodeIndex of "foo"
+	nodes[7].arity     = 0;
+	nodes[7].evaluate  = eval_varCall;
 	
 	
 	nodes[5].evaluate(5);//evaluate "out A"
 	
-	printf("%f\n" nodes[5].output.n);
+	printf("should be 68: %f\n", nodes[5].output.n);
 	
 	
 	return 0;

@@ -7,6 +7,8 @@
 
 
 typedef int16_t  nodeIndex;
+#define  maxNodeIndex 32767
+
 typedef double   number;
 //byte
 //byte array
@@ -57,22 +59,20 @@ uint32_t stackPos;
 
 
 
-
-
+//right now these three functions just grab the value from
+//the next node, which is always the first argument.
+//I'm not sure yet if they might need to be different later.
 void eval_varDef(nodeIndex self) {
-	
-	//not sure if this is ever necessary
-	
-	//nodes[self+1].evaluate(self+1);//self+1 will always be the index of the first argument
-	//nodes[self].output = nodes[self+1].output;
+	nodes[self+1].evaluate(self+1);
+	nodes[self].output = nodes[self+1].output;
 }
-
 void eval_fnDef(nodeIndex self) {
-	
-	//not sure if this is ever necessary
-	
-	//nodes[self+1].evaluate(self+1);
-	//nodes[self].output = nodes[self+1].output;
+	nodes[self+1].evaluate(self+1);
+	nodes[self].output = nodes[self+1].output;
+}
+void eval_state(nodeIndex self) {
+	nodes[self+1].evaluate(self+1);
+	nodes[self].output = nodes[self+1].output;
 }
 
 
@@ -83,32 +83,36 @@ void eval_varCall(nodeIndex self) {
 
 
 void eval_fnCall(nodeIndex self) {
-	//stackPos++;
-	//push the call source (self) to the stack
+	stackPos++;
+	stack[stackPos] = self;
+	
+	nodeIndex fnDefIndex = nodes[self].fnDef;
 	//evaluate nodes[self.definition] and get the output
-	//pop the stack
-	//set argindexes positive
+	nodes[fnDefIndex].evaluate(fnDefIndex);
+	nodes[self].output = nodes[fnDefIndex].output;
+	
+	//reset argument values to positive
+	for (int i=0; i<nodes[self].arity; i++)
+		nodes[fnDefIndex].arguments[i] &= maxNodeIndex;
+	
+	stackPos--;
 }
 
 void eval_argCall(nodeIndex self) {
-	//if argindex from callsource is positive, then evaluate
+	//get the nodeIndex of the argument which will have the value we want
+	nodeIndex argNodeIndex = 
+		nodes[ stack[stackPos] ].arguments[ nodes[self].argRefIndex ];
 	
-	nodes[self].output = 
-		nodes[
-			nodes[
-				stack[stackPos]
-			].arguments[
-				nodes[self].argRefIndex
-			]
-		].output
-	;
-	
-	//set argindex from callsource negative
-}
-
-
-void eval_state(nodeIndex self) {
-	//not sure yet if this will be useful at all
+	//if argNodeIndex is positive, then we need to evaluate
+	if (argNodeIndex >= 0) {
+		nodes[argNodeIndex].evaluate(argNodeIndex);
+		nodes[self].output = nodes[argNodeIndex].output;
+		
+		//set nodeIndex from the callsource's argument list negative
+		nodes[ stack[stackPos] ].arguments[ nodes[self].argRefIndex ] *= -1;
+	}
+	else
+		nodes[self].output = nodes[ argNodeIndex * -1 ].output;
 }
 
 
