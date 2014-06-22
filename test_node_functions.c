@@ -76,7 +76,8 @@ int main(void) {
 	nodes[7].evaluate  = eval_varCall;
 	
 	
-	nodes[5].evaluate(5);//evaluate "out A"
+	nodes[6].evaluate(6);//evaluate the body of "out A"
+	nodes[5].evaluate(5);//carry over the result
 	
 	printf("should be 68: %f\n", nodes[5].output.n);
 	

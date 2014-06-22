@@ -59,19 +59,13 @@ uint32_t stackPos;
 
 
 
-//right now these three functions just grab the value from
-//the next node, which is always the first argument.
-//I'm not sure yet if they might need to be different later.
-void eval_varDef(nodeIndex self) {
-	nodes[self+1].evaluate(self+1);
-	nodes[self].output = nodes[self+1].output;
-}
+void eval_varDef(nodeIndex self) {}
+
 void eval_fnDef(nodeIndex self) {
-	nodes[self+1].evaluate(self+1);
 	nodes[self].output = nodes[self+1].output;
 }
+
 void eval_state(nodeIndex self) {
-	nodes[self+1].evaluate(self+1);
 	nodes[self].output = nodes[self+1].output;
 }
 
@@ -86,14 +80,14 @@ void eval_fnCall(nodeIndex self) {
 	stackPos++;
 	stack[stackPos] = self;
 	
-	nodeIndex fnDefIndex = nodes[self].fnDef;
+	nodeIndex fnBody = nodes[self].fnDef + 1;
 	//evaluate nodes[self.definition] and get the output
-	nodes[fnDefIndex].evaluate(fnDefIndex);
-	nodes[self].output = nodes[fnDefIndex].output;
+	nodes[fnBody].evaluate(fnBody);
+	nodes[self].output = nodes[fnBody].output;
 	
 	//reset argument values to positive
 	for (int i=0; i<nodes[self].arity; i++)
-		nodes[fnDefIndex].arguments[i] &= maxNodeIndex;
+		nodes[fnBody-1].arguments[i] &= maxNodeIndex;
 	
 	stackPos--;
 }
