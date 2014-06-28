@@ -68,17 +68,21 @@ void  getNode() {
 		
 		fileChar = fgetc(fileStream);
 		
-		if (!tokenCharIndex && fileChar == ' ') {
-			noErrors = false;
-			printf("error: leading space at line %d\n", currentLine);
-			return;
+		//check the first character
+		if (!tokenCharIndex) {
+			switch (fileChar) {
+				case ' ':
+					noErrors = false;
+					printf("error: leading space at line %d\n", currentLine);
+					return;
+				case '\t':
+					noErrors = false;
+					printf("error: line %d is over-indented\n", currentLine);
+					return;
+			}
 		}
-		else if (!tokenCharIndex && fileChar == 't') {
-			noErrors = false;
-			printf("error: line %d is over-indented\n", currentLine);
-			return;
-		}
-		else if (fileChar == EOF) {
+		
+		if (fileChar == EOF) {
 			reachedEOF = true;
 			if (expectedIndentation > 0) {
 				noErrors = false;
@@ -91,12 +95,10 @@ void  getNode() {
 			tokenBuf[tokenCharIndex] = '\0';
 			
 			//remove trailing whitespace, if any
-			if (tokenCharIndex > 1) {
-				int backstep = 1;
-				while (tokenBuf[tokenCharIndex-backstep] == ' ') {
-					tokenBuf[tokenCharIndex-backstep] = '\0';
-					backstep++;
-				}
+			int backstep = 1;
+			while (tokenBuf[tokenCharIndex-backstep] == ' ') {
+				tokenBuf[tokenCharIndex-backstep] = '\0';
+				backstep++;
 			}
 			
 			//if we hit a comment, read through the rest of the comment
@@ -183,27 +185,37 @@ void  getNode() {
 		currentNode++;
 		expectedIndentation++;
 		int indentation = 0;
-		nodeIndex currentArg = 0;
-		for (; currentArg < nodes[parent].arity; currentArg++) {
+		
+		for (
+			nodeIndex currentArg = 0;
+			currentArg < nodes[parent].arity && noErrors;
+			currentArg++
+		) {
+			
 			indentation = 0;
+			
 			while (indentation < expectedIndentation) {
 				fileChar = fgetc(fileStream);
 				if (fileChar == '\t') 
 					indentation++;
 				else if (fileChar == EOF) {
+					noErrors = false;
 					reachedEOF = true;
 					printf("error: file ended unexpectadly at line %d\n", currentLine);
 					return;
 				}
 				else {
-					printf("error: line %d, under-indented\n", currentLine);
+					noErrors = false;
+					printf("error: line %d is under-indented\n", currentLine);
 					return;
 				}
 			}
+			
 			nodes[parent].arguments[currentArg] = currentNode;
 			getNode();
 			//check that the node is of the requiredType
 		}
+		
 		expectedIndentation--;
 	}
 	else currentNode++;
