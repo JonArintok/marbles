@@ -34,7 +34,7 @@ typedef union {
 typedef void (*evaluator)(nodeIndex toBeEvaluated);
 typedef struct {
 	char      *name;
-	nodeIndex  fnDef;// just for argument and variable calls
+	nodeIndex  definition;// just for argument and variable calls
 	int8_t     argRefIndex;//just for argument calls
 	uint8_t    arity;
 	nodeIndex  arguments[maxArity];//if negative then already evaluated
@@ -72,7 +72,7 @@ void eval_state(nodeIndex self) {
 
 
 void eval_varCall(nodeIndex self) {
-	nodes[self].output = nodes[ nodes[self].fnDef ].output;
+	nodes[self].output = nodes[ nodes[self].definition ].output;
 }
 
 
@@ -80,7 +80,7 @@ void eval_fnCall(nodeIndex self) {
 	stackPos++;
 	stack[stackPos] = self;
 	
-	nodeIndex fnBody = nodes[self].fnDef + 1;
+	nodeIndex fnBody = nodes[self].definition + 1;
 	//evaluate nodes[self.definition] and get the output
 	nodes[fnBody].evaluate(fnBody);
 	nodes[self].output = nodes[fnBody].output;

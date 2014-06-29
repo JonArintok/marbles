@@ -19,7 +19,7 @@ int main(void) {
 	
 	
 	//num  foo
-	nodes[0].name = "num  foo  34";	
+	nodes[0].name     = "num  foo  34";	
 	nodes[0].evaluate = eval_varDef;
 	nodes[0].output.n = 34;
 	
@@ -49,7 +49,7 @@ int main(void) {
 		"fn  double\n"
 		"\tnum  in\n"
 		"\tis  num";
-	nodes[4].fnDef       = 1; //the nodeIndex of "double"
+	nodes[4].definition  = 1; //the nodeIndex of "double"
 	nodes[4].argRefIndex = 0; //the argument index of "in"
 	nodes[4].arity       = 0;
 	nodes[4].evaluate    = eval_argCall;
@@ -64,16 +64,16 @@ int main(void) {
 	
 	//	double
 	nodes[6].name         = "double";
-	nodes[6].fnDef        = 1; //the nodeIndex of "double"
+	nodes[6].definition        = 1; //the nodeIndex of "double"
 	nodes[6].arity        = 1;
 	nodes[6].arguments[0] = 7;
 	nodes[6].evaluate     = eval_fnCall;
 	
 	//		foo
-	nodes[7].name      = "foo";
-	nodes[7].fnDef     = 0; //the nodeIndex of "foo"
-	nodes[7].arity     = 0;
-	nodes[7].evaluate  = eval_varCall;
+	nodes[7].name       = "foo";
+	nodes[7].definition = 0; //the nodeIndex of "foo"
+	nodes[7].arity      = 0;
+	nodes[7].evaluate   = eval_varCall;
 	
 	
 	nodes[6].evaluate(6);//evaluate the body of "out A"

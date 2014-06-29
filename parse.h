@@ -2,7 +2,8 @@
 
 FILE     *fileStream;
 char      fileChar;
-#define   maxTokenLength  80
+#define   maxTokenLength   120
+#define   maxTypeDefLength  40
 char      tokenBuf[maxTokenLength];
 uint8_t   expectedIndentation;
 uint32_t  currentLine = 1;
@@ -26,22 +27,35 @@ int  lookupNode(char *nameIn) {
 		nodeDefTableIndex < nodeDefTableLength; 
 		nodeDefTableIndex++
 	) {
-		int typeDefLength = 0;
 		//get typeDefLength from the node's name
-		//...
-		
+		int typeDefLength = 0;
+		//typeDefLength should be at least 1
+		while (true) {
+			typeDefLength++;
+			if (
+				nodeDefTable[nodeDefTableIndex]->name[typeDefLength] == ' '
+				&& nodeDefTable[nodeDefTableIndex]->name[typeDefLength+1] == ' '
+				&& nodeDefTable[nodeDefTableIndex]->name[typeDefLength+2] != ' '
+			) {
+				typeDefLength += 2;
+				break;
+			}
+		}
+		//match the names
 		for (
-			int tokenCharIndex = 0; 
+			int tokenCharIndex = 0;
 			tokenCharIndex < maxTokenLength; 
 			tokenCharIndex++
 		) {
 			if (
-				nodeDefTable[nodeDefTableIndex]->name[tokenCharIndex+typeDefLength]
+				nodeDefTable[nodeDefTableIndex]
+				-> name[tokenCharIndex+typeDefLength]
 				== nameIn[tokenCharIndex]
 			) 
 				continue;
 			else if (
-				nodeDefTable[nodeDefTableIndex]->name[tokenCharIndex+typeDefLength] == '\n'
+				nodeDefTable[nodeDefTableIndex]
+				-> name[tokenCharIndex+typeDefLength] == '\n'
 				&& nameIn[tokenCharIndex] == '\0'
 			)
 				return nodeDefTableIndex;
@@ -86,7 +100,10 @@ void  getNode() {
 			reachedEOF = true;
 			if (expectedIndentation > 0) {
 				noErrors = false;
-				printf("error: file ended unexpectadly at line %d\n", currentLine);
+				printf(
+					"error: file ended unexpectadly at line %d\n", 
+					currentLine
+				);
 			}
 			return;
 		}
@@ -111,7 +128,10 @@ void  getNode() {
 						reachedEOF = true;
 						if (expectedIndentation > 0) {
 							noErrors = false;
-							printf("error: file ended unexpectadly at line %d\n", currentLine);
+							printf(
+								"error: file ended unexpectadly at line %d\n", 
+								currentLine
+							);
 						}
 						return;
 					}
@@ -201,7 +221,10 @@ void  getNode() {
 				else if (fileChar == EOF) {
 					noErrors = false;
 					reachedEOF = true;
-					printf("error: file ended unexpectadly at line %d\n", currentLine);
+					printf(
+						"error: file ended unexpectadly at line %d\n", 
+						currentLine
+					);
 					return;
 				}
 				else {
