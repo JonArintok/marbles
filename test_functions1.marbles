@@ -11,7 +11,7 @@ fn  double      `1
 
 
 
-FRAME  main
+#  main
 
 num  out A      `5
 	double        `6

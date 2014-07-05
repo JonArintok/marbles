@@ -1,22 +1,194 @@
 
+#define   maxLineLength    120
+#define   maxTypeDefLength  40
+#define   commentChar  ';'
 
 FILE     *fileStream;
-char      fileChar;
-#define   maxTokenLength   120
-#define   maxTypeDefLength  40
-char      tokenBuf[maxTokenLength];
-uint8_t   expectedIndentation;
-uint32_t  currentLine = 1;
+//char      fileChar;
+char      lineBuf[maxLineLength];
+uint8_t   expectedIndentation = 0;
+uint32_t  currentLine = 0;
 
-bool      reachedEOF = false;
-bool      noErrors = true;
+bool  reachedEOF = false;
+bool  noErrors = true;
 
-nodeIndex currentNode = 0;
-#define   rootNodePageSize 20
-nodeIndex rootNodes[rootNodePageSize];
-int16_t   currentRootNode = 0;
 
-#define   commentChar  '`'
+#define    nodePage     20
+int        nodeSpace   = 0;
+nodeIndex  currentNode = 0;
+
+#define    rootNodePage     10
+int        rootNodeSpace   = 0;
+int        currentRootNode = 0;
+
+#define    framePage      10
+#define    framePage      10
+int        frameSpace   =  0;
+int        currentFrame = -1; //-1 until we get to the 0th frame
+
+
+void  error_leadingSpace(void) {
+	noErrors = false;
+	printf("error: leading space at line %d\n", currentLine);
+}
+void  error_overIndented(void) {
+	noErrors = false;
+	printf("error: line %d is over-indented\n", currentLine);
+}
+
+
+
+void  getLine(void) {
+	currentLine++;
+	
+	for (int lineCharIndex = 0;; lineCharIndex++) {
+		
+		//check to be sure we are not overflowing the buffer
+		if (lineCharIndex == maxLineLength) {
+			noErrors = false;
+			printf(
+				"error: token at line %d exceeds maxLineLength\n", 
+				currentLine
+			);
+			return;
+		}
+		
+		//get char from file
+		lineBuf[lineCharIndex] = fgetc(fileStream);
+		
+		//check for EOF
+		if (lineBuf[lineCharIndex] == EOF) {
+			reachedEOF = true;
+			return;
+		}
+		
+		//check for linebreaks, comments, and eliminate trailing whitespace
+		if (
+			lineBuf[lineCharIndex] == '\n' ||
+			lineBuf[lineCharIndex] == commentChar
+		) {
+			//null terminate the buffer
+			lineBuf[lineCharIndex] = '\0';
+			
+			//remove trailing whitespace, if any
+			int backstep = 1;
+			while (lineBuf[lineCharIndex-backstep] == ' ') {
+				lineBuf[lineCharIndex-backstep] = '\0';
+				backstep++;
+			}
+			
+			//if we hit a comment, read through the rest of the comment
+			if (lineBuf[lineCharIndex] == commentChar) {
+				char c = fgetc(fileStream);
+				if (c == '\n')
+					return;
+				if (c == EOF) {
+					reachedEOF = true;
+					return;
+				}
+			}
+		}
+	}
+}
+
+void  getBranch(void) {}
+
+void  getFn(void) {}
+void  getVar(void) {}
+void  getSet(void) {}
+
+void  getRoot(void) {}
+void  getFrame(void) {
+	currentFrame++;
+	
+	//if frameSpace is full then reallocate
+	if (currentFrame == frameSpace) {
+		frame  *prevFrameSpace = frameSpace;
+		frameSpace += framePage;
+		frameSpace = malloc( sizeof(frame)*frameSpace );
+		for (int i = 0; i < currentFrame; i++)
+			frameSpace[i] = prevFrameSpace[i];
+		free(prevFrameSpace);
+	}
+	
+	//ignore spaces between the '#' and the name
+	int bufPos = 1;
+	while (true) {
+		if (lineBuf[bufPos] == ' ')
+			bufPos++;
+		else if (
+			lineBuf[bufPos] == '\0' || 
+			lineBuf[bufPos] >=  '0' || 
+			lineBuf[bufPos] <=  '9'
+		) {
+			noErrors = false;
+			printf("error: invalid frame name at line %d\n", currentLine);
+			return;
+		}
+		else break;
+	}
+	
+	//allocate space for .name, initialize .outputCount
+	frameSpace[currentFrame].name = malloc( sizeof(char)*maxLineLength );
+	frameSpace[currentFrame].outputCount = 0;
+	
+	//copy from lineBuf to .name
+	int namePos = 0;
+	while (true) {
+		frameSpace[currentFrame].name[namePos] = lineBuf[bufPos];
+		if (lineBuf[bufPos] == '\0')
+			break;
+		namePos++;
+		bufPos++;
+	}
+}
+void  getOutput(void) {}
+
+void  parse(void) {
+	while (noErrors) {
+		getLine();
+		
+		//if the line is blank or commented then skip it
+		if (lineBuf[0] == '\0')
+			continue;
+		
+		//if the line starts with a space or tab then error
+		else if (lineBuf[0] == ' ') {
+			error_leadingSpace();
+			return;
+		}
+		else if (lineBuf[0] == '\t') {
+			error_overIndented();
+			return;
+		}
+		
+		//check for new frame
+		else if (lineBuf[0] = '#') {
+			getFrame();
+		}
+		
+		//we must have either a root or an output
+		else {
+			if (currentFrame < 0)
+				getRoot();
+			else
+				getOutput();
+		}
+	}
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 int  lookupNode(char *nameIn) {
@@ -64,7 +236,6 @@ int  lookupNode(char *nameIn) {
 		}
 	}
 	//if you're here, then the name wasn't recognized...
-	noErrors = false;
 	return -1;
 }
 
@@ -93,7 +264,15 @@ void  getNode() {
 					noErrors = false;
 					printf("error: line %d is over-indented\n", currentLine);
 					return;
+				case '#':
+					if (expectedIndentation == 0) {
+						getFrame();
+						return;
+					}
+					else tokenBuf[tokenCharIndex] = fileChar;
+					break;
 			}
+			continue;
 		}
 		
 		if (fileChar == EOF) {

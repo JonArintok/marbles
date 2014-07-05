@@ -1,0 +1,22 @@
+
+# main          ;a frame named "main"
+
+num  output A   ;an output named "output A"
+	mul
+		1.5
+		add
+			sub
+				60
+				10
+			mul
+				2
+				div
+					75
+					3
+
+num  output b
+	mul
+		1
+		0.5
+
+;the end

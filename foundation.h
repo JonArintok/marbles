@@ -1,13 +1,11 @@
 
 
 #define maxArity         8
-#define nodePageSize   100
 #define stackSize     1000
-#define maxFrameHeads  100
 
 
 typedef int16_t  nodeIndex;
-#define  maxNodeIndex 32767
+#define  maxNodeIndex  32767
 
 typedef double   number;
 //byte
@@ -42,13 +40,23 @@ typedef struct {
 	UOE        output;
 } node;
 
-node  nodes[nodePageSize];
+typedef struct frame {
+	char       *name;
+	int16_t     outputCount;
+	nodeIndex  *outputs;
+};
 
 
-void evalArgs(nodeIndex self) {
-	for (int i=0; i < nodes[self].arity; i++)
-		nodes[ nodes[self].arguments[i] ].evaluate( nodes[self].arguments[i] );
-}
+nodeIndex *nodes;
+nodeIndex *rootNodes;
+nodeIndex *frames;
+
+
+
+//void evalArgs(nodeIndex self) {
+//	for (int i=0; i < nodes[self].arity; i++)
+//		nodes[ nodes[self].arguments[i] ].evaluate( nodes[self].arguments[i] );
+//}
 
 
 
