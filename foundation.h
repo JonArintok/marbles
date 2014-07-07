@@ -40,16 +40,16 @@ typedef struct {
 	UOE        output;
 } node;
 
-typedef struct frame {
+typedef struct stateframe {
 	char       *name;
-	int16_t     outputCount;
-	nodeIndex  *outputs;
+	int16_t     stateNodeCount;
+	nodeIndex  *stateNodes;
 };
 
 
 nodeIndex *nodes;
 nodeIndex *rootNodes;
-nodeIndex *frames;
+nodeIndex *stateframes;
 
 
 

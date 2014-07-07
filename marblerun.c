@@ -18,7 +18,7 @@
 
 
 int main(int argc, char **argv) {
-	char *fileName = argv[1];
+	fileName = argv[1];
 	if (fileName == NULL) {
 		puts("usage: marblerun <file name>");
 		return 1;

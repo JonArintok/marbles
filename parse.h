@@ -1,10 +1,11 @@
 
-#define   maxLineLength    120
-#define   maxTypeDefLength  40
-#define   commentChar  ';'
+#define   maxTokenLength    80
+#define   maxLineLength    200
+
+#define   commentInitializer  ';'
 
 FILE     *fileStream;
-//char      fileChar;
+char     *fileName
 char      lineBuf[maxLineLength];
 uint8_t   expectedIndentation = 0;
 uint32_t  currentLine = 0;
@@ -21,19 +22,18 @@ nodeIndex  currentNode = 0;
 int        rootNodeSpace   = 0;
 int        currentRootNode = 0;
 
-#define    framePage      10
-#define    framePage      10
-int        frameSpace   =  0;
-int        currentFrame = -1; //-1 until we get to the 0th frame
+#define    stateframePage      10
+#define    stateframePage      10
+int        stateframeSpace   =  0;
+int        currentStateframe = -1;
 
 
-void  error_leadingSpace(void) {
+void  putError(char *message) {
 	noErrors = false;
-	printf("error: leading space at line %d\n", currentLine);
-}
-void  error_overIndented(void) {
-	noErrors = false;
-	printf("error: line %d is over-indented\n", currentLine);
+	printf(
+		"error in line %d of %s :\n\t%s\n", 
+		currentLine, fileName, message
+	);
 }
 
 
@@ -45,11 +45,7 @@ void  getLine(void) {
 		
 		//check to be sure we are not overflowing the buffer
 		if (lineCharIndex == maxLineLength) {
-			noErrors = false;
-			printf(
-				"error: token at line %d exceeds maxLineLength\n", 
-				currentLine
-			);
+			putError("line is too long");
 			return;
 		}
 		
@@ -65,7 +61,7 @@ void  getLine(void) {
 		//check for linebreaks, comments, and eliminate trailing whitespace
 		if (
 			lineBuf[lineCharIndex] == '\n' ||
-			lineBuf[lineCharIndex] == commentChar
+			lineBuf[lineCharIndex] == commentInitializer
 		) {
 			//null terminate the buffer
 			lineBuf[lineCharIndex] = '\0';
@@ -78,7 +74,7 @@ void  getLine(void) {
 			}
 			
 			//if we hit a comment, read through the rest of the comment
-			if (lineBuf[lineCharIndex] == commentChar) {
+			if (lineBuf[lineCharIndex] == commentInitializer) {
 				char c = fgetc(fileStream);
 				if (c == '\n')
 					return;
@@ -98,17 +94,17 @@ void  getVar(void) {}
 void  getSet(void) {}
 
 void  getRoot(void) {}
-void  getFrame(void) {
-	currentFrame++;
+void  getStateframe(void) {
+	currentStateframe++;
 	
-	//if frameSpace is full then reallocate
-	if (currentFrame == frameSpace) {
-		frame  *prevFrameSpace = frameSpace;
-		frameSpace += framePage;
-		frameSpace = malloc( sizeof(frame)*frameSpace );
-		for (int i = 0; i < currentFrame; i++)
-			frameSpace[i] = prevFrameSpace[i];
-		free(prevFrameSpace);
+	//if stateframeSpace is full then reallocate
+	if (currentStateframe == stateframeSpace) {
+		stateframe  *prevStateframeSpace = stateframeSpace;
+		stateframeSpace += stateframePage;
+		stateframeSpace = malloc( sizeof(stateframe)*stateframeSpace );
+		for (int i = 0; i < currentStateframe; i++)
+			stateframeSpace[i] = prevStateframeSpace[i];
+		free(prevStateframeSpace);
 	}
 	
 	//ignore spaces between the '#' and the name
@@ -121,28 +117,30 @@ void  getFrame(void) {
 			lineBuf[bufPos] >=  '0' || 
 			lineBuf[bufPos] <=  '9'
 		) {
-			noErrors = false;
-			printf("error: invalid frame name at line %d\n", currentLine);
+			putError("invalid stateframe name");
 			return;
 		}
 		else break;
 	}
 	
-	//allocate space for .name, initialize .outputCount
-	frameSpace[currentFrame].name = malloc( sizeof(char)*maxLineLength );
-	frameSpace[currentFrame].outputCount = 0;
+	//allocate space for .name, initialize .stateNodeCount
+	stateframeSpace[currentStateframe].name
+		= malloc( sizeof(char)*maxTokenLength );
+	stateframeSpace[currentStateframe].stateNodeCount = 0;
 	
 	//copy from lineBuf to .name
 	int namePos = 0;
 	while (true) {
-		frameSpace[currentFrame].name[namePos] = lineBuf[bufPos];
+		stateframeSpace[currentStateframe].name[namePos] = lineBuf[bufPos];
 		if (lineBuf[bufPos] == '\0')
 			break;
 		namePos++;
 		bufPos++;
 	}
 }
-void  getOutput(void) {}
+void  getStateNode(void) {
+	
+}
 
 void  parse(void) {
 	while (noErrors) {
@@ -154,25 +152,25 @@ void  parse(void) {
 		
 		//if the line starts with a space or tab then error
 		else if (lineBuf[0] == ' ') {
-			error_leadingSpace();
+			putError("leading space");
 			return;
 		}
 		else if (lineBuf[0] == '\t') {
-			error_overIndented();
+			putError("over-idented");
 			return;
 		}
 		
-		//check for new frame
+		//check for new stateframe
 		else if (lineBuf[0] = '#') {
-			getFrame();
+			getStateframe();
 		}
 		
-		//we must have either a root or an output
+		//we must have either a root or a stateNode
 		else {
-			if (currentFrame < 0)
+			if (currentStateframe < 0)
 				getRoot();
 			else
-				getOutput();
+				getStateNode();
 		}
 	}
 }
@@ -266,7 +264,7 @@ void  getNode() {
 					return;
 				case '#':
 					if (expectedIndentation == 0) {
-						getFrame();
+						getStateframe();
 						return;
 					}
 					else tokenBuf[tokenCharIndex] = fileChar;
