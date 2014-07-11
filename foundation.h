@@ -34,22 +34,28 @@ typedef struct {
 	char      *name;
 	nodeIndex  definition;// just for argument and variable calls
 	int8_t     argRefIndex;//just for argument calls
-	uint8_t    arity;
+	int8_t     arity;
 	nodeIndex  arguments[maxArity];//if negative then already evaluated
 	evaluator  evaluate;
 	UOE        output;
 } node;
 
-typedef struct stateframe {
-	char       *name;
-	int16_t     stateNodeCount;
+
+
+#define   maxTokenLength      80
+#define   maxLineLength      200
+
+typedef struct frameform {
+	char        name[maxTokenLength];
+	int16_t     currentStateNode;
+	int16_t     stateNodeSpace;
 	nodeIndex  *stateNodes;
 };
 
 
 nodeIndex *nodes;
 nodeIndex *rootNodes;
-nodeIndex *stateframes;
+nodeIndex *frameforms;
 
 
 
