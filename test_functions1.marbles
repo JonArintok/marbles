@@ -1,21 +1,22 @@
 
 
-num  foo  34    `0
+foo  34   ;0
 
-fn  double      `1
+double    ;1
 	num  in
-	is  num
-	mul           `2
-		2           `3
-		in          `4
+	num
+	=
+	mul     ;2
+		2     ;3
+		in    ;4
 
 
 
-#  main
+# main
 
-num  out A      `5
-	double        `6
-		foo         `7
-
-`should be 68
+out A     ;5
+	num
+	=        should be 68
+	double  ;6
+		foo   ;7
 

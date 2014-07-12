@@ -3,8 +3,8 @@
 void eval_numLit(nodeIndex self) {}
 const node node_numLit = {
 	.name =
-		"fn  numLit\n"
-		"\tis  num",
+		"numLit\n"
+		"\tnum",
 	.arity         = 0,
 	.arguments     = {},
 	.evaluate      = eval_numLit,
@@ -21,10 +21,10 @@ void eval_add(nodeIndex self) {
 }
 const node node_add = {
 	.name =
-		"fn  add\n"
+		"add\n"
 		"\tnum  a\n"
 		"\tnum  b\n"
-		"\tis  num",
+		"\tnum",
 	.arity         = 2,
 	.arguments     = {},
 	.evaluate      = eval_add,
@@ -41,10 +41,10 @@ void eval_sub(nodeIndex self) {
 }
 const node node_sub = {
 	.name = 
-		"fn  sub\n"
+		"sub\n"
 		"\tnum  a\n"
 		"\tnum  b\n"
-		"\tis  num",
+		"\tnum",
 	.arity         = 2,
 	.arguments     = {},
 	.evaluate      = eval_sub,
@@ -61,10 +61,10 @@ void eval_mul(nodeIndex self) {
 }
 const node node_mul = {
 	.name =
-		"fn  mul\n"
+		"mul\n"
 		"\tnum  a\n"
 		"\tnum  b\n"
-		"\tis  num",
+		"\tnum",
 	.arity         = 2,
 	.arguments     = {},
 	.evaluate      = eval_mul,
@@ -81,10 +81,10 @@ void eval_div(nodeIndex self) {
 }
 const node node_div = {
 	.name =
-		"fn  div\n"
+		"div\n"
 		"\tnum  a\n"
 		"\tnum  b\n"
-		"\tis  num",
+		"\tnum",
 	.arity         = 2,
 	.arguments     = {},
 	.evaluate      = eval_div,

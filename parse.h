@@ -1,6 +1,8 @@
 
 
-#define   commentInitializer  ';'
+#define   commentInitializer   ';'
+#define   typeBodyBoundary     '='
+#define   frameFormInitializer '#'
 
 FILE     *fileStream;
 char     *fileName
@@ -63,7 +65,8 @@ void  getLine(void) {
 		//check for linebreaks, comments, and eliminate trailing whitespace
 		if (
 			lineBuf[lineCharIndex] == '\n' ||
-			lineBuf[lineCharIndex] == commentInitializer
+			lineBuf[lineCharIndex] == commentInitializer || 
+			lineBuf[lineCharIndex] == typeBodyBoundary
 		) {
 			//null terminate the buffer
 			lineBuf[lineCharIndex] = '\0';
@@ -89,12 +92,108 @@ void  getLine(void) {
 	}
 }
 
-void  getBranch(void) {}
+void  getNode(void) {
+	
+	//if nodes is full then allocate/reallocate
+	if (currentNode == nodeSpace) {
+		nodeSpace += nodePage;
+		if (currentNode == 0)
+			nodes = malloc( sizeof(node)*nodeSpace );
+		else
+			nodes = realloc( nodes, sizeof(node)*nodeSpace );
+	}
+	
+	
+	//check for rootNode or stateNode
+	if (expectedIndentation == 0) {
+		
+		//either way
+		currentNode.arity = 1;
+		currentNode.arguments[0] = currentNode + 1;
+		
+		//get the .name of the node
+		nodes[currentNode].name = malloc( sizeof(char)*nodeNamePage );
+		int nodeNameSpace = nodeNamePage;
+		int namePos = 0;
+		int lineBufPos = 0;
+		while (true) {
+			
+			//reallocate if nodes is full
+			if (namePos < nodeNameSpace) {
+				nodeNameSpace += nodeNamePage;
+				nodes[currentNode].name = realloc(
+					nodes[currentNode].name, 
+					sizeof(char)*nodeNameSpace
+				);
+			}
+			
+			//check for newlines
+			if (lineBuf[lineBufPos] == '\0') {
+				nodes[currentNode].name[namePos] = '\n';
+				getLine();
+				lineBufPos = -1;
+				if (lineBuf[0] == '\t') {
+					if (lineBuf[1] == typeBodyBoundary) {
+						//replace that \n with \0 and we're done
+						nodes[currentNode].name[namePos] = '\0';
+						break;
+					}
+				}
+				else {
+					putError("incomplete type declaration");
+					return;
+				}
+			}
+			//else copy the char
+			else
+				nodes[currentNode].name[namePos] = lineBuf[lineBufPos];
+			
+			namePos++;
+			lineBufPos++;
+		}
+		
+		//stateNode
+		if (inFrameform) {
+			//if currentFrameform.stateNodes is full then allocate/reallocate
+			if (
+				currentFrameform.currentStateNode == 
+				currentFrameform.stateNodeSpace
+			) {
+				currentFrameform.stateNodeSpace += stateNodePage;
+				if (currentFrameform.currentStateNode == 0)
+					currentFrameform.stateNodes = malloc(
+						sizeof(nodeIndex)*currentFrameform.stateNodeSpace
+					);
+				else
+					currentFrameform.stateNodes = realloc(
+						currentFrameform.stateNodes,
+						sizeof(nodeIndex)*currentFrameform.stateNodeSpace
+					);
+			}
+			
+			//the current stateNode is the current node
+			nodes[currentNode].evaluate = eval_state;
+			currentFrameform.currentStateNode = currentNode;
+			
+			currentFrameform.currentStateNode++;
+		}
+		
+		//rootNode
+		else {
+			
+		}
+		
+		//the next node must be the branch of this defNode
+		currentNode++;
+		expectedIndentation++;
+		getNode();
+	}
+	
+	
+	
+	
+}
 
-void  getFn(void) {}
-void  getVar(void) {}
-
-void  getRootNode(void) {}
 void  getFrameform(void) {
 	inFrameform = true;
 	
@@ -144,66 +243,6 @@ void  getFrameform(void) {
 	currentFrameform++;
 }
 
-void  getStateNode(void) {
-	
-	//if nodes is full then allocate/reallocate
-	if (currentNode == nodeSpace) {
-		nodeSpace += nodePage;
-		if (currentNode == 0)
-			nodes = malloc( sizeof(node)*nodeSpace );
-		else
-			nodes = realloc( nodes, sizeof(node)*nodeSpace );
-	}
-	
-	//if currentFrameform.stateNodes is full then allocate/reallocate
-	if (
-		currentFrameform.currentStateNode == 
-		currentFrameform.stateNodeSpace
-	) {
-		currentFrameform.stateNodeSpace += stateNodePage;
-		if (currentFrameform.currentStateNode == 0)
-			currentFrameform.stateNodes
-				= malloc( sizeof(nodeIndex)*currentFrameform.stateNodeSpace );
-		else
-			currentFrameform.stateNodes 
-				= realloc(
-					currentFrameform.stateNodes,
-					sizeof(nodeIndex)*currentFrameform.stateNodeSpace
-				)
-			;
-	}
-	
-	//the current stateNode is the current node
-	currentFrameform.currentStateNode = currentNode;
-	
-	
-	//copy the name from lineBuf into the stateNode
-	char  *stateNodeNameDest
-		= currentFrameform.stateNodes[
-			currentFrameform.currentStateNode
-		].name
-	;
-	stateNodeNameDest = malloc( sizeof(char)*nodeNamePage );
-	int nodeNameSpace = nodeNamePage;
-	int namePos = 0;
-	int bufPos  = 1;
-	while (lineBuf[bufPos] == ' ')
-		bufPos++;
-	while (true) {
-		if (namePos)
-		stateNodeNameDest[namePos] = lineBuf[bufPos];
-		if (lineBuf[bufPos] == '\0')
-			break;
-		namePos++;
-		bufPos++;
-	}
-	
-	//the next node must be the branch of the stateNode
-	currentNode++;
-	getBranch();
-	
-	currentFrameform.currentStateNode++;
-}
 
 void  parse(void) {
 	//go through the file(s) line by line
@@ -225,20 +264,16 @@ void  parse(void) {
 		}
 		
 		//check for beginning or end of frameform
-		else if (lineBuf[0] = '#') {
-			if (lineBuf[1] = '#')
+		else if (lineBuf[0] = frameFormInitializer) {
+			if (lineBuf[1] = frameFormInitializer)
 				inFrameform = false;
 			else
 				getFrameform();
 		}
 		
-		//we must have either a root or a stateNode
-		else {
-			if (inFrameform)
-				getStateNode();
-			else
-				getRootNode();
-		}
+		//we must have a node
+		else
+			getNode();
 	}
 	
 	//check for type errors
