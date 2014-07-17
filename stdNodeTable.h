@@ -91,18 +91,14 @@ const node node_div = {
 	.output.n      = 0
 };
 
-#define nodeDefPageSize  100
-int nodeDefTableLength = 5;
-const node *nodeDefTable[nodeDefPageSize] = {
+#define stdNodeTableLength  5
+const node *stdNodeTable[stdNodeTableLength] = {
 	&node_numLit,
 	&node_add,
 	&node_sub,
 	&node_mul,
 	&node_div
 };
-
-//#define  userNodeTableLength 100
-//node  *usrNodeTable[userNodeTableLength]
 
 
 

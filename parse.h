@@ -19,7 +19,7 @@ bool  inFrameform = false;
 #define    nodePage      20
 #define    nodeNamePage  20
 int        nodeSpace    = 0;
-nodeIndex  currentNode  = 0;
+nodeIndex  currentNode  = -1;
 
 #define    rootNodePage     10
 int        rootNodeSpace   = 0;
@@ -62,6 +62,23 @@ void  getLine(void) {
 			return;
 		}
 		
+		//check for under-indentation
+		if (
+			lineCharIndex < expectedIndentation && 
+			lineBuf[lineCharIndex] != '\t'
+		) {
+			putError("under-indented");
+			return;
+		}
+		//check for over-indentation and unexpected tabs
+		if (
+			lineCharIndex >= expectedIndentation && 
+			lineBuf[lineCharIndex] == '\t'
+		) {
+			putError("unexpected tab character");
+			return;
+		}
+		
 		//check for linebreaks, comments, and eliminate trailing whitespace
 		if (
 			lineBuf[lineCharIndex] == '\n' ||
@@ -90,9 +107,36 @@ void  getLine(void) {
 			}
 		}
 	}
+	
+	//remove indentation when reading bodies
+	if (expectedIndentation) {
+		for (
+			int lineBufIndex = 0;
+			lineBuf[lineBufIndex] == '\0';
+			lineBufIndex++
+		) {
+			lineBuf[lineBufIndex] = lineBuf[expectedIndentation+lineBufIndex];
+		}
+	}
+	
 }
 
+void  getArgs(void) {
+	nodeIndex  parent = currentNode;
+	expectedIndentation++;
+	for (
+		int argIndex = 0;
+		argIndex < nodes[parent].arity;
+		argIndex++
+	) {
+		getLine();
+		getNode();
+		nodes[parent].arguments[argIndex] = currentNode;
+	}
+	expectedIndentation--;
+}
 void  getNode(void) {
+	currentNode++;
 	
 	//if nodes is full then allocate/reallocate
 	if (currentNode == nodeSpace) {
@@ -108,8 +152,8 @@ void  getNode(void) {
 	if (expectedIndentation == 0) {
 		
 		//either way
-		currentNode.arity = 1;
-		currentNode.arguments[0] = currentNode + 1;
+		nodes[currentNode].arity = 1;
+		nodes[currentNode].arguments[0] = currentNode + 1;
 		
 		//get the .name of the node
 		nodes[currentNode].name = malloc( sizeof(char)*nodeNamePage );
@@ -160,21 +204,22 @@ void  getNode(void) {
 				currentFrameform.stateNodeSpace
 			) {
 				currentFrameform.stateNodeSpace += stateNodePage;
-				if (currentFrameform.currentStateNode == 0)
+				if (currentFrameform.currentStateNode == 0) {
 					currentFrameform.stateNodes = malloc(
 						sizeof(nodeIndex)*currentFrameform.stateNodeSpace
 					);
-				else
+				}
+				else {
 					currentFrameform.stateNodes = realloc(
 						currentFrameform.stateNodes,
 						sizeof(nodeIndex)*currentFrameform.stateNodeSpace
 					);
+				}
 			}
 			
 			//the current stateNode is the current node
 			nodes[currentNode].evaluate = eval_state;
 			currentFrameform.currentStateNode = currentNode;
-			
 			currentFrameform.currentStateNode++;
 		}
 		
@@ -183,15 +228,70 @@ void  getNode(void) {
 			
 		}
 		
-		//the next node must be the branch of this defNode
+		//the next node must be the body of this defNode
 		currentNode++;
 		expectedIndentation++;
+		getLine();
 		getNode();
+		return;
 	}
 	
+	//check for number literal
+	if (
+		lineBuf[expectedIndentation] >= '0' && 
+		lineBuf[expectedIndentation] <= '9'
+	) {
+		//make sure it's a valid number
+		for (int lineBufPos = expectedIndentation;; lineBufPos++) {
+			if (lineBuf[lineBufPos] == '\0')
+				break;
+			if (
+				(
+					lineBuf[lineBufPos] < '0' || 
+					lineBuf[lineBufPos] > '9'
+				) && 
+				lineBuf[lineBufPos] != '.'
+			) {
+				putError("error: invalid number literal");
+				return;
+			}
+		}
+		
+		//fill in the node, sscanf into the output
+		nodes[currentNode] = node_numLit;
+		sscanf(
+			&lineBuf[expectedIndentation], 
+			"%lf", 
+			&nodes[currentNode].output.n
+		);
+		return;
+	}
+	
+	//check for reference to stdNode
+	for (int i = 0; i < stdNodeTableLength; i++) {
+		int charIndex = 0
+		for (
+			;
+			lineBuf[charIndex] == stdNodeTable[i]->name[charIndex];
+			charIndex++
+		) {}
+		if (
+			lineBuf[charIndex] == '\0' &&
+			stdNodeTable[i]->name[charIndex] == '\n'
+		) {
+			//we have a match
+			nodes[currentNode] = stdNodeTable[i];
+			if (nodes[currentNode].arity)
+				getArgs();
+		}
+	}
+	
+	//check for reference to a rootNode
 	
 	
-	
+	//none of the above
+	putError("not recognized:");
+	printf("\t\t%s\n", lineBuf);
 }
 
 void  getFrameform(void) {
@@ -280,6 +380,29 @@ void  parse(void) {
 	
 	
 }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
