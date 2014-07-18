@@ -12,9 +12,15 @@
 
 
 
-//void cleanUp(void) {
-//	
-//}
+void cleanUp(void) {
+	for (int i = 0; i < currentNode; i++)
+		free( nodes[i].name );
+	free(nodes);
+	free(rootNodes);
+	for (int i = 0; i < currentFrameform; i++)
+		free( frameforms[i].stateNodes );
+	free( frameforms );
+}
 
 
 int main(int argc, char **argv) {
@@ -25,7 +31,8 @@ int main(int argc, char **argv) {
 	}
 	fileStream = fopen(fileName, "r");
 	if (fileStream == NULL) {
-		printf("error: could not open '%s'\n\n", fileName);
+		putError("could not open:");
+		printf("\t\t%s\n", fileName);
 		return 2;
 	}
 	
@@ -34,37 +41,27 @@ int main(int argc, char **argv) {
 		nodes[i].name = "empty";
 	}
 	
-	
-	
-	while (true) {
-		
-		rootNodes[currentRootNode] = currentNode;
-		
-		getNode();
-		if (!noErrors || reachedEOF)
-			break;
-		
-		//if the current rootNode is still "empty", then ignore it,
-		//otherwise, we count the root node to be evaluated
-		if (strcmp( nodes[rootNodes[currentRootNode]].name, "empty" )) {
-			currentRootNode++;
-			// reallocate the rootNodes to a larger array if necessary
-		}
-		
-	}
+	parse();
 	
 	fclose(fileStream);
 	
 	if (noErrors) {
-		puts("results:");
 		
-		for (int i = 0; i<currentRootNode; i++) {
-			nodes[ rootNodes[i] ].evaluate( rootNodes[i] );
-			printf("  %2d: %9.3f\n", i, nodes[rootNodes[i]].output.n);
+		//evaluate the bodies
+		for (int i = 0; i < currentFrameform.currentStateNode; i++) {
+			evaluateNode( currentFrameform.stateNodes[i] + 1 );
+		}
+		//update the state and print it
+		for (int i = 0; i < currentFrameform.currentStateNode; i++) {
+			evaluateNode( currentFrameform.stateNodes[i] );
+			printf(
+				"%s:\t%f\n", 
+				i, nodes[ currentFrameform.stateNodes[i].output.n ]
+			);
 		}
 	}
 	
-	//cleanUp();
+	cleanUp();
 	return 0;
 }
 

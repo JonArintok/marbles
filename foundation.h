@@ -59,11 +59,9 @@ nodeIndex *frameforms;
 
 
 
-//void evalArgs(nodeIndex self) {
-//	for (int i=0; i < nodes[self].arity; i++)
-//		nodes[ nodes[self].arguments[i] ].evaluate( nodes[self].arguments[i] );
-//}
-
+void evaluateNode(nodeIndex toBeEvaluated) {
+	nodes[toBeEvaluated].evaluate(toBeEvaluated);
+}
 
 
 
