@@ -36,27 +36,35 @@ int main(int argc, char **argv) {
 		return 2;
 	}
 	
-	//initialize nodes
-	for (int i = 0; i<nodePageSize; i++) {
-		nodes[i].name = "empty";
-	}
 	
 	parse();
 	
 	fclose(fileStream);
 	
+	
 	if (noErrors) {
 		
 		//evaluate the bodies
-		for (int i = 0; i < currentFrameform.currentStateNode; i++) {
-			evaluateNode( currentFrameform.stateNodes[i] + 1 );
+		for (
+			int i = 0;
+			i < frameforms[currentFrameform].currentStateNode;
+			i++
+		) {
+			evaluateNode( frameforms[currentFrameform].stateNodes[i] + 1 );
 		}
 		//update the state and print it
-		for (int i = 0; i < currentFrameform.currentStateNode; i++) {
-			evaluateNode( currentFrameform.stateNodes[i] );
+		for (
+			int i = 0;
+			i < frameforms[currentFrameform].currentStateNode;
+			i++
+		) {
+			evaluateNode( frameforms[currentFrameform].stateNodes[i] );
 			printf(
-				"%s:\t%f\n", 
-				i, nodes[ currentFrameform.stateNodes[i].output.n ]
+				"%d:\t%f\n", 
+				i,
+				nodes[
+					frameforms[currentFrameform].stateNodes[i]
+				].output.n
 			);
 		}
 	}

@@ -5,7 +5,7 @@
 #define   frameFormInitializer '#'
 
 FILE     *fileStream;
-char     *fileName
+char     *fileName;
 char      lineBuf[maxLineLength];
 uint8_t   expectedIndentation = 0;
 uint32_t  currentLine = 0;
@@ -16,19 +16,19 @@ bool  noErrors = true;
 bool  inFrameform = false;
 
 
-#define    nodePage      20
-#define    nodeNamePage  20
-int        nodeSpace    = 0;
+#define    nodePage       20
+#define    nodeNamePage   20
+int        nodeSpace    =  0;
 nodeIndex  currentNode  = -1;
 
-#define    rootNodePage     10
-int        rootNodeSpace   = 0;
-int        currentRootNode = 0;
+#define    rootNodePage      10
+int        rootNodeSpace   =  0;
+int        currentRootNode = -1;
 
-#define    frameformPage      10
-#define    stateNodePage      10
-int        frameformSpace   =  0;
-int        currentFrameform =  0;
+#define    frameformPage       10
+#define    stateNodePage       10
+int        frameformSpace   =   0;
+int        currentFrameform =  -1;
 
 
 
@@ -121,20 +121,7 @@ void  getLine(void) {
 	
 }
 
-void  getArgs(void) {
-	nodeIndex  parent = currentNode;
-	expectedIndentation++;
-	for (
-		int argIndex = 0;
-		argIndex < nodes[parent].arity;
-		argIndex++
-	) {
-		getLine();
-		getNode();
-		nodes[parent].arguments[argIndex] = currentNode;
-	}
-	expectedIndentation--;
-}
+void  getArgs(void);
 void  getNode(void) {
 	currentNode++;
 	
@@ -200,27 +187,31 @@ void  getNode(void) {
 		if (inFrameform) {
 			//if currentFrameform.stateNodes is full then allocate/reallocate
 			if (
-				currentFrameform.currentStateNode == 
-				currentFrameform.stateNodeSpace
+				frameforms[currentFrameform].currentStateNode == 
+				frameforms[currentFrameform].stateNodeSpace
 			) {
-				currentFrameform.stateNodeSpace += stateNodePage;
-				if (currentFrameform.currentStateNode == 0) {
-					currentFrameform.stateNodes = malloc(
-						sizeof(nodeIndex)*currentFrameform.stateNodeSpace
+				frameforms[currentFrameform].stateNodeSpace += stateNodePage;
+				if (frameforms[currentFrameform].currentStateNode == 0) {
+					frameforms[currentFrameform].stateNodes = malloc(
+						sizeof(nodeIndex)*frameforms[
+							currentFrameform
+						].stateNodeSpace
 					);
 				}
 				else {
-					currentFrameform.stateNodes = realloc(
-						currentFrameform.stateNodes,
-						sizeof(nodeIndex)*currentFrameform.stateNodeSpace
+					frameforms[currentFrameform].stateNodes = realloc(
+						frameforms[currentFrameform].stateNodes,
+						sizeof(nodeIndex)*frameforms[
+							currentFrameform
+						].stateNodeSpace
 					);
 				}
 			}
 			
 			//the current stateNode is the current node
 			nodes[currentNode].evaluate = eval_state;
-			currentFrameform.currentStateNode = currentNode;
-			currentFrameform.currentStateNode++;
+			frameforms[currentFrameform].currentStateNode = currentNode;
+			frameforms[currentFrameform].currentStateNode++;
 		}
 		
 		//rootNode
@@ -229,10 +220,10 @@ void  getNode(void) {
 		}
 		
 		//the next node must be the body of this defNode
-		currentNode++;
-		expectedIndentation++;
+		expectedIndentation = 1;
 		getLine();
 		getNode();
+		expectedIndentation = 0;
 		return;
 	}
 	
@@ -269,7 +260,7 @@ void  getNode(void) {
 	
 	//check for reference to stdNode
 	for (int i = 0; i < stdNodeTableLength; i++) {
-		int charIndex = 0
+		int charIndex = 0;
 		for (
 			;
 			lineBuf[charIndex] == stdNodeTable[i]->name[charIndex];
@@ -280,7 +271,7 @@ void  getNode(void) {
 			stdNodeTable[i]->name[charIndex] == '\n'
 		) {
 			//we have a match
-			nodes[currentNode] = stdNodeTable[i];
+			nodes[currentNode] = *stdNodeTable[i];
 			if (nodes[currentNode].arity)
 				getArgs();
 		}
@@ -293,15 +284,33 @@ void  getNode(void) {
 	putError("not recognized:");
 	printf("\t\t%s\n", lineBuf);
 }
+void  getArgs(void) {
+	expectedIndentation++;
+	
+	nodeIndex  parent = currentNode;
+	for (
+		int argIndex = 0;
+		argIndex < nodes[parent].arity;
+		argIndex++
+	) {
+		getLine();
+		getNode();
+		nodes[parent].arguments[argIndex] = currentNode;
+	}
+	
+	expectedIndentation--;
+}
+
 
 void  getFrameform(void) {
+	currentFrameform++;
 	inFrameform = true;
 	
 	//if frameforms is full then reallocate
 	if (currentFrameform == frameformSpace) {
 		frameformSpace += frameformPage;
 		if (currentFrameform == 0)
-			frameforms = malloc( sizeof(frameform)*frameformSpace )
+			frameforms = malloc( sizeof(frameform)*frameformSpace );
 		else 
 			frameforms = realloc(
 				frameforms, 
@@ -325,12 +334,6 @@ void  getFrameform(void) {
 		else break;
 	}
 	
-	//allocate space for .name, initialize .currentStateNode
-	frameforms[currentFrameform].name
-		= malloc( sizeof(char)*maxTokenLength );
-	frameforms[currentFrameform].currentStateNode = 0;
-	frameforms[currentFrameform].stateNodeSpace = 0;
-	
 	//copy from lineBuf to frameforms[currentFrameform].name
 	int namePos = 0;
 	while (true) {
@@ -340,7 +343,10 @@ void  getFrameform(void) {
 		namePos++;
 		bufPos++;
 	}
-	currentFrameform++;
+	
+	//initialize .currentStateNode and .stateNodeSpace and we're done
+	frameforms[currentFrameform].currentStateNode = 0;
+	frameforms[currentFrameform].stateNodeSpace = 0;
 }
 
 
@@ -364,8 +370,8 @@ void  parse(void) {
 		}
 		
 		//check for beginning or end of frameform
-		else if (lineBuf[0] = frameFormInitializer) {
-			if (lineBuf[1] = frameFormInitializer)
+		else if (lineBuf[0] == frameFormInitializer) {
+			if (lineBuf[1] == frameFormInitializer)
 				inFrameform = false;
 			else
 				getFrameform();

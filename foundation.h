@@ -45,22 +45,26 @@ typedef struct {
 #define   maxTokenLength      80
 #define   maxLineLength      200
 
-typedef struct frameform {
+typedef struct {
 	char        name[maxTokenLength];
 	int16_t     currentStateNode;
 	int16_t     stateNodeSpace;
 	nodeIndex  *stateNodes;
-};
+} frameform;
 
 
-nodeIndex *nodes;
+node      *nodes;
 nodeIndex *rootNodes;
-nodeIndex *frameforms;
+frameform *frameforms;
 
 
 
 void evaluateNode(nodeIndex toBeEvaluated) {
 	nodes[toBeEvaluated].evaluate(toBeEvaluated);
+}
+void evalArgs(nodeIndex self) {
+	for (int i=0; i < nodes[self].arity; i++)
+		evaluateNode( nodes[self].arguments[i] );
 }
 
 
