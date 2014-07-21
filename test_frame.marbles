@@ -1,5 +1,5 @@
 
-# main          ;a frame named "main"
+# enter          ;a frame named "enter"
 
 output A        ;an output named "output A"
 	num

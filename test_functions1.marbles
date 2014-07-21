@@ -1,22 +1,21 @@
 
 
-foo  34   ;0
+foo  34
 
-double    ;1
+double
 	num  in
 	num
 	=
-	mul     ;2
-		2     ;3
-		in    ;4
+	mul
+		2
+		in
 
 
+# enter
 
-# main
-
-out A     ;5
+out A
 	num
 	=        should be 68
-	double  ;6
-		foo   ;7
+	double
+		foo
 

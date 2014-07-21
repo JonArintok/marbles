@@ -17,9 +17,10 @@
 
 int main(void) {
 	
+	nodes = malloc(sizeof(node)*10);
 	
 	//num  foo
-	nodes[0].name     = "num  foo  34";	
+	nodes[0].name     = "foo";
 	nodes[0].evaluate = eval_varDef;
 	nodes[0].output.n = 34;
 	
@@ -27,9 +28,9 @@ int main(void) {
 	
 	//fn  double
 	nodes[1].name = 
-		"fn  double\n"
+		"double\n"
 		"\tnum  in\n"
-		"\tis  num";
+		"\tnum";
 	nodes[1].arity        = 1;
 	nodes[1].arguments[0] = 2;
 	nodes[1].evaluate     = eval_fnDef;
@@ -46,9 +47,9 @@ int main(void) {
 	
 	//		in
 	nodes[4].name = 
-		"fn  double\n"
+		"double\n"
 		"\tnum  in\n"
-		"\tis  num";
+		"\tnum";
 	nodes[4].definition  = 1; //the nodeIndex of "double"
 	nodes[4].argRefIndex = 0; //the argument index of "in"
 	nodes[4].arity       = 0;
@@ -57,7 +58,9 @@ int main(void) {
 	
 	
 	//num  out A
-	nodes[5].name         = "num  out A";
+	nodes[5].name = 
+		"out A\n"
+		"\tnum";
 	nodes[5].arity        = 1;
 	nodes[5].arguments[0] = 6;
 	nodes[5].evaluate     = eval_state;
@@ -81,7 +84,7 @@ int main(void) {
 	
 	printf("should be 68: %f\n", nodes[5].output.n);
 	
-	
+	free(nodes);
 	return 0;
 }
 
