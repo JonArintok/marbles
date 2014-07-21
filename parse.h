@@ -35,7 +35,7 @@ int        currentFrameform =  -1;
 void  putError(char *message) {
 	noErrors = false;
 	printf(
-		"error in line %d of %s :\n\t%s\n", 
+		"error in line %d of %s : %s", 
 		currentLine, fileName, message
 	);
 }
@@ -49,7 +49,7 @@ void  getLine(void) {
 		
 		//check to be sure we are not overflowing the buffer
 		if (lineCharIndex == maxLineLength) {
-			putError("line is too long");
+			putError("line is too long\n");
 			return;
 		}
 		
@@ -62,57 +62,72 @@ void  getLine(void) {
 			return;
 		}
 		
-		//check for under-indentation
-		if (
-			lineCharIndex < expectedIndentation && 
-			lineBuf[lineCharIndex] != '\t'
-		) {
-			putError("under-indented");
-			return;
-		}
-		//check for over-indentation and unexpected tabs
-		if (
-			lineCharIndex >= expectedIndentation && 
-			lineBuf[lineCharIndex] == '\t'
-		) {
-			putError("unexpected tab character");
-			return;
-		}
-		
-		//check for linebreaks, comments, and eliminate trailing whitespace
+		//newlines, comments, typeBodyBoundary, and trailing whitespace
 		if (
 			lineBuf[lineCharIndex] == '\n' ||
 			lineBuf[lineCharIndex] == commentInitializer || 
 			lineBuf[lineCharIndex] == typeBodyBoundary
 		) {
-			//null terminate the buffer
+			
+			//if we hit the typeBodyBoundary, put the '\0' after, not over
+			if (lineBuf[lineCharIndex] == typeBodyBoundary) {
+				lineCharIndex++;
+			}
+			
+			//if we're not at the end of the line, read through to the end
+			if (lineBuf[lineCharIndex] != '\n') {
+				char c;
+				while ( ( c = fgetc(fileStream) ) != '\n' ) {
+					if (c == EOF) {
+						reachedEOF = true;
+						return;
+					}
+				}
+			}
+			
+			//null terminate the string
 			lineBuf[lineCharIndex] = '\0';
 			
 			//remove trailing whitespace, if any
-			int backstep = 1;
-			while (lineBuf[lineCharIndex-backstep] == ' ') {
-				lineBuf[lineCharIndex-backstep] = '\0';
-				backstep++;
-			}
-			
-			//if we hit a comment, read through the rest of the comment
-			if (lineBuf[lineCharIndex] == commentInitializer) {
-				char c = fgetc(fileStream);
-				if (c == '\n')
-					return;
-				if (c == EOF) {
-					reachedEOF = true;
-					return;
+			if (lineCharIndex > 1) {
+				int backstep = 1;
+				while (lineBuf[lineCharIndex-backstep] == ' ') {
+					lineBuf[lineCharIndex-backstep] = '\0';
+					backstep++;
 				}
 			}
+			
+			//end of the line
+			break;
 		}
+	}
+	
+	//check for leading space
+	if (lineBuf[0] == ' ') {
+		putError("leading space\n");
+		return;
 	}
 	
 	//remove indentation when reading bodies
 	if (expectedIndentation) {
+		
+		//check for proper indentation
+		int i = 0;
+		for (; i < expectedIndentation; i++) {
+			if (lineBuf[i] != '\t') {
+				putError("under-indented\n");
+				return;
+			}
+		}
+		if (lineBuf[i+1] == '\t') {
+			putError("over-indented\n");
+			return;
+		}
+		
+		//remove indentation from lineBuf
 		for (
 			int lineBufIndex = 0;
-			lineBuf[lineBufIndex] == '\0';
+			lineBuf[lineBufIndex] != '\0';
 			lineBufIndex++
 		) {
 			lineBuf[lineBufIndex] = lineBuf[expectedIndentation+lineBufIndex];
@@ -142,14 +157,14 @@ void  getNode(void) {
 		nodes[currentNode].arity = 1;
 		nodes[currentNode].arguments[0] = currentNode + 1;
 		
-		//get the .name of the node
+		//get the .name of the node, which includes the type information
 		nodes[currentNode].name = malloc( sizeof(char)*nodeNamePage );
 		int nodeNameSpace = nodeNamePage;
 		int namePos = 0;
 		int lineBufPos = 0;
 		while (true) {
 			
-			//reallocate if nodes is full
+			//reallocate if nodeNameSpace is full
 			if (namePos < nodeNameSpace) {
 				nodeNameSpace += nodeNamePage;
 				nodes[currentNode].name = realloc(
@@ -171,7 +186,7 @@ void  getNode(void) {
 					}
 				}
 				else {
-					putError("incomplete type declaration");
+					putError("incomplete type declaration\n");
 					return;
 				}
 			}
@@ -210,7 +225,9 @@ void  getNode(void) {
 			
 			//the current stateNode is the current node
 			nodes[currentNode].evaluate = eval_state;
-			frameforms[currentFrameform].currentStateNode = currentNode;
+			frameforms[currentFrameform].stateNodes[
+				frameforms[currentFrameform].currentStateNode
+			] = currentNode;
 			frameforms[currentFrameform].currentStateNode++;
 		}
 		
@@ -220,20 +237,14 @@ void  getNode(void) {
 		}
 		
 		//the next node must be the body of this defNode
-		expectedIndentation = 1;
-		getLine();
-		getNode();
-		expectedIndentation = 0;
+		getArgs();
 		return;
 	}
 	
 	//check for number literal
-	if (
-		lineBuf[expectedIndentation] >= '0' && 
-		lineBuf[expectedIndentation] <= '9'
-	) {
+	if (lineBuf[0] >= '0' && lineBuf[0] <= '9') {
 		//make sure it's a valid number
-		for (int lineBufPos = expectedIndentation;; lineBufPos++) {
+		for (int lineBufPos = 0;; lineBufPos++) {
 			if (lineBuf[lineBufPos] == '\0')
 				break;
 			if (
@@ -243,7 +254,7 @@ void  getNode(void) {
 				) && 
 				lineBuf[lineBufPos] != '.'
 			) {
-				putError("error: invalid number literal");
+				putError("invalid number literal\n");
 				return;
 			}
 		}
@@ -251,7 +262,7 @@ void  getNode(void) {
 		//fill in the node, sscanf into the output
 		nodes[currentNode] = node_numLit;
 		sscanf(
-			&lineBuf[expectedIndentation], 
+			&lineBuf[0], 
 			"%lf", 
 			&nodes[currentNode].output.n
 		);
@@ -272,8 +283,7 @@ void  getNode(void) {
 		) {
 			//we have a match
 			nodes[currentNode] = *stdNodeTable[i];
-			if (nodes[currentNode].arity)
-				getArgs();
+			return;
 		}
 	}
 	
@@ -281,8 +291,7 @@ void  getNode(void) {
 	
 	
 	//none of the above
-	putError("not recognized:");
-	printf("\t\t%s\n", lineBuf);
+	putError("not recognized : "); printf("%s\n", lineBuf);
 }
 void  getArgs(void) {
 	expectedIndentation++;
@@ -290,12 +299,15 @@ void  getArgs(void) {
 	nodeIndex  parent = currentNode;
 	for (
 		int argIndex = 0;
-		argIndex < nodes[parent].arity;
+		argIndex < nodes[parent].arity && noErrors;
 		argIndex++
 	) {
 		getLine();
 		getNode();
 		nodes[parent].arguments[argIndex] = currentNode;
+		if (nodes[currentNode].arity) {
+			getArgs();
+		}
 	}
 	
 	expectedIndentation--;
@@ -325,10 +337,9 @@ void  getFrameform(void) {
 			bufPos++;
 		else if (
 			lineBuf[bufPos] == '\0' || 
-			lineBuf[bufPos] >=  '0' || 
-			lineBuf[bufPos] <=  '9'
+			(lineBuf[bufPos] >=  '0'  &&  lineBuf[bufPos] <=  '9')
 		) {
-			putError("invalid frameform name");
+			putError("invalid frameform name\n");
 			return;
 		}
 		else break;
@@ -352,22 +363,16 @@ void  getFrameform(void) {
 
 void  parse(void) {
 	//go through the file(s) line by line
-	while (noErrors) {
+	while ( noErrors ) {
 		getLine();
+		
+		//if we reached the end of the file then we're done
+		if (reachedEOF)
+			break;
 		
 		//if the line is blank or commented then skip it
 		if (lineBuf[0] == '\0')
 			continue;
-		
-		//if the line starts with a space or tab then error
-		else if (lineBuf[0] == ' ') {
-			putError("leading space");
-			return;
-		}
-		else if (lineBuf[0] == '\t') {
-			putError("over-idented");
-			return;
-		}
 		
 		//check for beginning or end of frameform
 		else if (lineBuf[0] == frameFormInitializer) {
@@ -383,7 +388,6 @@ void  parse(void) {
 	}
 	
 	//check for type errors
-	
 	
 }
 

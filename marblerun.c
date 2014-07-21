@@ -13,13 +13,26 @@
 
 
 void cleanUp(void) {
-	for (int i = 0; i < currentNode; i++)
-		free( nodes[i].name );
-	free(nodes);
-	free(rootNodes);
-	for (int i = 0; i < currentFrameform; i++)
+	
+	//free nodes[i].name unless it's from a static stdNode
+	for (int i = 0; i <= currentNode; i++) {
+		int j = 0;
+		for (; j < stdNodeTableLength; j++) {
+			if (stdNodeTable[j]->name == nodes[i].name)
+				break;
+		}
+		if (j == stdNodeTableLength)
+			free( nodes[i].name );
+	}
+	
+	//free the stateNode arrays and then the frameForm array
+	for (int i = 0; i <= currentFrameform; i++)
 		free( frameforms[i].stateNodes );
 	free( frameforms );
+	
+	//free this other stuff
+	free(nodes);
+	free(rootNodes);
 }
 
 
@@ -53,19 +66,15 @@ int main(int argc, char **argv) {
 			evaluateNode( frameforms[currentFrameform].stateNodes[i] + 1 );
 		}
 		//update the state and print it
+		nodeIndex stanodi;
 		for (
 			int i = 0;
 			i < frameforms[currentFrameform].currentStateNode;
 			i++
 		) {
-			evaluateNode( frameforms[currentFrameform].stateNodes[i] );
-			printf(
-				"%d:\t%f\n", 
-				i,
-				nodes[
-					frameforms[currentFrameform].stateNodes[i]
-				].output.n
-			);
+			stanodi = frameforms[currentFrameform].stateNodes[i];
+			evaluateNode(stanodi);
+			printf("%d:\t%f\n", i, nodes[stanodi].output.n);
 		}
 	}
 	
