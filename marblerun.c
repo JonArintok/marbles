@@ -44,8 +44,8 @@ int main(int argc, char **argv) {
 	}
 	fileStream = fopen(fileName, "r");
 	if (fileStream == NULL) {
-		putError("could not open:");
-		printf("\t\t%s\n", fileName);
+		putError("could not open: ");
+		printf("%s\n", fileName);
 		return 2;
 	}
 	

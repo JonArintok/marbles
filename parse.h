@@ -35,7 +35,7 @@ int        currentFrameform =  -1;
 void  putError(char *message) {
 	noErrors = false;
 	printf(
-		"error in line %d of %s : %s", 
+		"error in line %d of %s: %s", 
 		currentLine, fileName, message
 	);
 }
@@ -143,10 +143,7 @@ void  getNode(void) {
 	//if nodes is full then allocate/reallocate
 	if (currentNode == nodeSpace) {
 		nodeSpace += nodePage;
-		if (currentNode == 0)
-			nodes = malloc( sizeof(node)*nodeSpace );
-		else
-			nodes = realloc( nodes, sizeof(node)*nodeSpace );
+		nodes = realloc( nodes, sizeof(node) * nodeSpace );
 	}
 	
 	
@@ -169,7 +166,7 @@ void  getNode(void) {
 				nodeNameSpace += nodeNamePage;
 				nodes[currentNode].name = realloc(
 					nodes[currentNode].name, 
-					sizeof(char)*nodeNameSpace
+					sizeof(char) * nodeNameSpace
 				);
 			}
 			
@@ -206,21 +203,12 @@ void  getNode(void) {
 				frameforms[currentFrameform].stateNodeSpace
 			) {
 				frameforms[currentFrameform].stateNodeSpace += stateNodePage;
-				if (frameforms[currentFrameform].currentStateNode == 0) {
-					frameforms[currentFrameform].stateNodes = malloc(
-						sizeof(nodeIndex)*frameforms[
-							currentFrameform
-						].stateNodeSpace
-					);
-				}
-				else {
-					frameforms[currentFrameform].stateNodes = realloc(
-						frameforms[currentFrameform].stateNodes,
-						sizeof(nodeIndex)*frameforms[
-							currentFrameform
-						].stateNodeSpace
-					);
-				}
+				frameforms[currentFrameform].stateNodes = realloc(
+					frameforms[currentFrameform].stateNodes,
+					sizeof(nodeIndex) * frameforms[
+						currentFrameform
+					].stateNodeSpace
+				);
 			}
 			
 			//the current stateNode is the current node
@@ -290,8 +278,11 @@ void  getNode(void) {
 	//check for reference to a rootNode
 	
 	
-	//none of the above
-	putError("not recognized : "); printf("%s\n", lineBuf);
+	//undefined for now
+	
+	
+	//temporary
+	putError("not recognized: "); printf("%s\n", lineBuf);
 }
 void  getArgs(void) {
 	expectedIndentation++;
@@ -321,13 +312,10 @@ void  getFrameform(void) {
 	//if frameforms is full then reallocate
 	if (currentFrameform == frameformSpace) {
 		frameformSpace += frameformPage;
-		if (currentFrameform == 0)
-			frameforms = malloc( sizeof(frameform)*frameformSpace );
-		else 
-			frameforms = realloc(
-				frameforms, 
-				sizeof(frameform)*frameformSpace
-			);
+		frameforms = realloc(
+			frameforms, 
+			sizeof(frameform) * frameformSpace
+		);
 	}
 	
 	//ignore spaces between the '#' and the name
@@ -357,11 +345,24 @@ void  getFrameform(void) {
 	
 	//initialize .currentStateNode and .stateNodeSpace and we're done
 	frameforms[currentFrameform].currentStateNode = 0;
-	frameforms[currentFrameform].stateNodeSpace = 0;
+	frameforms[currentFrameform].stateNodeSpace = stateNodePage;
+	frameforms[currentFrameform].stateNodes = malloc(
+		sizeof(nodeIndex) * frameforms[currentFrameform].stateNodeSpace
+	);
 }
 
 
 void  parse(void) {
+	
+	//initialize arrays
+	nodeSpace = nodePage;
+	nodes = malloc( sizeof(node) * nodeSpace );
+	frameformSpace = frameformPage;
+	frameforms = malloc( sizeof(frameform) * frameformSpace );
+	rootNodeSpace = rootNodePage;
+	rootNodes = malloc( sizeof(nodeIndex) * rootNodeSpace );
+	
+	
 	//go through the file(s) line by line
 	while ( noErrors ) {
 		getLine();
@@ -387,11 +388,9 @@ void  parse(void) {
 			getNode();
 	}
 	
+	//recheck undefined
+	
 	//check for type errors
 	
 }
-
-
-
-
 
