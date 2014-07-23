@@ -36,6 +36,6 @@ out B
 	num
 	=               should be 148
 	do to it
-		:add 2 mul 2
-		add 2 mul 2
+		add 2 mul 2  |this function is passed
+		add 2 mul 2  |this function is evaluated
 			foo

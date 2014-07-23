@@ -1,6 +1,6 @@
 
 
-#define   commentInitializer   ';'
+#define   commentInitializer   '|'
 #define   typeBodyBoundary     '='
 #define   frameFormInitializer '#'
 
@@ -135,9 +135,7 @@ void  getLine(void) {
 	}
 	
 }
-
-void  getArgs(void);
-void  getNode(void) {
+void  inc_currentNode(void) {
 	currentNode++;
 	
 	//if nodes is full then allocate/reallocate
@@ -145,89 +143,95 @@ void  getNode(void) {
 		nodeSpace += nodePage;
 		nodes = realloc( nodes, sizeof(node) * nodeSpace );
 	}
+}
+
+void  getArgs(void);
+void  getDefNode(void) {
+	//could be rootNode or stateNode, but either way...
+	inc_currentNode();
+	nodes[currentNode].arity = 1;
+	nodes[currentNode].arguments[0] = currentNode + 1;
 	
-	
-	//check for rootNode or stateNode
-	if (expectedIndentation == 0) {
+	//get the .name of the node, which includes the type information
+	nodes[currentNode].name = malloc( sizeof(char)*nodeNamePage );
+	int nodeNameSpace = nodeNamePage;
+	int namePos = 0;
+	int lineBufPos = 0;
+	while (true) {
 		
-		//either way
-		nodes[currentNode].arity = 1;
-		nodes[currentNode].arguments[0] = currentNode + 1;
+		//reallocate if nodeNameSpace is full
+		if (namePos < nodeNameSpace) {
+			nodeNameSpace += nodeNamePage;
+			nodes[currentNode].name = realloc(
+				nodes[currentNode].name, 
+				sizeof(char) * nodeNameSpace
+			);
+		}
 		
-		//get the .name of the node, which includes the type information
-		nodes[currentNode].name = malloc( sizeof(char)*nodeNamePage );
-		int nodeNameSpace = nodeNamePage;
-		int namePos = 0;
-		int lineBufPos = 0;
-		while (true) {
-			
-			//reallocate if nodeNameSpace is full
-			if (namePos < nodeNameSpace) {
-				nodeNameSpace += nodeNamePage;
-				nodes[currentNode].name = realloc(
-					nodes[currentNode].name, 
-					sizeof(char) * nodeNameSpace
-				);
-			}
-			
-			//check for newlines
-			if (lineBuf[lineBufPos] == '\0') {
-				nodes[currentNode].name[namePos] = '\n';
-				getLine();
-				lineBufPos = -1;
-				if (lineBuf[0] == '\t') {
-					if (lineBuf[1] == typeBodyBoundary) {
-						//replace that \n with \0 and we're done
-						nodes[currentNode].name[namePos] = '\0';
-						break;
-					}
-				}
-				else {
-					putError("incomplete type declaration\n");
-					return;
+		//check for newlines
+		if (lineBuf[lineBufPos] == '\0') {
+			nodes[currentNode].name[namePos] = '\n';
+			getLine();
+			lineBufPos = -1;
+			if (lineBuf[0] == '\t') {
+				if (lineBuf[1] == typeBodyBoundary) {
+					//replace that \n with \0 and we're done
+					nodes[currentNode].name[namePos] = '\0';
+					break;
 				}
 			}
-			//else copy the char
-			else
-				nodes[currentNode].name[namePos] = lineBuf[lineBufPos];
-			
-			namePos++;
-			lineBufPos++;
-		}
-		
-		//stateNode
-		if (inFrameform) {
-			//if currentFrameform.stateNodes is full then allocate/reallocate
-			if (
-				frameforms[currentFrameform].currentStateNode == 
-				frameforms[currentFrameform].stateNodeSpace
-			) {
-				frameforms[currentFrameform].stateNodeSpace += stateNodePage;
-				frameforms[currentFrameform].stateNodes = realloc(
-					frameforms[currentFrameform].stateNodes,
-					sizeof(nodeIndex) * frameforms[
-						currentFrameform
-					].stateNodeSpace
-				);
+			else {
+				putError("incomplete type declaration\n");
+				return;
 			}
-			
-			//the current stateNode is the current node
-			nodes[currentNode].evaluate = eval_state;
-			frameforms[currentFrameform].stateNodes[
-				frameforms[currentFrameform].currentStateNode
-			] = currentNode;
-			frameforms[currentFrameform].currentStateNode++;
 		}
+		//else copy the char
+		else
+			nodes[currentNode].name[namePos] = lineBuf[lineBufPos];
 		
-		//rootNode
-		else {
-			
-		}
-		
-		//the next node must be the body of this defNode
-		getArgs();
-		return;
+		namePos++;
+		lineBufPos++;
 	}
+	
+	//stateNode
+	if (inFrameform) {
+		//if currentFrameform.stateNodes is full then allocate/reallocate
+		if (
+			frameforms[currentFrameform].currentStateNode == 
+			frameforms[currentFrameform].stateNodeSpace
+		) {
+			frameforms[currentFrameform].stateNodeSpace += stateNodePage;
+			frameforms[currentFrameform].stateNodes = realloc(
+				frameforms[currentFrameform].stateNodes,
+				sizeof(nodeIndex) * frameforms[
+					currentFrameform
+				].stateNodeSpace
+			);
+		}
+		
+		//the current stateNode is the current node
+		nodes[currentNode].evaluate = eval_state;
+		frameforms[currentFrameform].stateNodes[
+			frameforms[currentFrameform].currentStateNode
+		] = currentNode;
+		frameforms[currentFrameform].currentStateNode++;
+	}
+	//rootNode
+	else {
+		//variable
+		
+		//function
+	}
+	
+	//check for naming collisions
+	
+	
+	//the next node must be the body of this defNode
+	getArgs();
+	
+}
+void  getRefNode(void) {
+	inc_currentNode();
 	
 	//check for number literal
 	if (lineBuf[0] >= '0' && lineBuf[0] <= '9') {
@@ -269,13 +273,40 @@ void  getNode(void) {
 			lineBuf[charIndex] == '\0' &&
 			stdNodeTable[i]->name[charIndex] == '\n'
 		) {
-			//we have a match
+			//it's a match
 			nodes[currentNode] = *stdNodeTable[i];
 			return;
 		}
 	}
 	
 	//check for reference to a rootNode
+	for (int i = 0; i < currentRootNode; i++) {
+		int charIndex = 0;
+		for (
+			;
+			lineBuf[charIndex] == nodes[ rootNodes[i] ].name[charIndex];
+			charIndex++
+		) {}
+		if (
+			lineBuf[charIndex] == '\0' &&
+			nodes[ rootNodes[i] ].name[charIndex] == '\n'
+		) {
+			//it's a match
+			nodes[currentNode] = nodes[ rootNodes[i] ];
+			nodes[currentNode].definition = rootNodes[i];
+			
+			//is it a function?
+			if ( nodes[ rootNodes[i] ].evaluate == eval_fnDef )
+				nodes[currentNode].evaluate = eval_fnCall;
+			//or a variable?
+			else
+				nodes[currentNode].evaluate = eval_varCall;
+			
+			return;
+		}
+	}
+	
+	//check for reference to a stateNode
 	
 	
 	//undefined for now
@@ -294,7 +325,7 @@ void  getArgs(void) {
 		argIndex++
 	) {
 		getLine();
-		getNode();
+		getRefNode();
 		nodes[parent].arguments[argIndex] = currentNode;
 		if (nodes[currentNode].arity) {
 			getArgs();
@@ -383,9 +414,9 @@ void  parse(void) {
 				getFrameform();
 		}
 		
-		//we must have a node
+		//we must have a DefNode
 		else
-			getNode();
+			getDefNode();
 	}
 	
 	//recheck undefined

@@ -67,7 +67,7 @@ int main(void) {
 	
 	//	double
 	nodes[6].name         = "double";
-	nodes[6].definition        = 1; //the nodeIndex of "double"
+	nodes[6].definition   = 1; //the nodeIndex of "double"
 	nodes[6].arity        = 1;
 	nodes[6].arguments[0] = 7;
 	nodes[6].evaluate     = eval_fnCall;
