@@ -31,8 +31,8 @@ typedef union {
 } UOE;         //union of everything
 typedef void (*evaluator)(nodeIndex toBeEvaluated);
 typedef struct {
-	char      *name;
-	nodeIndex  definition;// just for argument and variable calls
+	char      *name;       //includes type information
+	nodeIndex  definition; //just for argument and variable calls
 	int8_t     argRefIndex;//just for argument calls
 	int8_t     arity;
 	nodeIndex  arguments[maxArity];//if negative then already evaluated

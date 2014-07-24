@@ -3,7 +3,7 @@
 
 output A     |an output named "output A"
 	num
-	=           should be 150
+	=          |should be 150
 	mul        |150
 		1.5
 		add      |100
@@ -16,7 +16,7 @@ output A     |an output named "output A"
 
 output b
 	num
-	=           should be 1.5
+	=          |should be 1.5
 	mul
 		3
 		0.5

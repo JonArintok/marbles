@@ -8,32 +8,8 @@
 
 #include "foundation.h"
 #include "stdNodeTable.h"
+#include "allocation.h"
 #include "parse.h"
-
-
-
-void cleanUp(void) {
-	
-	//free nodes[i].name unless it's from a static stdNode
-	for (int i = 0; i <= currentNode; i++) {
-		int j = 0;
-		for (; j < stdNodeTableLength; j++) {
-			if (stdNodeTable[j]->name == nodes[i].name)
-				break;
-		}
-		if (j == stdNodeTableLength)
-			free( nodes[i].name );
-	}
-	
-	//free the stateNode arrays and then the frameForm array
-	for (int i = 0; i <= currentFrameform; i++)
-		free( frameforms[i].stateNodes );
-	free( frameforms );
-	
-	//free this other stuff
-	free(nodes);
-	free(rootNodes);
-}
 
 
 int main(int argc, char **argv) {
@@ -49,7 +25,7 @@ int main(int argc, char **argv) {
 		return 2;
 	}
 	
-	
+	initAllocation();
 	parse();
 	
 	fclose(fileStream);
@@ -60,7 +36,7 @@ int main(int argc, char **argv) {
 		//evaluate the bodies
 		for (
 			int i = 0;
-			i < frameforms[currentFrameform].currentStateNode;
+			i <= frameforms[currentFrameform].currentStateNode;
 			i++
 		) {
 			evaluateNode( frameforms[currentFrameform].stateNodes[i] + 1 );
@@ -69,7 +45,7 @@ int main(int argc, char **argv) {
 		nodeIndex stanodi;
 		for (
 			int i = 0;
-			i < frameforms[currentFrameform].currentStateNode;
+			i <= frameforms[currentFrameform].currentStateNode;
 			i++
 		) {
 			stanodi = frameforms[currentFrameform].stateNodes[i];

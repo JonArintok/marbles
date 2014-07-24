@@ -1,6 +1,6 @@
 
 
-foo  34
+foo  num = 34
 
 add 2 mul 2
 	num  in
@@ -26,16 +26,16 @@ do to it
 
 # main
 
-out A
+out A               |should be 72
 	num
-	=               should be 72
+	=
 	add 2 mul 2
 		foo
 
-out B
+out B               |should be 148
 	num
-	=               should be 148
+	=
 	do to it
-		add 2 mul 2  |this function is passed
-		add 2 mul 2  |this function is evaluated
+		add 2 mul 2     |this function is passed
+		add 2 mul 2     |this function is evaluated
 			foo

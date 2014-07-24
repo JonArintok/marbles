@@ -1,6 +1,6 @@
 
 
-foo  34
+foo  num = 34
 
 double
 	num  in
@@ -13,9 +13,9 @@ double
 
 # enter
 
-out A
+out A     |should be 68
 	num
-	=        should be 68
+	=
 	double
 		foo
 
