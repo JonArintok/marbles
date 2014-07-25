@@ -138,9 +138,16 @@ void  getDefNode(void) {
 	nodes[currentNode].arity = 1;
 	nodes[currentNode].arguments[0] = currentNode + 1;
 	
+	int  titleLineSpacerCount = spacerCount(&lineBuf[0]);
+	
+	if (titleLineSpacerCount == 1  ||  titleLineSpacerCount > 2) {
+		putError("tokens may not contain spacers\n");
+		return;
+	}
+	
 	//if the line contains the 2 occurrances of double spaces,
 	//then it's a variable
-	if ( spacerCount(&lineBuf[0]) == 2 ) {
+	if (titleLineSpacerCount == 2) {
 		
 		
 		return;
