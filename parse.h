@@ -1,7 +1,6 @@
 
 
 #define   commentInitializer   '|'
-#define   typeBodyBoundary     '='
 #define   frameFormInitializer '#'
 
 FILE     *fileStream;
@@ -16,13 +15,29 @@ bool  noErrors = true;
 bool  inFrameform = false;
 
 
-
 void  putError(char *message) {
 	noErrors = false;
 	printf(
 		"error in line %d of %s: %s", 
 		currentLine, fileName, message
 	);
+}
+
+int  spacerCount(char *in) {
+	int  count = 0;
+	int  pos = -1;
+	while (true) {
+		pos++;
+		
+		if ( in[pos] == ' '  &&  in[pos+1] == ' ' ) {
+			count++;
+			while (in[pos] == ' ')
+				pos++;
+		}
+		
+		if (in[pos] == '\0')
+			return count;
+	}
 }
 
 
@@ -75,7 +90,6 @@ void  getLine(void) {
 					backstep++;
 				}
 			}
-			
 			//end of the line
 			break;
 		}
@@ -109,45 +123,60 @@ void  getLine(void) {
 			lineBuf[lineBufIndex] != '\0';
 			lineBufIndex++
 		) {
-			lineBuf[lineBufIndex] = lineBuf[expectedIndentation+lineBufIndex];
+			lineBuf[lineBufIndex] = 
+				lineBuf[ expectedIndentation + lineBufIndex ];
 		}
 	}
 	
 }
+
 void  getArgs(void);
 void  getDefNode(void) {
+	
 	//could be rootNode or stateNode, but either way...
 	inc_currentNode();
 	nodes[currentNode].arity = 1;
 	nodes[currentNode].arguments[0] = currentNode + 1;
 	
-	//check for variable
-	if ( strchr(&lineBuf[0], typeBodyBoundary) ) {
+	//if the line contains the 2 occurrances of double spaces,
+	//then it's a variable
+	if ( spacerCount(&lineBuf[0]) == 2 ) {
+		
 		
 		return;
 	}
-	
 	//otherwise it must be either a function or a stateNode
-	//get the .name of the node
-	int lineBufPos = 0;
+	
+	//get the .name of the function or a stateNode
+	int  lineBufPos = -1;
+	int  titleLine  = currentLine;
 	while (true) {
 		inc_namePos();
+		lineBufPos++;
 		
-		//check for newlines and the typeBodyBoundary
+		//ignore spaces beyond 2 in a row
+		while (
+			lineBuf[lineBufPos  ] == ' ' &&
+			lineBuf[lineBufPos+1] == ' ' &&
+			lineBuf[lineBufPos+2] == ' '
+		) {
+			lineBufPos++;
+		}
+		
+		//check for newlines
 		if (lineBuf[lineBufPos] == '\0') {
 			nodes[currentNode].name[namePos] = '\n';
+			if (
+				currentLine != titleLine &&
+				!( spacerCount(&lineBuf[0]) )
+			) {
+				//that's the end of the type declaration
+				break;
+			}
+			//otherwise, on to the next line of the type declaration
 			getLine();
 			lineBufPos = -1;
-			if (lineBuf[0] == '\t') {
-				if (lineBuf[1] == typeBodyBoundary) {
-					if (lineBuf[2] != '\0') 
-						putError("unexpected text\n");
-					//replace that \n with \0 and we're done
-					nodes[currentNode].name[namePos] = '\0';
-					break;
-				}
-			}
-			else {
+			if (lineBuf[0] != '\t') {
 				putError("incomplete type declaration\n");
 				return;
 			}
@@ -155,8 +184,6 @@ void  getDefNode(void) {
 		//else copy the char
 		else
 			nodes[currentNode].name[namePos] = lineBuf[lineBufPos];
-		
-		lineBufPos++;
 	}
 	
 	//stateNode

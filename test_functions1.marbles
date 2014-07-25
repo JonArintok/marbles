@@ -1,11 +1,10 @@
 
 
-foo  num = 34
+foo  num  34
 
 double
 	num  in
 	num
-	=
 	mul
 		2
 		in
@@ -15,7 +14,6 @@ double
 
 out A     |should be 68
 	num
-	=
 	double
 		foo
 
