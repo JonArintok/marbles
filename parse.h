@@ -41,7 +41,6 @@ int  spacerCount(char *in) {
 }
 
 
-
 void  getLine(void) {
 	currentLine++;
 	
@@ -129,92 +128,7 @@ void  getLine(void) {
 	}
 	
 }
-
-void  getArgs(void);
-void  getDefNode(void) {
-	
-	//could be rootNode or stateNode, but either way...
-	inc_currentNode();
-	nodes[currentNode].arity = 1;
-	nodes[currentNode].arguments[0] = currentNode + 1;
-	
-	int  titleLineSpacerCount = spacerCount(&lineBuf[0]);
-	
-	if (titleLineSpacerCount == 1  ||  titleLineSpacerCount > 2) {
-		putError("tokens may not contain spacers\n");
-		return;
-	}
-	
-	//if the line contains the 2 occurrances of double spaces,
-	//then it's a variable
-	if (titleLineSpacerCount == 2) {
-		
-		
-		return;
-	}
-	//otherwise it must be either a function or a stateNode
-	
-	//get the .name of the function or a stateNode
-	int  lineBufPos = -1;
-	int  titleLine  = currentLine;
-	while (true) {
-		inc_namePos();
-		lineBufPos++;
-		
-		//ignore spaces beyond 2 in a row
-		while (
-			lineBuf[lineBufPos  ] == ' ' &&
-			lineBuf[lineBufPos+1] == ' ' &&
-			lineBuf[lineBufPos+2] == ' '
-		) {
-			lineBufPos++;
-		}
-		
-		//check for newlines
-		if (lineBuf[lineBufPos] == '\0') {
-			nodes[currentNode].name[namePos] = '\n';
-			if (
-				currentLine != titleLine &&
-				!( spacerCount(&lineBuf[0]) )
-			) {
-				//that's the end of the type declaration
-				break;
-			}
-			//otherwise, on to the next line of the type declaration
-			getLine();
-			lineBufPos = -1;
-			if (lineBuf[0] != '\t') {
-				putError("incomplete type declaration\n");
-				return;
-			}
-		}
-		//else copy the char
-		else
-			nodes[currentNode].name[namePos] = lineBuf[lineBufPos];
-	}
-	
-	//stateNode
-	if (inFrameform) {
-		inc_currentStateNode();
-		
-		//the current stateNode is the current node
-		nodes[currentNode].evaluate = eval_state;
-		frameforms[currentFrameform].stateNodes[
-			frameforms[currentFrameform].currentStateNode
-		] = currentNode;
-	}
-	//rootNode function
-	else {
-		
-	}
-	
-	//check for naming collisions
-	
-	
-	//the next node must be the body of this defNode
-	getArgs();
-	
-}
+ 
 void  getRefNode(void) {
 	inc_currentNode();
 	
@@ -300,6 +214,7 @@ void  getRefNode(void) {
 	//temporary
 	putError("not recognized: "); printf("%s\n", lineBuf);
 }
+
 void  getArgs(void) {
 	expectedIndentation++;
 	
@@ -318,6 +233,141 @@ void  getArgs(void) {
 	}
 	
 	expectedIndentation--;
+}
+
+void  getDefNode(void) {
+	
+	//could be rootNode or stateNode, but either way...
+	inc_currentNode();
+	nodes[currentNode].arity = 1;
+	nodes[currentNode].arguments[0] = currentNode + 1;
+	
+	int  titleLineSpacerCount = spacerCount(&lineBuf[0]);
+	
+	if (titleLineSpacerCount == 1  ||  titleLineSpacerCount > 2) {
+		putError("tokens may not contain spacers\n");
+		return;
+	}
+	
+	//variable
+	if (titleLineSpacerCount == 2) {
+		//get the .name and value of the variable
+		
+		//get the title on the first loop, output type on the second
+		int  lineBufPos = 0;
+		for (int firstLoop = 1; firstLoop > -1; firstLoop--) {
+			
+			while (
+				lineBuf[lineBufPos]   != ' ' &&
+				lineBuf[lineBufPos+1] != ' '
+			) {
+				inc_namePos();
+				nodes[currentNode].name[namePos] = lineBuf[lineBufPos];
+				lineBufPos++;
+			}
+			
+			if (firstLoop) {
+				//make the name consistant with functions and stateNodes
+				inc_namePos();
+				nodes[currentNode].name[namePos] = '\n';
+				inc_namePos();
+				nodes[currentNode].name[namePos] = '\t';
+			}
+			else {
+				//terminate the name
+				inc_namePos();
+				nodes[currentNode].name[namePos] = '\0';
+			}
+			
+			//read through the spacer, however long it may be
+			while (lineBuf[lineBufPos] == ' ') {
+				lineBufPos++;
+			}
+		}
+		
+		if ( lineBuf[lineBufPos] < '0'  ||  lineBuf[lineBufPos] > '9' ) {
+			putError("invalid number literal\n");
+			return;
+		}
+		
+		//move the value up so that it's the only thing in lineBuf
+		int offset = lineBufPos;
+		while (true) {
+			lineBuf[lineBufPos - offset] = lineBuf[lineBufPos];
+			if (lineBuf[lineBufPos] == '\0')
+				break;
+			lineBufPos++;
+		}
+		
+		nodes[currentNode].evaluate = eval_varDef;
+		
+		//the next node should be a number literal
+		getRefNode();
+		
+		return;
+	}
+	//otherwise it must be either a function or a stateNode
+	else {
+		//get the .name of the function or a stateNode
+		
+		int  lineBufPos = -1;
+		int  titleLine  = currentLine;
+		while (true) {
+			inc_namePos();
+			lineBufPos++;
+			
+			//ignore spaces beyond 2 in a row
+			while (
+				lineBuf[lineBufPos  ] == ' ' &&
+				lineBuf[lineBufPos+1] == ' ' &&
+				lineBuf[lineBufPos+2] == ' '
+			) {
+				lineBufPos++;
+			}
+			
+			//check for newlines
+			if (lineBuf[lineBufPos] == '\0') {
+				nodes[currentNode].name[namePos] = '\n';
+				if (
+					currentLine != titleLine &&
+					!( spacerCount(&lineBuf[0]) )
+				) {
+					//that's the end of the type declaration
+					break;
+				}
+				//otherwise, on to the next line of the type declaration
+				getLine();
+				lineBufPos = -1;
+				if (lineBuf[0] != '\t') {
+					putError("incomplete type declaration\n");
+					return;
+				}
+			}
+			//else copy the char
+			else
+				nodes[currentNode].name[namePos] = lineBuf[lineBufPos];
+		}
+	}
+	
+	//stateNode
+	if (inFrameform) {
+		inc_currentStateNode();
+		
+		//the current stateNode is the current node
+		nodes[currentNode].evaluate = eval_state;
+		frameforms[currentFrameform].stateNodes[
+			frameforms[currentFrameform].currentStateNode
+		] = currentNode;
+	}
+	//rootNode function
+	else nodes[currentNode].evaluate = eval_fnDef;
+	
+	
+	//check for naming collisions
+	
+	
+	//the next node must be the body of this defNode
+	getArgs();
 }
 
 
