@@ -1,0 +1,12 @@
+
+foo  num  8
+
+# enter
+
+out of it
+	num
+	add
+		foo
+		2
+
+

@@ -32,6 +32,12 @@ int main(int argc, char **argv) {
 	
 	
 	if (noErrors) {
+		//initialize variables
+		for (int i = 0; i <= currentRootNode; i++) {
+			if (nodes[ rootNodes[i] ].evaluate == eval_varDef)
+				evaluateNode(rootNodes[i]);
+		}
+		
 		
 		//evaluate the bodies
 		for (

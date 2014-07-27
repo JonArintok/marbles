@@ -75,7 +75,9 @@ uint32_t stackPos;
 
 
 
-void eval_varDef(nodeIndex self) {}
+void eval_varDef(nodeIndex self) {
+	nodes[self].output = nodes[self+1].output;
+}
 
 void eval_fnDef(nodeIndex self) {
 	nodes[self].output = nodes[self+1].output;

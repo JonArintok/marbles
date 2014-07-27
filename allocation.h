@@ -55,7 +55,11 @@ void  inc_namePos(void) {
 }
 
 void  inc_currentRootNode(void) {
-	
+	currentRootNode++;
+	if (currentRootNode == rootNodeSpace) {
+		rootNodeSpace += rootNodePage;
+		rootNodes = realloc( rootNodes, sizeof(nodeIndex) * rootNodeSpace );
+	}
 }
 
 void  inc_currentFrameform(void) {

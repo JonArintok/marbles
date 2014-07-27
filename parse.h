@@ -179,7 +179,7 @@ void  getRefNode(void) {
 	}
 	
 	//check for reference to a rootNode
-	for (int i = 0; i < currentRootNode; i++) {
+	for (int i = 0; i <= currentRootNode; i++) {
 		int charIndex = 0;
 		for (
 			;
@@ -200,6 +200,8 @@ void  getRefNode(void) {
 			//or a variable?
 			else
 				nodes[currentNode].evaluate = eval_varCall;
+			
+			nodes[currentNode].definition = rootNodes[i];
 			
 			return;
 		}
@@ -235,11 +237,11 @@ void  getArgs(void) {
 	expectedIndentation--;
 }
 
+
 void  getDefNode(void) {
 	
 	//could be rootNode or stateNode, but either way...
 	inc_currentNode();
-	nodes[currentNode].arity = 1;
 	nodes[currentNode].arguments[0] = currentNode + 1;
 	
 	int  titleLineSpacerCount = spacerCount(&lineBuf[0]);
@@ -254,16 +256,19 @@ void  getDefNode(void) {
 		//get the .name and value of the variable
 		
 		//get the title on the first loop, output type on the second
-		int  lineBufPos = 0;
+		int  lineBufPos = -1;
 		for (int firstLoop = 1; firstLoop > -1; firstLoop--) {
 			
-			while (
-				lineBuf[lineBufPos]   != ' ' &&
-				lineBuf[lineBufPos+1] != ' '
-			) {
+			while (true) {
 				inc_namePos();
-				nodes[currentNode].name[namePos] = lineBuf[lineBufPos];
 				lineBufPos++;
+				nodes[currentNode].name[namePos] = lineBuf[lineBufPos];
+				if (
+					lineBuf[lineBufPos+1] == ' ' &&
+					lineBuf[lineBufPos+2] == ' '
+				) {
+					break;
+				}
 			}
 			
 			if (firstLoop) {
@@ -280,25 +285,24 @@ void  getDefNode(void) {
 			}
 			
 			//read through the spacer, however long it may be
-			while (lineBuf[lineBufPos] == ' ') {
+			while (lineBuf[lineBufPos+1] == ' ') {
 				lineBufPos++;
 			}
 		}
 		
-		if ( lineBuf[lineBufPos] < '0'  ||  lineBuf[lineBufPos] > '9' ) {
-			putError("invalid number literal\n");
-			return;
-		}
 		
 		//move the value up so that it's the only thing in lineBuf
-		int offset = lineBufPos;
+		int offset = lineBufPos + 1;
 		while (true) {
+			lineBufPos++;
 			lineBuf[lineBufPos - offset] = lineBuf[lineBufPos];
 			if (lineBuf[lineBufPos] == '\0')
 				break;
-			lineBufPos++;
 		}
 		
+		//add the root node
+		inc_currentRootNode();
+		rootNodes[currentRootNode] = currentNode;
 		nodes[currentNode].evaluate = eval_varDef;
 		
 		//the next node should be a number literal
@@ -308,6 +312,9 @@ void  getDefNode(void) {
 	}
 	//otherwise it must be either a function or a stateNode
 	else {
+		//functions and sate nodes have bodies
+		nodes[currentNode].arity = 1;
+		
 		//get the .name of the function or a stateNode
 		
 		int  lineBufPos = -1;
@@ -360,7 +367,11 @@ void  getDefNode(void) {
 		] = currentNode;
 	}
 	//rootNode function
-	else nodes[currentNode].evaluate = eval_fnDef;
+	else {
+		inc_currentRootNode();
+		rootNodes[currentRootNode] = currentNode;
+		nodes[currentNode].evaluate = eval_fnDef;
+	}
 	
 	
 	//check for naming collisions
