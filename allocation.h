@@ -17,7 +17,7 @@ int        frameformSpace   =   0;
 int        currentFrameform =  -1;
 
 
-void initAllocation(void) {
+void init_Allocation(void) {
 	nodeSpace = nodePage;
 	nodes = malloc( sizeof(node) * nodeSpace );
 	

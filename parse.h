@@ -337,7 +337,8 @@ void  getDefNode(void) {
 				nodes[currentNode].name[namePos] = '\n';
 				if (
 					currentLine != titleLine &&
-					!( spacerCount(&lineBuf[0]) )
+					!( spacerCount(&lineBuf[0]) ) &&
+					lineBuf[1] != '\t'
 				) {
 					//that's the end of the type declaration
 					break;

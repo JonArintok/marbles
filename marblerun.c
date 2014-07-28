@@ -5,11 +5,15 @@
 #include <string.h>
 #include <stdint.h>
 #include <stdbool.h>
+#include <unistd.h>
 
 #include "foundation.h"
 #include "stdNodeTable.h"
 #include "allocation.h"
+#include "getMicroseconds.h"
 #include "parse.h"
+
+
 
 
 int main(int argc, char **argv) {
@@ -25,10 +29,13 @@ int main(int argc, char **argv) {
 		return 2;
 	}
 	
-	initAllocation();
+	init_Allocation();
 	parse();
-	
 	fclose(fileStream);
+	
+	int  exitFrameform   = currentFrameform + 1;
+	int  activeFrameform = 0;
+	
 	
 	
 	if (noErrors) {
@@ -38,25 +45,47 @@ int main(int argc, char **argv) {
 				evaluateNode(rootNodes[i]);
 		}
 		
+		//timeFrame may eventually be set in the loop 
+		//to accommodate variable framerates
+		long  timeFrame = 1e6/run_fps;
+		long  timeA = getMicroseconds();
+		long  timeB;
 		
-		//evaluate the bodies
-		for (
-			int i = 0;
-			i <= frameforms[currentFrameform].currentStateNode;
-			i++
-		) {
-			evaluateNode( frameforms[currentFrameform].stateNodes[i] + 1 );
-		}
-		//update the state and print it
-		nodeIndex stanodi;
-		for (
-			int i = 0;
-			i <= frameforms[currentFrameform].currentStateNode;
-			i++
-		) {
-			stanodi = frameforms[currentFrameform].stateNodes[i];
-			evaluateNode(stanodi);
-			printf("%d:\t%f\n", i, nodes[stanodi].output.n);
+		//the loop
+		while (activeFrameform != exitFrameform) {
+			frameCount++;
+			
+			//evaluate the bodies
+			for (
+				int i = 0;
+				i <= frameforms[activeFrameform].currentStateNode;
+				i++
+			) {
+				evaluateNode( frameforms[activeFrameform].stateNodes[i] + 1 );
+			}
+			//update the state and print it
+			nodeIndex stanodi;
+			for (
+				int i = 0;
+				i <= frameforms[activeFrameform].currentStateNode;
+				i++
+			) {
+				stanodi = frameforms[activeFrameform].stateNodes[i];
+				evaluateNode(stanodi);
+				printf("%d:\t%f\n", i, nodes[stanodi].output.n);
+			}
+			
+			//temporary until conditionals are implemented
+			if (frameCount == 4)
+				activeFrameform = exitFrameform;
+			else {
+				timeB = getMicroseconds();
+				long  timeWait = timeFrame - (timeB - timeA);
+				if (timeWait < 0)
+					printf("\n\n!! timeWait : %zu !!\n\n", timeWait);
+				usleep(timeWait);
+				timeA = getMicroseconds();
+			}
 		}
 	}
 	

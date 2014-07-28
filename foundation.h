@@ -131,3 +131,13 @@ void eval_argCall(nodeIndex self) {
 
 
 
+
+int frameCount = -1;
+
+
+
+
+//this value will eventually be taken from the .marbles source to be run
+number run_fps = 2;
+
+
