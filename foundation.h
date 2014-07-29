@@ -74,25 +74,18 @@ uint32_t stackPos;
 
 
 
-
 void eval_varDef(nodeIndex self) {
 	nodes[self].output = nodes[self+1].output;
 }
-
-void eval_fnDef(nodeIndex self) {
-	nodes[self].output = nodes[self+1].output;
-}
-
-void eval_state(nodeIndex self) {
-	nodes[self].output = nodes[self+1].output;
-}
-
-
 
 void eval_varCall(nodeIndex self) {
 	nodes[self].output = nodes[ nodes[self].definition ].output;
 }
 
+
+void eval_fnDef(nodeIndex self) {
+	nodes[self].output = nodes[self+1].output;
+}
 
 void eval_fnCall(nodeIndex self) {
 	stackPos++;
@@ -128,6 +121,13 @@ void eval_argCall(nodeIndex self) {
 }
 
 
+void eval_stateDef(nodeIndex self) {
+	nodes[self].output = nodes[self+1].output;
+}
+
+void eval_stateCall(nodeIndex self) {
+	nodes[self].output = nodes[ nodes[self].definition ].output;
+}
 
 
 
@@ -138,6 +138,6 @@ int frameCount = -1;
 
 
 //this value will eventually be taken from the .marbles source to be run
-number run_fps = 2;
+number run_fps = 10;
 
 

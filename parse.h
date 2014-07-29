@@ -163,8 +163,7 @@ void  getRefNode(void) {
 	//check for reference to stdNode
 	for (int i = 0; i < stdNodeTableLength; i++) {
 		int charIndex = 0;
-		for (
-			;
+		for (;
 			lineBuf[charIndex] == stdNodeTable[i]->name[charIndex];
 			charIndex++
 		) {}
@@ -181,8 +180,7 @@ void  getRefNode(void) {
 	//check for reference to a rootNode
 	for (int i = 0; i <= currentRootNode; i++) {
 		int charIndex = 0;
-		for (
-			;
+		for (;
 			lineBuf[charIndex] == nodes[ rootNodes[i] ].name[charIndex];
 			charIndex++
 		) {}
@@ -201,16 +199,38 @@ void  getRefNode(void) {
 			else
 				nodes[currentNode].evaluate = eval_varCall;
 			
-			nodes[currentNode].definition = rootNodes[i];
-			
 			return;
 		}
 	}
 	
 	//check for reference to a stateNode
+	for (int ffi = 0; ffi <= currentFrameform; ffi++) {
+		for (int sni = 0; sni <= frameforms[ffi].currentStateNode; sni++) {
+			int charIndex = 0;
+			for (;
+				lineBuf[charIndex] == nodes[
+					frameforms[ffi].stateNodes[sni]
+				].name[charIndex];
+				charIndex++
+			) {}
+			if (
+				lineBuf[charIndex] == '\0' &&
+				nodes[ frameforms[ffi].stateNodes[sni] ].name[charIndex] == '\n'
+			) {
+				//it's a match
+				nodes[currentNode].name = nodes[
+					frameforms[ffi].stateNodes[sni]
+				].name;
+				nodes[currentNode].arity = 0;
+				nodes[currentNode].definition = frameforms[ffi].stateNodes[sni];
+				nodes[currentNode].evaluate = eval_stateCall;
+				return;
+			}
+		}
+	}
 	
 	
-	//undefined for now
+	//undefined for now, we'll check again on the second pass
 	
 	
 	//temporary
@@ -362,7 +382,7 @@ void  getDefNode(void) {
 		inc_currentStateNode();
 		
 		//the current stateNode is the current node
-		nodes[currentNode].evaluate = eval_state;
+		nodes[currentNode].evaluate = eval_stateDef;
 		frameforms[currentFrameform].stateNodes[
 			frameforms[currentFrameform].currentStateNode
 		] = currentNode;

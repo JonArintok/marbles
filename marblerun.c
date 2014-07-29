@@ -76,7 +76,7 @@ int main(int argc, char **argv) {
 			}
 			
 			//temporary until conditionals are implemented
-			if (frameCount == 4)
+			if (frameCount == 15)
 				activeFrameform = exitFrameform;
 			else {
 				timeB = getMicroseconds();
