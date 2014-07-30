@@ -128,7 +128,21 @@ void  getLine(void) {
 	}
 	
 }
- 
+
+
+bool  matchHeteroTerm(char *nullTerm, char *newlineTerm) {
+	int charIndex = 0;
+	while (nullTerm[charIndex] == newlineTerm[charIndex])
+		charIndex++;
+	if (
+		nullTerm[charIndex] == '\0' &&
+		newlineTerm[charIndex] == '\n'
+	) 
+		return true;
+	else
+		return false;
+}
+
 void  getRefNode(void) {
 	inc_currentNode();
 	
@@ -162,32 +176,16 @@ void  getRefNode(void) {
 	
 	//check for reference to stdNode
 	for (int i = 0; i < stdNodeTableLength; i++) {
-		int charIndex = 0;
-		for (;
-			lineBuf[charIndex] == stdNodeTable[i]->name[charIndex];
-			charIndex++
-		) {}
-		if (
-			lineBuf[charIndex] == '\0' &&
-			stdNodeTable[i]->name[charIndex] == '\n'
-		) {
+		if ( matchHeteroTerm(&lineBuf[0], stdNodeTable[i]->name) ) {
 			//it's a match
 			nodes[currentNode] = *stdNodeTable[i];
 			return;
 		}
 	}
 	
-	//check for reference to a rootNode
+	//check for fnCall or varCall
 	for (int i = 0; i <= currentRootNode; i++) {
-		int charIndex = 0;
-		for (;
-			lineBuf[charIndex] == nodes[ rootNodes[i] ].name[charIndex];
-			charIndex++
-		) {}
-		if (
-			lineBuf[charIndex] == '\0' &&
-			nodes[ rootNodes[i] ].name[charIndex] == '\n'
-		) {
+		if ( matchHeteroTerm(&lineBuf[0], nodes[ rootNodes[i] ].name) ) {
 			//it's a match
 			nodes[currentNode] = nodes[ rootNodes[i] ];
 			nodes[currentNode].definition = rootNodes[i];
@@ -203,19 +201,41 @@ void  getRefNode(void) {
 		}
 	}
 	
-	//check for reference to a stateNode
+	//check for argCall
+// 	for (int i = 0; i <= currentRootNode; i++) {
+// 		int bufPos = 0;
+// 		int namePos = 0;
+// 		if (
+// 			nodes[ rootNodes[i] ].evaluate  ==  eval_fnDef  &&
+// 			nodes[ rootNodes[i] ].arity  >  0
+// 		) {
+// 			for (int argPos = 0; argPos < nodes[ rootNodes[i] ].arity; argPos++) {
+// 				while (true) {
+// 					if (
+// 						nodes[ rootNodes[i] ].name[namePos  ] == ' '  &&
+// 						nodes[ rootNodes[i] ].name[namePos+1] == ' '  &&
+// 						nodes[ rootNodes[i] ].name[namePos+2] != ' '
+// 					) {
+// 						
+// 					}
+// 					namePos++;
+// 				}
+// 			}
+// 		}
+// 		
+// 		
+// 		return;
+// 	}
+	
+	
+	//check for stateCall
 	for (int ffi = 0; ffi <= currentFrameform; ffi++) {
 		for (int sni = 0; sni <= frameforms[ffi].currentStateNode; sni++) {
-			int charIndex = 0;
-			for (;
-				lineBuf[charIndex] == nodes[
-					frameforms[ffi].stateNodes[sni]
-				].name[charIndex];
-				charIndex++
-			) {}
 			if (
-				lineBuf[charIndex] == '\0' &&
-				nodes[ frameforms[ffi].stateNodes[sni] ].name[charIndex] == '\n'
+				matchHeteroTerm(
+					&lineBuf[0],
+					nodes[ frameforms[ffi].stateNodes[sni] ].name
+				)
 			) {
 				//it's a match
 				nodes[currentNode].name = nodes[

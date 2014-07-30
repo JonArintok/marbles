@@ -32,6 +32,6 @@ out A               |should be 72
 out B               |should be 148
 	num
 	do to it
-		add 2 mul 2     |this function is passed
+		: add 2 mul 2   |this function is passed
 		add 2 mul 2     |this function is evaluated
 			foo
