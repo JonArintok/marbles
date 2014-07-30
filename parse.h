@@ -28,14 +28,12 @@ int  spacerCount(char *in) {
 	int  pos = -1;
 	while (true) {
 		pos++;
-		
 		if ( in[pos] == ' '  &&  in[pos+1] == ' ' ) {
 			count++;
 			while (in[pos] == ' ')
 				pos++;
 		}
-		
-		if (in[pos] == '\0')
+		if (in[pos+1] == '\0')
 			return count;
 	}
 }
@@ -183,51 +181,6 @@ void  getRefNode(void) {
 		}
 	}
 	
-	//check for fnCall or varCall
-	for (int i = 0; i <= currentRootNode; i++) {
-		if ( matchHeteroTerm(&lineBuf[0], nodes[ rootNodes[i] ].name) ) {
-			//it's a match
-			nodes[currentNode] = nodes[ rootNodes[i] ];
-			nodes[currentNode].definition = rootNodes[i];
-			
-			//is it a function?
-			if ( nodes[ rootNodes[i] ].evaluate == eval_fnDef )
-				nodes[currentNode].evaluate = eval_fnCall;
-			//or a variable?
-			else
-				nodes[currentNode].evaluate = eval_varCall;
-			
-			return;
-		}
-	}
-	
-	//check for argCall
-// 	for (int i = 0; i <= currentRootNode; i++) {
-// 		int bufPos = 0;
-// 		int namePos = 0;
-// 		if (
-// 			nodes[ rootNodes[i] ].evaluate  ==  eval_fnDef  &&
-// 			nodes[ rootNodes[i] ].arity  >  0
-// 		) {
-// 			for (int argPos = 0; argPos < nodes[ rootNodes[i] ].arity; argPos++) {
-// 				while (true) {
-// 					if (
-// 						nodes[ rootNodes[i] ].name[namePos  ] == ' '  &&
-// 						nodes[ rootNodes[i] ].name[namePos+1] == ' '  &&
-// 						nodes[ rootNodes[i] ].name[namePos+2] != ' '
-// 					) {
-// 						
-// 					}
-// 					namePos++;
-// 				}
-// 			}
-// 		}
-// 		
-// 		
-// 		return;
-// 	}
-	
-	
 	//check for stateCall
 	for (int ffi = 0; ffi <= currentFrameform; ffi++) {
 		for (int sni = 0; sni <= frameforms[ffi].currentStateNode; sni++) {
@@ -248,6 +201,66 @@ void  getRefNode(void) {
 			}
 		}
 	}
+	
+	//check for fnCall or varCall
+	for (int i = 0; i <= currentRootNode; i++) {
+		if ( matchHeteroTerm(&lineBuf[0], nodes[ rootNodes[i] ].name) ) {
+			//it's a match
+			nodes[currentNode] = nodes[ rootNodes[i] ];
+			
+			//is it a function?
+			if ( nodes[ rootNodes[i] ].evaluate == eval_fnDef ) {
+				nodes[currentNode].arity = spacerCount( nodes[ rootNodes[i] ].name );
+				nodes[currentNode].evaluate = eval_fnCall;
+			}
+			//or a variable?
+			else {
+				nodes[currentNode].definition = rootNodes[i];
+				nodes[currentNode].arity = 0;
+				nodes[currentNode].evaluate = eval_varCall;
+			}
+			
+			return;
+		}
+	}
+	
+	//check for argCall
+	if (
+		nodes[currentRootNode].evaluate  ==  eval_fnDef  &&
+		nodes[currentRootNode].arity  >  0
+	) {
+		int argPos  = -1;
+		int namePos = -1;
+		while (true) {
+			namePos++;
+			if (
+				nodes[currentRootNode].name[namePos  ] == ' '  &&
+				nodes[currentRootNode].name[namePos+1] == ' '  &&
+				nodes[currentRootNode].name[namePos+2] != ' '
+			) {
+				argPos++;
+				if (
+					matchHeteroTerm(
+						&lineBuf[0],
+						&nodes[currentRootNode].name[namePos+2]
+					)
+				) {
+					//it's a match
+					nodes[currentNode].definition = currentRootNode;
+					nodes[currentNode].argRefIndex = argPos;
+					nodes[currentNode].evaluate = eval_argCall;
+					
+					//this node will also need the .name for type checking
+					
+					return;
+				}
+				//check if this is the last argument
+				if (argPos  ==  nodes[currentRootNode].arity - 1)
+					break;
+			}
+		}
+	}
+	
 	
 	
 	//undefined for now, we'll check again on the second pass
@@ -282,6 +295,7 @@ void  getDefNode(void) {
 	
 	//could be rootNode or stateNode, but either way...
 	inc_currentNode();
+	nodes[currentNode].arity = 1;
 	nodes[currentNode].arguments[0] = currentNode + 1;
 	
 	int  titleLineSpacerCount = spacerCount(&lineBuf[0]);
@@ -352,8 +366,6 @@ void  getDefNode(void) {
 	}
 	//otherwise it must be either a function or a stateNode
 	else {
-		//functions and sate nodes have bodies
-		nodes[currentNode].arity = 1;
 		
 		//get the .name of the function or a stateNode
 		
@@ -406,6 +418,9 @@ void  getDefNode(void) {
 		frameforms[currentFrameform].stateNodes[
 			frameforms[currentFrameform].currentStateNode
 		] = currentNode;
+		
+		//initialize output (eventually this will need to be type-aware)
+		nodes[currentNode].output.n = 0;
 	}
 	//rootNode function
 	else {

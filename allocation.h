@@ -99,19 +99,27 @@ void  inc_currentStateNode(void) {
 void cleanUp(void) {
 	
 	//free nodes[i].name unless it's from a static stdNode
-	for (int i = 0; i <= currentNode; i++) {
-		int j = 0;
-		for (; j < stdNodeTableLength; j++) {
-			if (stdNodeTable[j]->name == nodes[i].name)
-				break;
-		}
-		if (j == stdNodeTableLength)
-			free( nodes[i].name );
-	}
+// 	for (int i = 0; i <= currentNode; i++) {
+// 		int j = 0;
+// 		for (; j < stdNodeTableLength; j++) {
+// 			if (stdNodeTable[j]->name == nodes[i].name)
+// 				break;
+// 		}
+// 		if (j == stdNodeTableLength)
+// 			free( nodes[i].name );
+// 	}
+	//^this is no good, the only things with allocated names are:
+	//rootNodes, stateNodes, and argCalls(?)
+	
+	for (int i = 0; i <= currentRootNode; i++)
+		free( nodes[ rootNodes[i] ].name );
 	
 	//free the stateNode arrays and then the frameForm array
-	for (int i = 0; i <= currentFrameform; i++)
+	for (int i = 0; i <= currentFrameform; i++) {
+		for (int j = 0; j <= frameforms[i].currentStateNode; j++)
+			free ( nodes[ frameforms[i].stateNodes[j] ].name );
 		free( frameforms[i].stateNodes );
+	}
 	free( frameforms );
 	
 	free(nodes);

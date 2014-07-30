@@ -34,7 +34,7 @@ typedef struct {
 	char      *name;       //includes type information and parameter names
 	nodeIndex  definition; //just for argument and variable calls
 	int8_t     argRefIndex;//just for argument calls
-	int8_t     arity;
+	int8_t     arity;      //the number of "subnodes", defNodes have 1
 	nodeIndex  arguments[maxArity];//if negative then already evaluated
 	evaluator  evaluate;
 	UOE        output;
@@ -97,7 +97,7 @@ void eval_fnCall(nodeIndex self) {
 	nodes[self].output = nodes[fnBody].output;
 	
 	//reset argument values to positive
-	for (int i=0; i<nodes[self].arity; i++)
+	for (int i = 0; i < nodes[self].arity; i++)
 		nodes[fnBody-1].arguments[i] &= maxNodeIndex;
 	
 	stackPos--;
