@@ -35,6 +35,17 @@ void  inc_currentNode(void) {
 		nodes = realloc( nodes, sizeof(node) * nodeSpace );
 	}
 	
+	//initialize fields
+	nodes[currentNode].name = "!  !  unnamed  !  !";
+	nodes[currentNode].definition = 0;
+	nodes[currentNode].argRefIndex = 0;
+	nodes[currentNode].arity = 0;
+	nodes[currentNode].evaluate = NULL;
+	nodes[currentNode].output.n = 0;
+	for (int i = 0; i < maxArity; i++)
+		nodes[currentNode].arguments[i] = 0;
+	
+	
 	nodeNameSpace =  0;
 	namePos       = -1;
 }

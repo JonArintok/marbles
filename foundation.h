@@ -11,16 +11,14 @@ typedef double   number;
 //byte
 //byte array
 typedef struct {
+	uint32_t   dimensions[2];
 	number    *data;
-	uint32_t   dimensionality;
-	uint32_t  *dimensions;
 	//transformation stack
 } numArray;
 struct node;
 typedef struct {
+	uint32_t   dimensions[2];
 	nodeIndex *data;
-	uint32_t   dimensionality;
-	uint32_t  *dimensions;
 	//transformation stack
 } nodeArray;
 typedef union {
@@ -93,7 +91,7 @@ void eval_fnCall(nodeIndex self) {
 	
 	nodeIndex fnBody = nodes[self].definition + 1;
 	//evaluate nodes[self.definition] and get the output
-	nodes[fnBody].evaluate(fnBody);
+	evaluateNode(fnBody);
 	nodes[self].output = nodes[fnBody].output;
 	
 	//reset argument values to positive
@@ -110,7 +108,7 @@ void eval_argCall(nodeIndex self) {
 	
 	//if argNodeIndex is positive, then we need to evaluate
 	if (argNodeIndex >= 0) {
-		nodes[argNodeIndex].evaluate(argNodeIndex);
+		evaluateNode(argNodeIndex);
 		nodes[self].output = nodes[argNodeIndex].output;
 		
 		//set nodeIndex from the callsource's argument list negative
@@ -132,7 +130,7 @@ void eval_stateCall(nodeIndex self) {
 
 
 
-int frameCount = -1;
+int currentFrame = -1;
 
 
 

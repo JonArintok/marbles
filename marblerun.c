@@ -53,7 +53,7 @@ int main(int argc, char **argv) {
 		
 		//the loop
 		while (activeFrameform != exitFrameform) {
-			frameCount++;
+			currentFrame++;
 			
 			//evaluate the bodies
 			for (
@@ -76,7 +76,7 @@ int main(int argc, char **argv) {
 			}
 			
 			//temporary until conditionals are implemented
-			if (frameCount == 15)
+			if (currentFrame == 7)
 				activeFrameform = exitFrameform;
 			else {
 				timeB = getMicroseconds();

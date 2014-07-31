@@ -1,4 +1,4 @@
-
+|the desired output is 68
 
 foo  num  34
 
@@ -12,8 +12,7 @@ double
 
 # enter
 
-out A     |should be 68
+out A      |should be 68
 	num
 	double
 		foo
-

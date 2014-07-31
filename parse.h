@@ -24,17 +24,19 @@ void  putError(char *message) {
 }
 
 int  spacerCount(char *in) {
+	if (!in)
+		return 0;
 	int  count = 0;
 	int  pos = -1;
 	while (true) {
 		pos++;
+		if (in[pos] == '\0')
+			return count;
 		if ( in[pos] == ' '  &&  in[pos+1] == ' ' ) {
 			count++;
 			while (in[pos] == ' ')
 				pos++;
 		}
-		if (in[pos+1] == '\0')
-			return count;
 	}
 }
 
@@ -210,6 +212,7 @@ void  getRefNode(void) {
 			
 			//is it a function?
 			if ( nodes[ rootNodes[i] ].evaluate == eval_fnDef ) {
+				nodes[currentNode].definition = rootNodes[i];
 				nodes[currentNode].arity = spacerCount( nodes[ rootNodes[i] ].name );
 				nodes[currentNode].evaluate = eval_fnCall;
 			}
@@ -226,27 +229,28 @@ void  getRefNode(void) {
 	
 	//check for argCall
 	if (
-		nodes[currentRootNode].evaluate  ==  eval_fnDef  &&
-		nodes[currentRootNode].arity  >  0
+		nodes[ rootNodes[currentRootNode] ].evaluate  ==  eval_fnDef  &&
+		spacerCount( nodes[ rootNodes[currentRootNode] ].name )  >  0
 	) {
 		int argPos  = -1;
 		int namePos = -1;
 		while (true) {
 			namePos++;
 			if (
-				nodes[currentRootNode].name[namePos  ] == ' '  &&
-				nodes[currentRootNode].name[namePos+1] == ' '  &&
-				nodes[currentRootNode].name[namePos+2] != ' '
+				nodes[ rootNodes[currentRootNode] ].name[namePos  ] == ' '  &&
+				nodes[ rootNodes[currentRootNode] ].name[namePos+1] == ' '  &&
+				nodes[ rootNodes[currentRootNode] ].name[namePos+2] != ' '
 			) {
+				namePos += 2;
 				argPos++;
 				if (
 					matchHeteroTerm(
 						&lineBuf[0],
-						&nodes[currentRootNode].name[namePos+2]
+						&nodes[ rootNodes[currentRootNode] ].name[namePos]
 					)
 				) {
 					//it's a match
-					nodes[currentNode].definition = currentRootNode;
+					nodes[currentNode].definition = rootNodes[currentRootNode];
 					nodes[currentNode].argRefIndex = argPos;
 					nodes[currentNode].evaluate = eval_argCall;
 					
@@ -254,8 +258,13 @@ void  getRefNode(void) {
 					
 					return;
 				}
+				
 				//check if this is the last argument
-				if (argPos  ==  nodes[currentRootNode].arity - 1)
+				if (
+					argPos  ==  spacerCount(
+						nodes[ rootNodes[currentRootNode] ].name
+					) - 1
+				)
 					break;
 			}
 		}
@@ -267,7 +276,7 @@ void  getRefNode(void) {
 	
 	
 	//temporary
-	putError("not recognized: "); printf("%s\n", lineBuf);
+	putError("not recognized: "); printf("|%s|\n", lineBuf);
 }
 
 void  getArgs(void) {
@@ -366,9 +375,7 @@ void  getDefNode(void) {
 	}
 	//otherwise it must be either a function or a stateNode
 	else {
-		
 		//get the .name of the function or a stateNode
-		
 		int  lineBufPos = -1;
 		int  titleLine  = currentLine;
 		while (true) {
@@ -386,15 +393,16 @@ void  getDefNode(void) {
 			
 			//check for newlines
 			if (lineBuf[lineBufPos] == '\0') {
-				nodes[currentNode].name[namePos] = '\n';
 				if (
 					currentLine != titleLine &&
 					!( spacerCount(&lineBuf[0]) ) &&
 					lineBuf[1] != '\t'
 				) {
 					//that's the end of the type declaration
+					nodes[currentNode].name[namePos] = '\0';
 					break;
 				}
+				nodes[currentNode].name[namePos] = '\n';
 				//otherwise, on to the next line of the type declaration
 				getLine();
 				lineBufPos = -1;
