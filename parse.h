@@ -9,13 +9,11 @@ char      lineBuf[maxLineLength];
 uint8_t   expectedIndentation = 0;
 uint32_t  currentLine = 0;
 
-bool  reachedEOF = false;
-bool  noErrors = true;
+bool reachedEOF  = false;
+bool noErrors    = true;
+bool inFrameform = false;
 
-bool  inFrameform = false;
-
-
-void  putError(char *message) {
+void putError(char *message) {
 	noErrors = false;
 	printf(
 		"error in line %d of %s: %s", 
@@ -40,8 +38,7 @@ int  spacerCount(char *in) {
 	}
 }
 
-
-void  getLine(void) {
+void getLine(void) {
 	currentLine++;
 	
 	for (int lineCharIndex = 0;; lineCharIndex++) {
@@ -130,7 +127,7 @@ void  getLine(void) {
 }
 
 
-bool  matchHeteroTerm(char *nullTerm, char *newlineTerm) {
+bool matchHeteroTerm(char *nullTerm, char *newlineTerm) {
 	int charIndex = 0;
 	while (nullTerm[charIndex] == newlineTerm[charIndex])
 		charIndex++;
@@ -143,7 +140,7 @@ bool  matchHeteroTerm(char *nullTerm, char *newlineTerm) {
 		return false;
 }
 
-void  getRefNode(void) {
+void getRefNode(void) {
 	inc_currentNode();
 	
 	//check for number literal
@@ -261,7 +258,7 @@ void  getRefNode(void) {
 				
 				//check if this is the last argument
 				if (
-					argPos  ==  spacerCount(
+					argPos == spacerCount(
 						nodes[ rootNodes[currentRootNode] ].name
 					) - 1
 				)
@@ -270,8 +267,6 @@ void  getRefNode(void) {
 		}
 	}
 	
-	
-	
 	//undefined for now, we'll check again on the second pass
 	
 	
@@ -279,10 +274,9 @@ void  getRefNode(void) {
 	putError("not recognized: "); printf("|%s|\n", lineBuf);
 }
 
-void  getArgs(void) {
+void getArgs(void) {
 	expectedIndentation++;
-	
-	nodeIndex  parent = currentNode;
+	nodeIndex parent = currentNode;
 	for (
 		int argIndex = 0;
 		argIndex < nodes[parent].arity && noErrors;
@@ -295,13 +289,10 @@ void  getArgs(void) {
 			getArgs();
 		}
 	}
-	
 	expectedIndentation--;
 }
 
-
-void  getDefNode(void) {
-	
+void getDefNode(void) {
 	//could be rootNode or stateNode, but either way...
 	inc_currentNode();
 	nodes[currentNode].arity = 1;
@@ -437,7 +428,6 @@ void  getDefNode(void) {
 		nodes[currentNode].evaluate = eval_fnDef;
 	}
 	
-	
 	//check for naming collisions
 	
 	
@@ -446,7 +436,7 @@ void  getDefNode(void) {
 }
 
 
-void  getFrameform(void) {
+void getFrameform(void) {
 	inc_currentFrameform();
 	inFrameform = true;	
 	
@@ -478,7 +468,6 @@ void  getFrameform(void) {
 
 
 void  parse(void) {
-	
 	//go through the file(s) line by line
 	while ( noErrors ) {
 		getLine();
@@ -509,4 +498,3 @@ void  parse(void) {
 	//check for type errors
 	
 }
-

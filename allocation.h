@@ -19,29 +19,29 @@ int        currentFrameform =  -1;
 
 void init_Allocation(void) {
 	nodeSpace = nodePage;
-	nodes = malloc( sizeof(node) * nodeSpace );
+	nodes = malloc(sizeof(node) * nodeSpace);
 	
 	frameformSpace = frameformPage;
-	frameforms = malloc( sizeof(frameform) * frameformSpace );
+	frameforms = malloc(sizeof(frameform) * frameformSpace);
 	
 	rootNodeSpace = rootNodePage;
-	rootNodes = malloc( sizeof(nodeIndex) * rootNodeSpace );
+	rootNodes = malloc(sizeof(nodeIndex) * rootNodeSpace);
 }
 
-void  inc_currentNode(void) {
+void inc_currentNode(void) {
 	currentNode++;
 	if (currentNode == nodeSpace) {
 		nodeSpace += nodePage;
-		nodes = realloc( nodes, sizeof(node) * nodeSpace );
+		nodes = realloc(nodes, sizeof(node) * nodeSpace);
 	}
 	
 	//initialize fields
-	nodes[currentNode].name = "!  !  unnamed  !  !";
-	nodes[currentNode].definition = 0;
+	nodes[currentNode].name        = "!  !  unnamed  !  !";
+	nodes[currentNode].definition  = 0;
 	nodes[currentNode].argRefIndex = 0;
-	nodes[currentNode].arity = 0;
-	nodes[currentNode].evaluate = NULL;
-	nodes[currentNode].output.n = 0;
+	nodes[currentNode].arity       = 0;
+	nodes[currentNode].evaluate    = NULL;
+	nodes[currentNode].output.n    = 0;
 	for (int i = 0; i < maxArity; i++)
 		nodes[currentNode].arguments[i] = 0;
 	
@@ -50,12 +50,12 @@ void  inc_currentNode(void) {
 	namePos       = -1;
 }
 
-void  inc_namePos(void) {
+void inc_namePos(void) {
 	namePos++;
 	if (namePos == nodeNameSpace) {
 		nodeNameSpace += nodeNamePage;
 		if (!(namePos))
-			nodes[currentNode].name = malloc( sizeof(char)*nodeNameSpace );
+			nodes[currentNode].name = malloc(sizeof(char) * nodeNameSpace);
 		else {
 			nodes[currentNode].name = realloc(
 				nodes[currentNode].name, 
@@ -65,11 +65,11 @@ void  inc_namePos(void) {
 	}
 }
 
-void  inc_currentRootNode(void) {
+void inc_currentRootNode(void) {
 	currentRootNode++;
 	if (currentRootNode == rootNodeSpace) {
 		rootNodeSpace += rootNodePage;
-		rootNodes = realloc( rootNodes, sizeof(nodeIndex) * rootNodeSpace );
+		rootNodes = realloc(rootNodes, sizeof(nodeIndex) * rootNodeSpace);
 	}
 }
 
@@ -108,24 +108,13 @@ void  inc_currentStateNode(void) {
 
 
 void cleanUp(void) {
-	
-	//free nodes[i].name unless it's from a static stdNode
-// 	for (int i = 0; i <= currentNode; i++) {
-// 		int j = 0;
-// 		for (; j < stdNodeTableLength; j++) {
-// 			if (stdNodeTable[j]->name == nodes[i].name)
-// 				break;
-// 		}
-// 		if (j == stdNodeTableLength)
-// 			free( nodes[i].name );
-// 	}
-	//^this is no good, the only things with allocated names are:
-	//rootNodes, stateNodes, and argCalls(?)
-	
+	//free the names of the rootNodes, then the rootNodes themselves
 	for (int i = 0; i <= currentRootNode; i++)
 		free( nodes[ rootNodes[i] ].name );
+	free(rootNodes);
 	
-	//free the stateNode arrays and then the frameForm array
+	//free the names of the stateNodes of the frameforms, 
+	//then the stateNodes themselves, then the frameforms themselves
 	for (int i = 0; i <= currentFrameform; i++) {
 		for (int j = 0; j <= frameforms[i].currentStateNode; j++)
 			free ( nodes[ frameforms[i].stateNodes[j] ].name );
@@ -133,7 +122,7 @@ void cleanUp(void) {
 	}
 	free( frameforms );
 	
+	//free the nodes themselves
 	free(nodes);
-	free(rootNodes);
 }
 

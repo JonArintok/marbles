@@ -5,10 +5,10 @@ const node node_numLit = {
 	.name =
 		"numLit\n"
 		"\tnum",
-	.arity         = 0,
-	.arguments     = {},
-	.evaluate      = eval_numLit,
-	.output.n      = 0
+	.arity     = 0,
+	.arguments = {},
+	.evaluate  = eval_numLit,
+	.output.n  = 0
 };
 
 
@@ -25,10 +25,10 @@ const node node_add = {
 		"\tnum  a\n"
 		"\tnum  b\n"
 		"\tnum",
-	.arity         = 2,
-	.arguments     = {},
-	.evaluate      = eval_add,
-	.output.n      = 0
+	.arity     = 2,
+	.arguments = {},
+	.evaluate  = eval_add,
+	.output.n  = 0
 };
 
 
@@ -45,10 +45,10 @@ const node node_sub = {
 		"\tnum  a\n"
 		"\tnum  b\n"
 		"\tnum",
-	.arity         = 2,
-	.arguments     = {},
-	.evaluate      = eval_sub,
-	.output.n      = 0
+	.arity     = 2,
+	.arguments = {},
+	.evaluate  = eval_sub,
+	.output.n  = 0
 };
 
 
@@ -65,10 +65,10 @@ const node node_mul = {
 		"\tnum  a\n"
 		"\tnum  b\n"
 		"\tnum",
-	.arity         = 2,
-	.arguments     = {},
-	.evaluate      = eval_mul,
-	.output.n      = 0
+	.arity     = 2,
+	.arguments = {},
+	.evaluate  = eval_mul,
+	.output.n  = 0
 };
 
 
@@ -85,10 +85,10 @@ const node node_div = {
 		"\tnum  a\n"
 		"\tnum  b\n"
 		"\tnum",
-	.arity         = 2,
-	.arguments     = {},
-	.evaluate      = eval_div,
-	.output.n      = 0
+	.arity     = 2,
+	.arguments = {},
+	.evaluate  = eval_div,
+	.output.n  = 0
 };
 
 #define stdNodeTableLength  5
@@ -99,6 +99,3 @@ const node *stdNodeTable[stdNodeTableLength] = {
 	&node_mul,
 	&node_div
 };
-
-
-

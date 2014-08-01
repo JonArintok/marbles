@@ -1,15 +1,15 @@
 
 
 define printNode
-	echo name\n
+	echo name\t
 	print nodes[$arg0].name
-	echo definition\n
+	echo definition\t
 	print nodes[$arg0].definition
-	echo argRefIndex\n
+	echo argRefIndex\t
 	print nodes[$arg0].argRefIndex
-	echo arity\n
+	echo arity\t
 	print nodes[$arg0].arity
-	echo evaluate\n
+	echo evaluate\t
 	print nodes[$arg0].evaluate
 end
 

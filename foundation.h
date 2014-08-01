@@ -26,7 +26,7 @@ typedef union {
 	nodeIndex  f;//function
 	numArray   N;//number array
 	nodeArray  F;//function array
-} UOE;         //union of everything
+} outType;
 typedef void (*evaluator)(nodeIndex toBeEvaluated);
 typedef struct {
 	char      *name;       //includes type information and parameter names
@@ -35,7 +35,7 @@ typedef struct {
 	int8_t     arity;      //the number of "subnodes", defNodes have 1
 	nodeIndex  arguments[maxArity];//if negative then already evaluated
 	evaluator  evaluate;
-	UOE        output;
+	outType    output;
 } node;
 
 
