@@ -1,99 +1,46 @@
 
 
-void eval_numLit(nodeIndex self) {}
-const node node_numLit = {
-	.name =
-		"numLit\n"
-		"\tnum",
-	.arity     = 0,
-	.arguments = {},
-	.evaluate  = eval_numLit,
-	.output.n  = 0
-};
-
-
-void eval_add(nodeIndex self) {
-	evalArgs(self);
-	nodes[self].output.n
-		= nodes[ nodes[self].arguments[0] ].output.n
-		+ nodes[ nodes[self].arguments[1] ].output.n
-	;
+#define _EVAL_ARITH_(name, op, typeOut, typeIn0, typeIn1) \
+void name(nodeIndex self) {\
+	evalArgs(self);\
+	nodes[self].output.typeOut\
+		= nodes[ nodes[self].arguments[0] ].output.typeIn0\
+		op nodes[ nodes[self].arguments[1] ].output.typeIn1\
+	;\
 }
+
+#define  _ARITH_TYPE_  "\tnum  a\n\tnum  b\n\tnum"
+
+_EVAL_ARITH_(eval_add, +, n, n, n)
 const node node_add = {
-	.name =
-		"add\n"
-		"\tnum  a\n"
-		"\tnum  b\n"
-		"\tnum",
+	.name = "add\n" _ARITH_TYPE_,
 	.arity     = 2,
-	.arguments = {},
 	.evaluate  = eval_add,
-	.output.n  = 0
 };
 
-
-void eval_sub(nodeIndex self) {
-	evalArgs(self);
-	nodes[self].output.n
-		= nodes[ nodes[self].arguments[0] ].output.n
-		- nodes[ nodes[self].arguments[1] ].output.n
-	;
-}
+_EVAL_ARITH_(eval_sub, -, n, n, n)
 const node node_sub = {
-	.name = 
-		"sub\n"
-		"\tnum  a\n"
-		"\tnum  b\n"
-		"\tnum",
+	.name = "sub\n" _ARITH_TYPE_,
 	.arity     = 2,
-	.arguments = {},
 	.evaluate  = eval_sub,
-	.output.n  = 0
 };
 
-
-void eval_mul(nodeIndex self) {
-	evalArgs(self);
-	nodes[self].output.n
-		= nodes[ nodes[self].arguments[0] ].output.n
-		* nodes[ nodes[self].arguments[1] ].output.n
-	;
-}
+_EVAL_ARITH_(eval_mul, *, n, n, n)
 const node node_mul = {
-	.name =
-		"mul\n"
-		"\tnum  a\n"
-		"\tnum  b\n"
-		"\tnum",
+	.name = "mul\n" _ARITH_TYPE_,
 	.arity     = 2,
-	.arguments = {},
 	.evaluate  = eval_mul,
-	.output.n  = 0
 };
 
-
-void eval_div(nodeIndex self) {
-	evalArgs(self);
-	nodes[self].output.n
-		= nodes[ nodes[self].arguments[0] ].output.n
-		/ nodes[ nodes[self].arguments[1] ].output.n
-	;
-}
+_EVAL_ARITH_(eval_div, /, n, n, n)
 const node node_div = {
-	.name =
-		"div\n"
-		"\tnum  a\n"
-		"\tnum  b\n"
-		"\tnum",
+	.name = "div\n" _ARITH_TYPE_,
 	.arity     = 2,
-	.arguments = {},
 	.evaluate  = eval_div,
-	.output.n  = 0
 };
 
-#define stdNodeTableLength  5
+#define stdNodeTableLength  4
 const node *stdNodeTable[stdNodeTableLength] = {
-	&node_numLit,
 	&node_add,
 	&node_sub,
 	&node_mul,

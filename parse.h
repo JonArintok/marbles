@@ -162,7 +162,8 @@ void getRefNode(void) {
 		}
 		
 		//fill in the node, sscanf into the output
-		nodes[currentNode] = node_numLit;
+		nodes[currentNode].name     = "numLit\n\tnum";
+		nodes[currentNode].evaluate = eval_numLit;
 		sscanf(
 			&lineBuf[0], 
 			"%lf", 
@@ -175,7 +176,9 @@ void getRefNode(void) {
 	for (int i = 0; i < stdNodeTableLength; i++) {
 		if ( matchHeteroTerm(&lineBuf[0], stdNodeTable[i]->name) ) {
 			//it's a match
-			nodes[currentNode] = *stdNodeTable[i];
+			nodes[currentNode].name     = stdNodeTable[i]->name;
+			nodes[currentNode].arity    = stdNodeTable[i]->arity;
+			nodes[currentNode].evaluate = stdNodeTable[i]->evaluate;
 			return;
 		}
 	}

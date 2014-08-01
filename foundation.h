@@ -127,6 +127,7 @@ void eval_stateCall(nodeIndex self) {
 	nodes[self].output = nodes[ nodes[self].definition ].output;
 }
 
+void eval_numLit(nodeIndex self) {}
 
 
 
