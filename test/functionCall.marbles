@@ -1,18 +1,17 @@
-|the desired output is 68
 
-foo  num  34
+hyaku num = 100
 
-double
-	num  in
-	num
-	mul
-		2
-		in
+addmulV
+	input  num
+	factor num
+	num =
+	mul factor (add factor input)
+
+addmulH (input num) (factor num) num = mul factor (add factor input)
 
 
 # enter
 
-out A      |should be 68
-	num
-	double
-		foo
+V num = addmulV hyaku currentFrame
+
+H num = addmulH hyaku currentFrame

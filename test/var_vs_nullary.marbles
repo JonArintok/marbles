@@ -1,0 +1,23 @@
+
+foovarH num = add 8 foostateH
+
+foofunH void num = add foovarH foostateH
+
+foovarV
+	num =
+	add 8 foostateV
+
+foofunV
+	void
+	num =
+	add foovarV foostateV
+
+	
+# enter
+
+foostateH num = foofunH
+
+foostateV
+	num =
+	foofunV
+

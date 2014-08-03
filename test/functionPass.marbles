@@ -1,37 +1,54 @@
 
+juu num = 10
 
-foo  num  34
-
-add 2 mul 2
-	num  in
-	num
-	mul
-		2
-		add
-			2
-			in
-
-
-do to it
-	fn  do this
-		num
-		num
-	num  with this
-	num
-	do this
-		with this
+addN_mulN
+	input  num
+	factor num
+	num =
+	mul factor (add factor input)
+	
+mulN_addN
+	input  num
+	factor num
+	num =
+	add factor (mul factor input)
 
 
+maxDoer
+	doerA num num > num
+	doerB num num > num
+	x num
+	y num
+	num num > num =
+	if (gt (doerA x y) (doerB x y)) doerA doerB
+
+minDoer
+	doerA num num > num
+	doerB num num > num
+	x num
+	y num
+	num num > num =
+	if (lt (doerA x y) (doerB x y)) doerA doerB
+
+
+doerSelectorSelector
+	doerSelectorA (num num > num) (num num > num) > (num num > num)
+	doerSelectorb (num num > num) (num num > num) > (num num > num)
+	(num num > num) (num num > num) > (num num > num) =
+	if (mod currentFrame 2) doerSelectorA doerSelectorb
+
+	
 # main
 
-out A               |should be 72
-	num
-	add 2 mul 2
-		foo
+currentDoerSelector
+	(num num > num) (num num > num) > (num num > num) =
+	doerSelectorSelector maxDoer minDoer
 
-out B               |should be 148
-	num
-	do to it
-		: add 2 mul 2   |this function is passed
-		add 2 mul 2     |this function is evaluated
-			foo
+currentDoer
+	num num > num =
+	currentDoerSelector addN_mulN mulN_addN juu 10
+
+outA num = currentDoer juu 10
+
+outB num = currentDoer 10 juu
+

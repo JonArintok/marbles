@@ -1,0 +1,18 @@
+|the desired output is 68
+
+foo  num  34
+
+double
+	num  in
+	num
+	mul
+		2
+		in
+
+
+# enter
+
+out A      |should be 68
+	num
+	double
+		foo

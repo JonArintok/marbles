@@ -1,0 +1,35 @@
+
+# enter
+
+A
+	num =
+	mul
+		1.5
+		add
+			sub
+				68
+				8
+			div
+				20
+				0.5
+
+B
+	num =
+	mul
+		1.5
+		add
+			sub 68 8
+			div 20 0.5
+
+C
+	num =
+	mul
+		1.5
+		add (sub 68 8) (div 20 0.5)
+
+D
+	num =
+	mul 1.5 (add (sub 68 8) (div 20 0.5))
+
+E num = (mul 1.5 (add (sub 68 8) (div 20 0.5)))
+
