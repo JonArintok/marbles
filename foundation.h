@@ -133,7 +133,7 @@ void eval_numLit(nodeIndex self) {}
 
 int currentFrame = -1;
 
-
+char *initialName = "! ! unnamed ! !";
 
 
 //this value will eventually be taken from the .marbles source to be run

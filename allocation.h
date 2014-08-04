@@ -36,7 +36,7 @@ void inc_currentNode(void) {
 	}
 	
 	//initialize fields
-	nodes[currentNode].name        = "!  !  unnamed  !  !";
+	nodes[currentNode].name        = initialName;
 	nodes[currentNode].definition  = 0;
 	nodes[currentNode].argRefIndex = 0;
 	nodes[currentNode].arity       = 0;

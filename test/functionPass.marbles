@@ -37,7 +37,7 @@ doerSelectorSelector
 	(num num > num) (num num > num) > (num num > num) =
 	if (mod currentFrame 2) doerSelectorA doerSelectorb
 
-	
+
 # main
 
 currentDoerSelector
