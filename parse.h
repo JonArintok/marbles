@@ -2,8 +2,7 @@
 
 #define commentInitChar   '|'
 #define frameformInitChar '#'
-#define bodyInitChar      '='
-#define fnOutTypeInitChar '>'
+#define paramTypeInitChar '<'
 
 FILE    *fileStream;
 char    *fileName;

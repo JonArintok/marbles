@@ -1,17 +1,26 @@
 
-hyaku num = 100
+hyaku num  100
 
-addmulV
+addmulV  num
 	input  num
 	factor num
-	num =
-	mul factor (add factor input)
+	mul
+		factor
+		add
+			factor
+			input
 
-addmulH (input num) (factor num) num = mul factor (add factor input)
+addmulH  num
+	input  num
+	factor num
+	mul factor (add factor input)
 
 
 # enter
 
-V num = addmulV hyaku currentFrame
+V num
+	addmulV
+		hyaku
+		currentFrame
 
-H num = addmulH hyaku currentFrame
+H num  addmulH hyaku currentFrame

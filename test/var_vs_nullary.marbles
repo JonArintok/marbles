@@ -1,14 +1,14 @@
 
-foovarH num = add 8 foostateH
+foovarH num  add 8 foostateH
 
-foofunH void num = add foovarH foostateH
+foofunH num nullary  add foovarH foostateH
 
-foovarV num =
+foovarV num
 	add
 		8
 		foostateV
 
-foofunV void num =
+foofunV num nullary
 	add
 		foovarV
 		foostateV
@@ -16,8 +16,8 @@ foofunV void num =
 	
 # enter
 
-foostateH num = foofunH
+foostateH num  foofunH
 
-foostateV num =
+foostateV num
 	foofunV
 

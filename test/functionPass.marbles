@@ -1,54 +1,47 @@
 
-juu num = 10
+juu num 10
 
-addN_mulN
-	input  num
-	factor num
-	num =
+addN_mulN num
+	input   num
+	factor  num
 	mul factor (add factor input)
 	
-mulN_addN
-	input  num
-	factor num
-	num =
+mulN_addN num
+	input   num
+	factor  num
 	add factor (mul factor input)
 
 
-maxDoer
-	doerA num num > num
-	doerB num num > num
-	x num
-	y num
-	num num > num =
+maxDoer num < num num
+	doerA num < num num
+	doerB num < num num
+	x     num
+	y     num
 	if (gt (doerA x y) (doerB x y)) doerA doerB
 
-minDoer
-	doerA num num > num
-	doerB num num > num
-	x num
-	y num
-	num num > num =
+minDoer num < num num
+	doerA num < num num
+	doerB num < num num
+	x     num
+	y     num
 	if (lt (doerA x y) (doerB x y)) doerA doerB
 
 
-doerSelectorSelector
-	doerSelectorA (num num > num) (num num > num) > (num num > num)
-	doerSelectorb (num num > num) (num num > num) > (num num > num)
-	(num num > num) (num num > num) > (num num > num) =
+doerSelectorSelector (num < num num) < (num < num num) (num < num num)
+	doerSelectorA      (num < num num) < (num < num num) (num < num num)
+	doerSelectorb      (num < num num) < (num < num num) (num < num num)
 	if (mod currentFrame 2) doerSelectorA doerSelectorb
 
 
-# main
+# enter
 
-currentDoerSelector
-	(num num > num) (num num > num) > (num num > num) =
+currentDoerSelector (num < num num) < (num < num num) (num < num num)
 	doerSelectorSelector maxDoer minDoer
 
-currentDoer
-	num num > num =
-	currentDoerSelector addN_mulN mulN_addN juu 10
+currentDoer num < num num
+	currentDoerSelector addN_mulN mulN_addN juu 2
 
-outA num = currentDoer juu 10
+outA num  currentDoer juu 2
 
-outB num = currentDoer 10 juu
+outB num  currentDoer 2 juu
 
