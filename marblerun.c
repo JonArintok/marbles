@@ -29,6 +29,16 @@ int main(int argc, char **argv) {
 		return 2;
 	}
 	
+	
+	//stub
+	while (!reachedEOF) {
+		getLine();
+		puts(&lineBuf[0]);
+	}
+	return 0;
+	
+	
+	
 	init_Allocation();
 	parse();
 	fclose(fileStream);

@@ -1,16 +1,13 @@
 
-hyaku num  100
+hyaku num 100
 
-addmulV  num
-	input  num
-	factor num
-	mul
-		factor
-		add
-			factor
-			input
+nihyaku num
+	mul hyaku 2
 
-addmulH  num
+tenPerFrame num nullary
+	mul currentFrame 10
+
+addmul   num
 	input  num
 	factor num
 	mul factor (add factor input)
@@ -18,9 +15,8 @@ addmulH  num
 
 # enter
 
-V num
-	addmulV
-		hyaku
-		currentFrame
+tehResult num
+	addmul
+		tenPerFrame
+		div nihyaku hyaku
 
-H num  addmulH hyaku currentFrame

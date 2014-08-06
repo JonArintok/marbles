@@ -26,85 +26,94 @@ void getLine(void) {
 	currentLine++;
 	
 	//read the next line from the file one char at a time
-	for (int lineCharIndex = 0;; lineCharIndex++) {
+	for (int bufPos = 0;; bufPos++) {
+		char fileChar;
 		
 		//check to be sure we are not overflowing the buffer
-		if (lineCharIndex == maxLineLength) {
+		if (bufPos == maxLineLength) {
 			putError("line is too long\n");
 			return;
 		}
 		
 		//get char from file
-		lineBuf[lineCharIndex] = fgetc(fileStream);
+		fileChar = fgetc(fileStream);
 		
 		//check for EOF
-		if (lineBuf[lineCharIndex] == EOF) {
+		if (fileChar == EOF) {
 			reachedEOF = true;
+			break;
+		}
+		
+		//homogenize formatting:
+		//ignore redundant spaces,
+		//ignore spaces around parentheses
+		//ignore spaces around paramTypeInitChar
+		if (fileChar == ' ') {
+			if (!bufPos) {
+				putError("leading space\n");
+				return;
+			}
+			if (
+				lineBuf[bufPos-1] == ' ' ||
+				lineBuf[bufPos-1] == '(' ||
+				lineBuf[bufPos-1] == ')' ||
+				lineBuf[bufPos-1] == paramTypeInitChar
+			) {
+				bufPos--;
+				continue;
+			}
+		}
+		if (
+			fileChar == '(' ||
+			fileChar == ')' ||
+			fileChar == paramTypeInitChar
+		) {
+			if (!bufPos) {
+				putError("leading character: '");
+				printf("%c", fileChar);
+				puts("' is not allowed\n");
+				return;
+			}
+			if (lineBuf[bufPos-1] == ' ') {
+				bufPos--;
+				lineBuf[bufPos] = fileChar;
+				continue;
+			}
+		}
+		//tab chars are for indentation only
+		if (bufPos && fileChar == '\t' && lineBuf[bufPos-1] != '\t') {
+			putError("unexpected tab character\n");
 			return;
 		}
 		
-		//check for newlines and comments, and remove trailing whitespace
+		lineBuf[bufPos] = fileChar;
+		
+		//check for newlines and comments, remove trailing whitespace
 		if (
-			lineBuf[lineCharIndex] == '\n' ||
-			lineBuf[lineCharIndex] == commentInitializer
+			fileChar == '\n' ||
+			fileChar == commentInitChar
 		) {
-			
 			//if we're not at the end of the line, read through to the end
-			if (lineBuf[lineCharIndex] != '\n') {
+			if (fileChar != '\n') {
 				char c;
 				while ( ( c = fgetc(fileStream) ) != '\n' ) {
 					if (c == EOF) {
 						reachedEOF = true;
-						return;
+						break;
 					}
 				}
 			}
-			
 			//null terminate the string
-			lineBuf[lineCharIndex] = '\0';
-			
+			lineBuf[bufPos] = '\0';
 			//remove trailing whitespace, if any
-			if (lineCharIndex > 1) {
-				while (lineBuf[lineCharIndex-1] == ' ') {
-					lineCharIndex--;
-					lineBuf[lineCharIndex] = '\0';
+			if (bufPos > 1) {
+				while (lineBuf[bufPos-1] == ' ') {
+					bufPos--;
+					lineBuf[bufPos] = '\0';
 				}
 			}
 			//end of the line
 			break;
-		}
-	}
-	
-	//check for leading space
-	if (lineBuf[0] == ' ') {
-		putError("leading space\n");
-		return;
-	}
-	
-	//remove indentation when reading bodies
-	if (expectedIndentation) {
-		
-		//check for proper indentation
-		int i = 0;
-		for (; i < expectedIndentation; i++) {
-			if (lineBuf[i] != '\t') {
-				putError("under-indented\n");
-				return;
-			}
-		}
-		if (lineBuf[i+1] == '\t') {
-			putError("over-indented\n");
-			return;
-		}
-		
-		//remove indentation from lineBuf
-		for (
-			int lineBufIndex = 0;
-			lineBuf[lineBufIndex] != '\0';
-			lineBufIndex++
-		) {
-			lineBuf[lineBufIndex] = 
-				lineBuf[ expectedIndentation + lineBufIndex ];
 		}
 	}
 }
@@ -169,8 +178,8 @@ void  parse(void) {
 			continue;
 		
 		//check for beginning or end of frameform
-		else if (lineBuf[0] == frameFormInitializer) {
-			if (lineBuf[1] == frameFormInitializer)
+		else if (lineBuf[0] == frameformInitChar) {
+			if (lineBuf[1] == frameformInitChar)
 				inFrameform = false;
 			else
 				getFrameform();

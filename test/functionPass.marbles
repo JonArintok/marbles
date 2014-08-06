@@ -41,7 +41,9 @@ currentDoerSelector (num < num num) < (num < num num) (num < num num)
 currentDoer num < num num
 	currentDoerSelector addN_mulN mulN_addN juu 2
 
-outA num  currentDoer juu 2
+outA num
+	currentDoer juu 2
 
-outB num  currentDoer 2 juu
+outB num
+	currentDoer 2 juu
 

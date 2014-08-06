@@ -1,18 +1,18 @@
 
 
 #define    nodePage        20
-#define    nodeNamePage    20
+#define    nodeNamePage    16
 int        nodeSpace     =  0;
 nodeIndex  currentNode   = -1;
 int        nodeNameSpace =  0;
 int        namePos       = -1;
 
-#define    rootNodePage      10
+#define    rootNodePage      16
 int        rootNodeSpace   =  0;
 int        currentRootNode = -1;
 
 #define    frameformPage       10
-#define    stateNodePage       10
+#define    stateNodePage       16
 int        frameformSpace   =   0;
 int        currentFrameform =  -1;
 
