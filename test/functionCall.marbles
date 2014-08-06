@@ -1,22 +1,23 @@
 
-hyaku num 100
 
-nihyaku num
-	mul hyaku 2
+hyaku num 100                     |variable
 
-tenPerFrame num nullary
-	mul currentFrame 10
+nihyaku num                       |variable, evaluated at start
+	mul hyaku 2                     |body
 
-addmul   num
-	input  num
-	factor num
-	mul factor (add factor input)
+tenPerFrame num nullary           |nullary function
+	mul currentFrame 10             |body
+
+addmul   num                      |binary function
+	input  num                      |first parameter
+	factor num                      |second parameter
+	mul factor (add factor input)   |body
 
 
-# enter
+# enter                           |frameform
 
-tehResult num
-	addmul
+tehResult num                     |state
+	addmul                          |body
 		tenPerFrame
 		div nihyaku hyaku
 

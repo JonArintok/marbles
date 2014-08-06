@@ -25,7 +25,7 @@ void putError(char *message) {
 void getLine(void) {
 	currentLine++;
 	
-	//read the next line from the file one char at a time
+	//read the next line from the file one character at a time
 	for (int bufPos = 0;; bufPos++) {
 		char fileChar;
 		
@@ -35,7 +35,7 @@ void getLine(void) {
 			return;
 		}
 		
-		//get char from file
+		//get character from file
 		fileChar = fgetc(fileStream);
 		
 		//check for EOF
@@ -48,6 +48,7 @@ void getLine(void) {
 		//ignore redundant spaces,
 		//ignore spaces around parentheses
 		//ignore spaces around paramTypeInitChar
+		//ignore spaces after frameformInitChar
 		if (fileChar == ' ') {
 			if (!bufPos) {
 				putError("leading space\n");
@@ -57,6 +58,7 @@ void getLine(void) {
 				lineBuf[bufPos-1] == ' ' ||
 				lineBuf[bufPos-1] == '(' ||
 				lineBuf[bufPos-1] == ')' ||
+				lineBuf[bufPos-1] == frameformInitChar ||
 				lineBuf[bufPos-1] == paramTypeInitChar
 			) {
 				bufPos--;
@@ -80,7 +82,7 @@ void getLine(void) {
 				continue;
 			}
 		}
-		//tab chars are for indentation only
+		//tab characters are for indentation only
 		if (bufPos && fileChar == '\t' && lineBuf[bufPos-1] != '\t') {
 			putError("unexpected tab character\n");
 			return;
@@ -88,38 +90,28 @@ void getLine(void) {
 		
 		lineBuf[bufPos] = fileChar;
 		
-		//check for newlines and comments, remove trailing whitespace
-		if (
-			fileChar == '\n' ||
-			fileChar == commentInitChar
-		) {
-			//if we're not at the end of the line, read through to the end
-			if (fileChar != '\n') {
-				char c;
-				while ( ( c = fgetc(fileStream) ) != '\n' ) {
-					if (c == EOF) {
-						reachedEOF = true;
-						break;
-					}
-				}
-			}
-			//null terminate the string
-			lineBuf[bufPos] = '\0';
-			//remove trailing whitespace, if any
-			if (bufPos > 1) {
-				while (lineBuf[bufPos-1] == ' ') {
-					bufPos--;
-					lineBuf[bufPos] = '\0';
-				}
-			}
+		//ignore comments
+		if (fileChar == commentInitChar) {
 			//end of the line
+			if (bufPos && lineBuf[bufPos-1] == ' ')
+				lineBuf[bufPos-1] = '\0';
+			else
+				lineBuf[bufPos] = '\0';
+			//read through to the newline character
+			while ( (fileChar = fgetc(fileStream)) != '\n' )
+				if (fileChar == EOF) 
+					reachedEOF = true;
+			break;
+		}
+		
+		//check for newline character
+		if (fileChar == '\n') {
+			//end of the line
+			lineBuf[bufPos] = '\0';
 			break;
 		}
 	}
 }
-
-
-void getRefnode(char *title) {}
 
 void getDefnode(void) {
 	//Defnodes are variables, functions, and statenodes
@@ -130,27 +122,23 @@ void getDefnode(void) {
 	
 }
 
+void getRefnode(char *title) {}
+
 void getFrameform(void) {
 	inc_currentFrameform();
 	inFrameform = true;	
 	
-	//ignore spaces between the '#' and the name
-	int bufPos = 1;
-	while (true) {
-		if (lineBuf[bufPos] == ' ')
-			bufPos++;
-		else if (lineBuf[bufPos] == '\0') {
-			putError("This frameform must have a name\n");
-			return;
-		}
-		else if (lineBuf[bufPos] >=  '0'  &&  lineBuf[bufPos] <=  '9') {
-			putError("frameform names may not begin with numerals\n");
-			return;
-		}
-		else break;
+	//check for proper frameform name
+	if (lineBuf[1] == '\0') {
+		putError("This frameform must have a name\n");
+		return;
+	}
+	else if (lineBuf[1] >=  '0'  &&  lineBuf[1] <=  '9') {
+		putError("frameform names may not begin with numerals\n");
+		return;
 	}
 	//allow no spaces in the frameform name
-	if ( strchr(&lineBuf[bufPos], ' ') ) {
+	if ( strchr(&lineBuf[1], ' ') ) {
 		putError("frameform names may not contain spaces\n");
 		return;
 	}
@@ -158,10 +146,9 @@ void getFrameform(void) {
 	//copy from lineBuf to frameforms[currentFrameform].name
 	strncpy(
 		&frameforms[currentFrameform].name[0],
-		&lineBuf[bufPos],
+		&lineBuf[1],
 		maxTokenLength
 	);
-	
 }
 
 void  parse(void) {
