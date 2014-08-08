@@ -117,6 +117,8 @@ void getLine(void) {
 	}
 }
 
+void getArgs(void) {}
+
 void getDefnode(void) {
 	//"Defnodes" are variables, functions, and statenodes
 	inc_currentNode();
@@ -125,7 +127,7 @@ void getDefnode(void) {
 	
 	//read the first line into currentNode.name
 	while (true) {
-		incNamePos();
+		inc_namePos();
 		
 		//check for number literal
 		if (
@@ -137,7 +139,7 @@ void getDefnode(void) {
 			nodes[currentNode].evaluate = eval_varDef;
 			inc_currentNode();
 			while (lineBuf[bufPos] != '\0') {
-				incNamePos();
+				inc_namePos();
 				bufPos++;
 				nodes[currentNode].name[namePos] = lineBuf[bufPos];
 			}
@@ -150,15 +152,54 @@ void getDefnode(void) {
 			break;
 	}
 	
-	//else getParamCount, if paramCount > maxArity then error
-	//	if paramCount == 0 then check to see if it's a var or nullary fn
-	//		if ( strcmp(&lineBuf[namePos-7], "nullary") )
-	//		getArgs
-	//	else swap that /0 with a /n and continue reading into the name
-	//for each param, getLine and read it into currentNode.name
-	//getArgs
+	//find out how many parameters there are
+	int paramCount = 0;
+	fpos_t filePos;
+	fgetpos(fileStream, &filePos);
+	while (true) {
+		char fileChar;
+		int  indent = 0;
+		while ( (fileChar = fgetc(fileStream)) == '\t')
+			indent++;
+		if (indent == 1)
+			paramCount++;
+		else {
+			paramCount--;
+			fsetpos(fileStream, &filePos);
+			break;
+		}
+		while ( (fileChar = fgetc(fileStream)) != '\n') {
+			if (fileChar == EOF) {
+				reachedEOF = true;
+				break;
+			}
+		}
+		if (reachedEOF)
+			break;
+	}
 	
+	//if no parameters, then it's either a variable of nullary function
+	if (!paramCount) {
+		if ( strcmp(&lineBuf[namePos-7], "nullary") )
+			nodes[currentNode].evaluate = eval_varDef;
+		else
+			nodes[currentNode].evaluate = eval_fnDef;
+		getArgs();
+		return;
+	}
 	
+	//else replace that /0 with a /n and continue reading into the name
+	for (int i = 0; i < paramCount; i++) {
+		nodes[currentNode].name[namePos] = '\n';
+		getLine();
+		int bufPos = 0;//would be -1 if we weren't ignoring the tabs
+		while (lineBuf[bufPos] != '\0') {
+			inc_namePos();
+			bufPos++;
+			nodes[currentNode].name[namePos] = lineBuf[bufPos];
+		}
+	}
+	getArgs();
 }
 
 void getRefnode(char *title) {}

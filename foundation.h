@@ -8,24 +8,34 @@ typedef int16_t nodeIndex;
 #define  maxNodeIndex  32767
 
 typedef double  number;
-//byte
-//byte array
+typedef uint8_t byte;
 typedef struct {
-	uint32_t   dimensions[2];
+	uint32_t  *dimensions;//0th index holds dimensionality
 	number    *data;
-	//transformation stack
+	nodeIndex *transformations;
 } numArray;
-struct node;
 typedef struct {
-	uint32_t   dimensions[2];
+	uint32_t  *dimensions;
+	byte      *data;
+	nodeIndex *transformations;
+} byteArray;
+typedef struct {
+	uint32_t  *dimensions;
 	nodeIndex *data;
-	//transformation stack
+	nodeIndex *transformations;
 } nodeArray;
 typedef union {
-	number     n;//number
-	nodeIndex  f;//function
-	numArray   N;//number array
-	nodeArray  F;//function array
+	number    n;
+	number    n2[2];
+	number    n3[3];
+	numArray  N;
+	byte      b;
+	byte      b2[2];
+	byte      b3[3];
+	byte      b4[4];
+	byteArray B;
+	nodeIndex f;
+	nodeArray F;
 } outType;
 typedef void (*evaluator)(nodeIndex toBeEvaluated);
 typedef struct {

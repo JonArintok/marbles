@@ -9,32 +9,32 @@ void name(nodeIndex self) {\
 	;\
 }
 
-#define  _ARITH_TYPE_  "\tnum  a\n\tnum  b\n\tnum"
+#define  _ARITH_TYPE_  " num\na num\nb num"
 
 _EVAL_ARITH_(eval_add, +, n, n, n)
 const node node_add = {
-	.name = "add\n" _ARITH_TYPE_,
+	.name = "add" _ARITH_TYPE_,
 	.arity     = 2,
 	.evaluate  = eval_add,
 };
 
 _EVAL_ARITH_(eval_sub, -, n, n, n)
 const node node_sub = {
-	.name = "sub\n" _ARITH_TYPE_,
+	.name = "sub" _ARITH_TYPE_,
 	.arity     = 2,
 	.evaluate  = eval_sub,
 };
 
 _EVAL_ARITH_(eval_mul, *, n, n, n)
 const node node_mul = {
-	.name = "mul\n" _ARITH_TYPE_,
+	.name = "mul" _ARITH_TYPE_,
 	.arity     = 2,
 	.evaluate  = eval_mul,
 };
 
 _EVAL_ARITH_(eval_div, /, n, n, n)
 const node node_div = {
-	.name = "div\n" _ARITH_TYPE_,
+	.name = "div" _ARITH_TYPE_,
 	.arity     = 2,
 	.evaluate  = eval_div,
 };
