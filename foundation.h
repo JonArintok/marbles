@@ -4,10 +4,10 @@
 #define stackSize     1000
 
 
-typedef int16_t  nodeIndex;
+typedef int16_t nodeIndex;
 #define  maxNodeIndex  32767
 
-typedef double   number;
+typedef double  number;
 //byte
 //byte array
 typedef struct {

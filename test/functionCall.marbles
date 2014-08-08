@@ -1,8 +1,8 @@
 
 
-hyaku num 100                     |variable
+hyaku num 100                     |variable, numeric literal
 
-nihyaku num                       |variable, evaluated at start
+nihyaku num                       |variable, evaluated at entry
 	mul hyaku 2                     |body
 
 tenPerFrame num nullary           |nullary function

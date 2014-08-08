@@ -22,6 +22,10 @@ void putError(char *message) {
 	);
 }
 
+int isNumeric(char in) {
+	return  (in >=  '0' && in <=  '9') || in == '-' || in == '.';
+}
+
 void getLine(void) {
 	currentLine++;
 	
@@ -114,10 +118,45 @@ void getLine(void) {
 }
 
 void getDefnode(void) {
-	//Defnodes are variables, functions, and statenodes
+	//"Defnodes" are variables, functions, and statenodes
 	inc_currentNode();
 	nodes[currentNode].arity = 1;
 	nodes[currentNode].arguments[0] = currentNode + 1;
+	
+	//read the first line into currentNode.name
+	while (true) {
+		incNamePos();
+		
+		//check for number literal
+		if (
+			lineBuf[namePos] == ' ' &&
+			isNumeric( lineBuf[namePos+1] )
+		) {
+			int bufPos = namePos;
+			nodes[currentNode].name[namePos] = '\0';
+			nodes[currentNode].evaluate = eval_varDef;
+			inc_currentNode();
+			while (lineBuf[bufPos] != '\0') {
+				incNamePos();
+				bufPos++;
+				nodes[currentNode].name[namePos] = lineBuf[bufPos];
+			}
+			return;
+		}
+		
+		nodes[currentNode].name[namePos] = lineBuf[namePos];
+		
+		if (lineBuf[namePos] == '\0')
+			break;
+	}
+	
+	//else getParamCount, if paramCount > maxArity then error
+	//	if paramCount == 0 then check to see if it's a var or nullary fn
+	//		if ( strcmp(&lineBuf[namePos-7], "nullary") )
+	//		getArgs
+	//	else swap that /0 with a /n and continue reading into the name
+	//for each param, getLine and read it into currentNode.name
+	//getArgs
 	
 	
 }
@@ -133,8 +172,10 @@ void getFrameform(void) {
 		putError("This frameform must have a name\n");
 		return;
 	}
-	else if (lineBuf[1] >=  '0'  &&  lineBuf[1] <=  '9') {
-		putError("frameform names may not begin with numerals\n");
+	else if ( isNumeric( lineBuf[1] ) ) {
+		putError(
+			"frameform names may not begin with numeric characters\n"
+		);
 		return;
 	}
 	//allow no spaces in the frameform name
