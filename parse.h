@@ -7,18 +7,16 @@
 FILE    *fileStream;
 char    *fileName;
 char     lineBuf[maxLineLength];
-uint8_t  expectedIndentation = 0;
-uint32_t currentLine = 0;
 
 bool reachedEOF  = false;
 bool noErrors    = true;
 bool inFrameform = false;
 
-void putError(char *message) {
+void putError(char *message, int line) {
 	noErrors = false;
 	printf(
 		"error in line %d of %s: %s", 
-		currentLine, fileName, message
+		line, fileName, message
 	);
 }
 
@@ -35,7 +33,7 @@ void getLine(void) {
 		
 		//check to be sure we are not overflowing the buffer
 		if (bufPos == maxLineLength) {
-			putError("line is too long\n");
+			putError("line is too long\n", currentLine);
 			return;
 		}
 		
@@ -55,7 +53,7 @@ void getLine(void) {
 		//ignore spaces after frameformInitChar
 		if (fileChar == ' ') {
 			if (!bufPos) {
-				putError("leading space\n");
+				putError("leading space\n", currentLine);
 				return;
 			}
 			if (
@@ -75,7 +73,7 @@ void getLine(void) {
 			fileChar == paramTypeInitChar
 		) {
 			if (!bufPos) {
-				putError("leading character: '");
+				putError("leading character: '", currentLine);
 				printf("%c", fileChar);
 				puts("' is not allowed\n");
 				return;
@@ -88,7 +86,7 @@ void getLine(void) {
 		}
 		//tab characters are for indentation only
 		if (bufPos && fileChar == '\t' && lineBuf[bufPos-1] != '\t') {
-			putError("unexpected tab character\n");
+			putError("unexpected tab character\n", currentLine);
 			return;
 		}
 		
@@ -117,7 +115,9 @@ void getLine(void) {
 	}
 }
 
-void getArgs(void) {}
+void getFoldedArgs(int currentNodeLevel, int bufPos) {
+	
+}
 
 void getDefnode(void) {
 	//"Defnodes" are variables, functions, and statenodes
@@ -178,31 +178,32 @@ void getDefnode(void) {
 			break;
 	}
 	
-	//if no parameters, then it's either a variable of nullary function
-	if (!paramCount) {
-		if ( strcmp(&lineBuf[namePos-7], "nullary") )
-			nodes[currentNode].evaluate = eval_varDef;
+	//it's a function until I say otherwise
+	nodes[currentNode].evaluate = eval_fnDef;
+	if ( !paramCount && strcmp(&lineBuf[namePos-7], "nullary") ) {
+		if (inFrameform)
+			nodes[currentNode].evaluate = eval_stateDef;
 		else
-			nodes[currentNode].evaluate = eval_fnDef;
-		getArgs();
-		return;
+			nodes[currentNode].evaluate = eval_varDef;
 	}
-	
-	//else replace that /0 with a /n and continue reading into the name
-	for (int i = 0; i < paramCount; i++) {
-		nodes[currentNode].name[namePos] = '\n';
-		getLine();
-		int bufPos = 0;//would be -1 if we weren't ignoring the tabs
-		while (lineBuf[bufPos] != '\0') {
-			inc_namePos();
-			bufPos++;
-			nodes[currentNode].name[namePos] = lineBuf[bufPos];
+	else {
+		//else replace that \0 with a \n and continue reading the name
+		for (int i = 0; i < paramCount; i++) {
+			nodes[currentNode].name[namePos] = '\n';
+			getLine();
+			int bufPos = 0;//would be -1 if we weren't ignoring the tabs
+			while (lineBuf[bufPos] != '\0') {
+				inc_namePos();
+				bufPos++;
+				nodes[currentNode].name[namePos] = lineBuf[bufPos];
+			}
 		}
 	}
-	getArgs();
+	//initialize and name the body's nodes
+	
 }
 
-void getRefnode(char *title) {}
+void getRefnode(nodeIndex nodeIn) {}
 
 void getFrameform(void) {
 	inc_currentFrameform();
@@ -210,18 +211,19 @@ void getFrameform(void) {
 	
 	//check for proper frameform name
 	if (lineBuf[1] == '\0') {
-		putError("This frameform must have a name\n");
+		putError("This frameform must have a name\n", currentLine);
 		return;
 	}
 	else if ( isNumeric( lineBuf[1] ) ) {
 		putError(
-			"frameform names may not begin with numeric characters\n"
+			"frameform names may not begin with numeric characters\n",
+			currentLine
 		);
 		return;
 	}
 	//allow no spaces in the frameform name
 	if ( strchr(&lineBuf[1], ' ') ) {
-		putError("frameform names may not contain spaces\n");
+		putError("frameform names may not contain spaces\n", currentLine);
 		return;
 	}
 	

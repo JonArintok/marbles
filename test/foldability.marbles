@@ -18,7 +18,7 @@ B num
 		add (sub 68 8) (div 20 0.5)
 
 C num
-	mul 1.5 (add (sub 68 8) (div 20 0.5) )
+	mul 1.5 (add (sub 68 8) (div 20 0.5))
 
 D num 150
 

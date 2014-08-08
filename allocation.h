@@ -16,10 +16,16 @@ int        currentRootNode = -1;
 int        frameformSpace   =   0;
 int        currentFrameform =  -1;
 
+uint32_t   currentLine = 0;//line numbers start at 1, not 0
+uint32_t  *nodeLines;
+uint32_t  *nodeLevels;
+
 
 void init_Allocation(void) {
 	nodeSpace = nodePage;
-	nodes = malloc(sizeof(node) * nodeSpace);
+	nodes      = malloc(sizeof(  node  ) * nodeSpace);
+	nodeLines  = malloc(sizeof(uint32_t) * nodeSpace);
+	nodeLevels = malloc(sizeof(uint32_t) * nodeSpace);
 	
 	frameformSpace = frameformPage;
 	frameforms = malloc(sizeof(frameform) * frameformSpace);
@@ -32,7 +38,9 @@ void inc_currentNode(void) {
 	currentNode++;
 	if (currentNode == nodeSpace) {
 		nodeSpace += nodePage;
-		nodes = realloc(nodes, sizeof(node) * nodeSpace);
+		nodes      = realloc(nodes, sizeof(  node  ) * nodeSpace);
+		nodeLines  = realloc(nodes, sizeof(uint32_t) * nodeSpace);
+		nodeLevels = realloc(nodes, sizeof(uint32_t) * nodeSpace);
 	}
 	
 	//initialize fields
@@ -108,21 +116,16 @@ void  inc_currentStateNode(void) {
 
 
 void cleanUp(void) {
-	//free the names of the rootNodes, then the rootNodes themselves
-	for (int i = 0; i <= currentRootNode; i++)
-		free( nodes[ rootNodes[i] ].name );
+	
+	for (int i = 0; i <= currentFrameform; i++)
+		free(frameforms[i].stateNodes);
+	free(frameforms);
+	
+	for (int i = 0; i <= currentNode; i++)
+		free(nodes[i].name);
 	free(rootNodes);
-	
-	//free the names of the stateNodes of the frameforms, 
-	//then the stateNodes themselves, then the frameforms themselves
-	for (int i = 0; i <= currentFrameform; i++) {
-		for (int j = 0; j <= frameforms[i].currentStateNode; j++)
-			free ( nodes[ frameforms[i].stateNodes[j] ].name );
-		free( frameforms[i].stateNodes );
-	}
-	free( frameforms );
-	
-	//free the nodes themselves
+	free(nodeLines);
+	free(nodeLevels);
 	free(nodes);
 }
 
