@@ -115,20 +115,17 @@ void getLine(void) {
 	}
 }
 
-void getFoldedArgs(int currentNodeLevel, int bufPos) {
-	
-}
-
 void getDefnode(void) {
 	//"Defnodes" are variables, functions, and statenodes
 	inc_currentNode();
 	nodes[currentNode].arity = 1;
 	nodes[currentNode].arguments[0] = currentNode + 1;
+	nodeLines[currentNode] = currentLine;
+	nodeLevels[currentnode] = 0;
 	
 	//read the first line into currentNode.name
 	while (true) {
 		inc_namePos();
-		
 		//check for number literal
 		if (
 			lineBuf[namePos] == ' ' &&
@@ -138,6 +135,8 @@ void getDefnode(void) {
 			nodes[currentNode].name[namePos] = '\0';
 			nodes[currentNode].evaluate = eval_varDef;
 			inc_currentNode();
+			nodeLines[currentNode] = currentLine;
+			nodeLevels[currentnode] = 1;
 			while (lineBuf[bufPos] != '\0') {
 				inc_namePos();
 				bufPos++;
@@ -145,9 +144,7 @@ void getDefnode(void) {
 			}
 			return;
 		}
-		
 		nodes[currentNode].name[namePos] = lineBuf[namePos];
-		
 		if (lineBuf[namePos] == '\0')
 			break;
 	}
@@ -171,15 +168,13 @@ void getDefnode(void) {
 		while ( (fileChar = fgetc(fileStream)) != '\n') {
 			if (fileChar == EOF) {
 				reachedEOF = true;
+				putError("incomplete definition\n", currentLine);
 				break;
 			}
 		}
-		if (reachedEOF)
-			break;
 	}
 	
-	//it's a function until I say otherwise
-	nodes[currentNode].evaluate = eval_fnDef;
+	//determine if it's a stateDef, varDef, or fnDef
 	if ( !paramCount && strcmp(&lineBuf[namePos-7], "nullary") ) {
 		if (inFrameform)
 			nodes[currentNode].evaluate = eval_stateDef;
@@ -187,6 +182,7 @@ void getDefnode(void) {
 			nodes[currentNode].evaluate = eval_varDef;
 	}
 	else {
+		nodes[currentNode].evaluate = eval_fnDef;
 		//else replace that \0 with a \n and continue reading the name
 		for (int i = 0; i < paramCount; i++) {
 			nodes[currentNode].name[namePos] = '\n';
@@ -200,10 +196,82 @@ void getDefnode(void) {
 		}
 	}
 	//initialize and name the body's nodes
-	
+	int elevation;
+	int fold  = 0;
+	int bufPos;
+	char prevDelim = '\0';
+	while (true) {
+		getLine();
+		bufPos = -1;
+		elevation = 0;
+		while (lineBuf[++bufPos] = '\t')
+			elevation++;
+		if (!elevation)
+			break;
+		inc_currentNode();
+		bufPos--;
+		while (lineBuf[bufPos++] != '\0') {
+			inc_namePos();
+			switch (lineBuf[bufPos]) {
+				case ' ':
+					if (prevDelim != ' ')
+						fold++;
+					nodes[currentNode].name[namePos] = '\0';
+					nodeLines[currentNode] = currentLine;
+					nodeLevels[currentnode] = elevation + fold;
+					prevDelim == ' ';
+					break;
+				case '(':
+					fold++;
+					if (lineBuf[bufPos-1] != ')') {
+						nodes[currentNode].name[namePos] = '\0';
+						nodeLines[currentNode] = currentLine;
+						nodeLevels[currentnode] = elevation + fold;
+					}
+					prevDelim == '(';
+					break;
+				case ')':
+					if (prevDelim == '(') {
+						putError(
+							"unnecessary perentheses around '",
+							currentLine
+						);
+						nodes[currentNode].name[namePos] = '\0';
+						printf("%s'\n", nodes[currentNode].name);
+						return;
+					}
+					else {
+						if (lineBuf[bufPos-1] != ')') {
+							nodes[currentNode].name[namePos] = '\0';
+							nodeLines[currentNode] = currentLine;
+							nodeLevels[currentnode] = elevation + fold;
+						}
+						fold--;
+					}
+					prevDelim == ')';
+					break
+				case '\0':
+					if (fold) {
+						putError("perentheses are off by: ", currentLine);
+						printf("%d\n", fold);
+						return;
+					}
+					else
+						if (lineBuf[bufPos-1] != ')') {
+							nodes[currentNode].name[namePos] = '\0';
+							nodeLines[currentNode] = currentLine;
+							nodeLevels[currentnode] = elevation + fold;
+						}
+					prevDelim == '\0';
+					break;
+				default:
+					nodes[currentNode].name[namePos] = lineBuf[bufPos];
+			}
+		}
+	}
 }
 
-void getRefnode(nodeIndex nodeIn) {}
+void connectNodes(nodeIndex nodeIn) {}
 
 void getFrameform(void) {
 	inc_currentFrameform();
@@ -249,19 +317,18 @@ void  parse(void) {
 			continue;
 		
 		//check for beginning or end of frameform
-		else if (lineBuf[0] == frameformInitChar) {
+		if (lineBuf[0] == frameformInitChar) {
 			if (lineBuf[1] == frameformInitChar)
 				inFrameform = false;
 			else
 				getFrameform();
 		}
-		
-		//we must have a DefNode
+		//we must have some nodes
 		else
-			getDefnode();
+			initNodes();
 	}
 	
-	//recheck undefined
+	//
 	
 	//check for type errors
 	

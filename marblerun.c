@@ -24,8 +24,7 @@ int main(int argc, char **argv) {
 	}
 	fileStream = fopen(fileName, "r");
 	if (fileStream == NULL) {
-		putError("could not open: ");
-		printf("%s\n", fileName);
+		printf("could not open: %s\n", fileName);
 		return 2;
 	}
 	
@@ -97,7 +96,7 @@ int main(int argc, char **argv) {
 				long  timeWait = timeFrame - (timeB - timeA);
 				if (timeWait < 0)
 					printf("\n\n!! timeWait : %zu !!\n\n", timeWait);
-				usleep(timeWait);
+				microSleep(timeWait);
 				timeA = getMicroseconds();
 			}
 		}
