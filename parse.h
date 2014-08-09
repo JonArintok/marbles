@@ -115,13 +115,13 @@ void getLine(void) {
 	}
 }
 
-void getDefnode(void) {
+void initNodes(void) {
 	//"Defnodes" are variables, functions, and statenodes
 	inc_currentNode();
 	nodes[currentNode].arity = 1;
 	nodes[currentNode].arguments[0] = currentNode + 1;
 	nodeLines[currentNode] = currentLine;
-	nodeLevels[currentnode] = 0;
+	nodeLevels[currentNode] = 0;
 	
 	//read the first line into currentNode.name
 	while (true) {
@@ -136,7 +136,7 @@ void getDefnode(void) {
 			nodes[currentNode].evaluate = eval_varDef;
 			inc_currentNode();
 			nodeLines[currentNode] = currentLine;
-			nodeLevels[currentnode] = 1;
+			nodeLevels[currentNode] = 1;
 			while (lineBuf[bufPos] != '\0') {
 				inc_namePos();
 				bufPos++;
@@ -204,7 +204,7 @@ void getDefnode(void) {
 		getLine();
 		bufPos = -1;
 		elevation = 0;
-		while (lineBuf[++bufPos] = '\t')
+		while (lineBuf[++bufPos] == '\t')
 			elevation++;
 		if (!elevation)
 			break;
@@ -218,17 +218,17 @@ void getDefnode(void) {
 						fold++;
 					nodes[currentNode].name[namePos] = '\0';
 					nodeLines[currentNode] = currentLine;
-					nodeLevels[currentnode] = elevation + fold;
-					prevDelim == ' ';
+					nodeLevels[currentNode] = elevation + fold;
+					prevDelim = ' ';
 					break;
 				case '(':
 					fold++;
 					if (lineBuf[bufPos-1] != ')') {
 						nodes[currentNode].name[namePos] = '\0';
 						nodeLines[currentNode] = currentLine;
-						nodeLevels[currentnode] = elevation + fold;
+						nodeLevels[currentNode] = elevation + fold;
 					}
-					prevDelim == '(';
+					prevDelim = '(';
 					break;
 				case ')':
 					if (prevDelim == '(') {
@@ -244,12 +244,12 @@ void getDefnode(void) {
 						if (lineBuf[bufPos-1] != ')') {
 							nodes[currentNode].name[namePos] = '\0';
 							nodeLines[currentNode] = currentLine;
-							nodeLevels[currentnode] = elevation + fold;
+							nodeLevels[currentNode] = elevation + fold;
 						}
 						fold--;
 					}
-					prevDelim == ')';
-					break
+					prevDelim = ')';
+					break;
 				case '\0':
 					if (fold) {
 						putError("perentheses are off by: ", currentLine);
@@ -260,9 +260,9 @@ void getDefnode(void) {
 						if (lineBuf[bufPos-1] != ')') {
 							nodes[currentNode].name[namePos] = '\0';
 							nodeLines[currentNode] = currentLine;
-							nodeLevels[currentnode] = elevation + fold;
+							nodeLevels[currentNode] = elevation + fold;
 						}
-					prevDelim == '\0';
+					prevDelim = '\0';
 					break;
 				default:
 					nodes[currentNode].name[namePos] = lineBuf[bufPos];
