@@ -115,8 +115,19 @@ void getLine(void) {
 	}
 }
 
+int strTcmp(char *A, char *B, char T) {
+	char a;
+	char b;
+	for (int i = 0;; i++) {
+		a = A[i];
+		b = B[i];
+		if (a != b || a == T || b == T || a == '\0' || b == '\0')
+			return a - b;
+	}
+}
+
 void initNodes(void) {
-	//"Defnodes" are variables, functions, and statenodes
+	//"defNodes" are variables, functions, and stateNodes
 	inc_currentNode();
 	nodes[currentNode].arity = 1;
 	nodes[currentNode].arguments[0] = currentNode + 1;
@@ -147,6 +158,38 @@ void initNodes(void) {
 		nodes[currentNode].name[namePos] = lineBuf[namePos];
 		if (lineBuf[namePos] == '\0')
 			break;
+	}
+	
+	char *currentNodeName = nodes[currentNode].name;
+	
+	//check for naming collision
+	for (int i = 0; i <= currentRootNode; i++) {
+		if (!(strTcmp(
+			currentNodeName,
+			nodes[ rootNodes[i] ].name,
+			' '
+		))) {
+			putError("naming collision on '", currentLine);
+			printf("%s'\n", currentNodeName);
+			return;
+		}
+	}
+	if (inFrameform) {
+		for (
+			int i = 0;
+			i <= frameforms[currentFrameform].currentStateNode;
+			i++
+		) {
+			if (!(strTcmp(
+				currentNodeName,
+				nodes[ frameforms[currentFrameform].stateNodes[i] ].name,
+				' '
+			))) {
+				putError("naming collision on '", currentLine);
+				printf("%s'\n", currentNodeName);
+				return;
+			}
+		}
 	}
 	
 	//find out how many parameters there are
@@ -185,16 +228,27 @@ void initNodes(void) {
 		nodes[currentNode].evaluate = eval_fnDef;
 		//else replace that \0 with a \n and continue reading the name
 		for (int i = 0; i < paramCount; i++) {
-			nodes[currentNode].name[namePos] = '\n';
+			currentNodeName[namePos] = '\n';
 			getLine();
 			int bufPos = 0;//would be -1 if we weren't ignoring the tabs
 			while (lineBuf[bufPos] != '\0') {
 				inc_namePos();
 				bufPos++;
-				nodes[currentNode].name[namePos] = lineBuf[bufPos];
+				currentNodeName[namePos] = lineBuf[bufPos];
 			}
 		}
 	}
+	
+	//update the frameform or rootNode array
+	if (nodes[currentNode].evaluate == eval_stateDef) {
+		inc_currentStateNode();
+		frameforms[currentFrameform].currentStateNode = currentNode;
+	}
+	else {
+		inc_currentRootNode();
+		rootNodes[currentRootNode] = currentNode;
+	}
+	
 	//initialize and name the body's nodes
 	int elevation;
 	int fold  = 0;
@@ -216,7 +270,7 @@ void initNodes(void) {
 				case ' ':
 					if (prevDelim != ' ')
 						fold++;
-					nodes[currentNode].name[namePos] = '\0';
+					currentNodeName[namePos] = '\0';
 					nodeLines[currentNode] = currentLine;
 					nodeLevels[currentNode] = elevation + fold;
 					prevDelim = ' ';
@@ -224,7 +278,7 @@ void initNodes(void) {
 				case '(':
 					fold++;
 					if (lineBuf[bufPos-1] != ')') {
-						nodes[currentNode].name[namePos] = '\0';
+						currentNodeName[namePos] = '\0';
 						nodeLines[currentNode] = currentLine;
 						nodeLevels[currentNode] = elevation + fold;
 					}
@@ -236,13 +290,13 @@ void initNodes(void) {
 							"unnecessary perentheses around '",
 							currentLine
 						);
-						nodes[currentNode].name[namePos] = '\0';
+						currentNodeName[namePos] = '\0';
 						printf("%s'\n", nodes[currentNode].name);
 						return;
 					}
 					else {
 						if (lineBuf[bufPos-1] != ')') {
-							nodes[currentNode].name[namePos] = '\0';
+							currentNodeName[namePos] = '\0';
 							nodeLines[currentNode] = currentLine;
 							nodeLevels[currentNode] = elevation + fold;
 						}
@@ -258,20 +312,70 @@ void initNodes(void) {
 					}
 					else
 						if (lineBuf[bufPos-1] != ')') {
-							nodes[currentNode].name[namePos] = '\0';
+							currentNodeName[namePos] = '\0';
 							nodeLines[currentNode] = currentLine;
 							nodeLevels[currentNode] = elevation + fold;
 						}
 					prevDelim = '\0';
 					break;
 				default:
-					nodes[currentNode].name[namePos] = lineBuf[bufPos];
+					currentNodeName[namePos] = lineBuf[bufPos];
+			}
+		}
+		
+		//connect the nodes to their parents
+		if (nodeLevels[currentNode] < 2)
+			continue;
+		for (int backstep = 1;; backstep++) {
+			if (
+				nodeLevels[currentNode-backstep] == 
+				nodeLevels[currentNode] - 1
+			) {
+				nodeIndex parent = currentNode-backstep;
+				nodes[parent].arguments[nodes[parent].arity] = currentNode;
+				nodes[parent].arity++;
 			}
 		}
 	}
 }
 
-void connectNodes(nodeIndex nodeIn) {}
+void lookupNodes() {
+	for (int i = 0; i <= currentNode; i++) {
+		//skip defNodes
+		if (
+			nodes[i].evaluate == eval_varDef ||
+			nodes[i].evaluate == eval_fnDef  ||
+			nodes[i].evaluate == eval_stateDef
+		) {
+			continue;
+		}
+		
+		char *nodeName = &nodes[i].name[0];
+		
+		//check for number literal
+		if ( isNumeric(nodeName[0]) ) {
+			for (int namePos = 0; namePos != '\0'; namePos++) {
+				if (!( isNumeric(nodeName[namePos]) )) {
+					putError("invalid number literal: '", nodeLines[i]);
+					printf("%s'\n", nodeName);
+					//return;
+				}
+			}
+			if (!noErrors)
+				continue;
+			
+			nodes[i].evaluate = eval_numLit;
+			sscanf(nodeName, "%lf", &nodes[i].output.n);
+			return;
+		}
+		
+		//check for reference to stdNode
+		
+		
+		
+		
+	}
+}
 
 void getFrameform(void) {
 	inc_currentFrameform();
@@ -328,8 +432,5 @@ void  parse(void) {
 			initNodes();
 	}
 	
-	//
-	
-	//check for type errors
-	
+	lookupNodes();
 }
