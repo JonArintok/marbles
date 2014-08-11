@@ -115,15 +115,101 @@ void getLine(void) {
 	}
 }
 
-int strTcmp(char *A, char *B, char T) {
+int strTcmp(char *A, char *B, char AT, char BT) {
 	char a;
 	char b;
 	for (int i = 0;; i++) {
 		a = A[i];
 		b = B[i];
-		if (a != b || a == T || b == T || a == '\0' || b == '\0')
+		if (a != b || a == AT || b == BT || a == '\0' || b == '\0')
 			return a - b;
 	}
+}
+
+int findNameCollision(char *nameIn, char AT) {
+	bool nameCollisionFound = false;
+	
+	//check for name collision with stdNodes
+	for (int i = 0; i <= stdNodeTableLength; i++) {
+		if (!(strTcmp(
+			nameIn,
+			stdNodeTable[i]->name,
+			AT, ' '
+		))) {
+			nameCollisionFound = true;
+			break;
+		}
+	}
+	//check for name collision with rootNodes
+	for (int i = 0; i <= currentRootNode; i++) {
+		if (!(strTcmp(
+			nameIn,
+			nodesInfo[ rootNodes[i] ].name,
+			AT, ' '
+		))) {
+			nameCollisionFound = true;
+			break;
+		}
+	}
+	//check for name collision with stateNodes
+	if (inFrameform && !nameCollisionFound) {
+		//check for collision with stateNodes in the currentFrameform
+		for (
+			int i = 0;
+			i <= frameforms[currentFrameform].currentStateNode;
+			i++
+		) {
+			if (!(strTcmp(
+				nameIn,
+				nodesInfo[ frameforms[currentFrameform].stateNodes[i] ].name,
+				AT, ' '
+			))) {
+				nameCollisionFound = true;
+				break;
+			}
+		}
+	}
+	else if (currentFrameform >= 0 && !nameCollisionFound) {
+		//check for collision with any stateNode
+		for (
+			int ffi;
+			ffi <= currentFrameform  &&  !nameCollisionFound;
+			ffi++
+		) {
+			for (
+				int sni = 0;
+				sni <= frameforms[ffi].stateNodes[sni];
+				sni++
+			) {
+				if (!(strTcmp(
+					nameIn,
+					nodesInfo[ frameforms[ffi].stateNodes[sni] ].name,
+					AT, ' '
+				))) {
+					nameCollisionFound = true;
+					break;
+				}
+			}
+			//check for collision with frameform names
+			if (!nameCollisionFound) {
+				if (!(strTcmp(
+					nameIn,
+					frameforms[ffi].name,
+					AT, '\0'
+				))) {
+					nameCollisionFound = true;
+					break;
+				}
+			}
+		}
+	}
+	if (nameCollisionFound) {
+		putError("name collision on '", currentLine);
+		printf("%s'\n", nameIn);
+		return 1;
+	}
+	
+	return 0;
 }
 
 void initNodes(void) {
@@ -160,37 +246,12 @@ void initNodes(void) {
 			break;
 	}
 	
+	
 	char *nodeName = nodesInfo[currentNode].name;
 	
-	//check for naming collision
-	for (int i = 0; i <= currentRootNode; i++) {
-		if (!(strTcmp(
-			nodeName,
-			nodesInfo[ rootNodes[i] ].name,
-			' '
-		))) {
-			putError("naming collision on '", currentLine);
-			printf("%s'\n", nodeName);
-			return;
-		}
-	}
-	if (inFrameform) {
-		for (
-			int i = 0;
-			i <= frameforms[currentFrameform].currentStateNode;
-			i++
-		) {
-			if (!(strTcmp(
-				nodeName,
-				nodesInfo[ frameforms[currentFrameform].stateNodes[i] ].name,
-				' '
-			))) {
-				putError("naming collision on '", currentLine);
-				printf("%s'\n", nodeName);
-				return;
-			}
-		}
-	}
+	if ( findNameCollision(nodeName, ' ') )
+		return;
+	
 	
 	//find out how many parameters there are
 	int paramCount = 0;
@@ -217,6 +278,7 @@ void initNodes(void) {
 		}
 	}
 	
+	
 	//determine if it's a stateDef, varDef, or fnDef
 	if ( !paramCount && strcmp(&lineBuf[namePos-7], "nullary") ) {
 		if (inFrameform)
@@ -239,6 +301,7 @@ void initNodes(void) {
 		}
 	}
 	
+	
 	//update the frameform or rootNode array
 	if (nodes[currentNode].evaluate == eval_stateDef) {
 		inc_currentStateNode();
@@ -249,7 +312,8 @@ void initNodes(void) {
 		rootNodes[currentRootNode] = currentNode;
 	}
 	
-	//initialize and name the body's nodes
+	
+	//initialize, name, and connect the body's nodes
 	int elevation;
 	int fold  = 0;
 	int bufPos;
@@ -377,10 +441,7 @@ void lookupNodes() {
 	}
 }
 
-void getFrameform(void) {
-	inc_currentFrameform();
-	inFrameform = true;	
-	
+void initFrameform(void) {
 	//check for proper frameform name
 	if (lineBuf[1] == '\0') {
 		putError("This frameform must have a name\n", currentLine);
@@ -398,6 +459,13 @@ void getFrameform(void) {
 		putError("frameform names may not contain spaces\n", currentLine);
 		return;
 	}
+	
+	//check for collisions, then inc_currentFrameform
+	inFrameform = false;
+	if ( findNameCollision(&lineBuf[1], '\0') )
+		return;
+	inFrameform = true;
+	inc_currentFrameform();
 	
 	//copy from lineBuf to frameforms[currentFrameform].name
 	strncpy(
@@ -425,9 +493,9 @@ void  parse(void) {
 			if (lineBuf[1] == frameformInitChar)
 				inFrameform = false;
 			else
-				getFrameform();
+				initFrameform();
 		}
-		//we must have some nodes
+		//we must have a defNode
 		else
 			initNodes();
 	}
