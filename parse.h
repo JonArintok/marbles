@@ -131,8 +131,8 @@ void initNodes(void) {
 	inc_currentNode();
 	nodes[currentNode].arity = 1;
 	nodes[currentNode].arguments[0] = currentNode + 1;
-	nodeLines[currentNode] = currentLine;
-	nodeLevels[currentNode] = 0;
+	nodesInfo[currentNode].line = currentLine;
+	nodesInfo[currentNode].level = 0;
 	
 	//read the first line into currentNode.name
 	while (true) {
@@ -143,34 +143,34 @@ void initNodes(void) {
 			isNumeric( lineBuf[namePos+1] )
 		) {
 			int bufPos = namePos;
-			nodes[currentNode].name[namePos] = '\0';
+			nodesInfo[currentNode].name[namePos] = '\0';
 			nodes[currentNode].evaluate = eval_varDef;
 			inc_currentNode();
-			nodeLines[currentNode] = currentLine;
-			nodeLevels[currentNode] = 1;
+			nodesInfo[currentNode].line = currentLine;
+			nodesInfo[currentNode].level = 1;
 			while (lineBuf[bufPos] != '\0') {
 				inc_namePos();
 				bufPos++;
-				nodes[currentNode].name[namePos] = lineBuf[bufPos];
+				nodesInfo[currentNode].name[namePos] = lineBuf[bufPos];
 			}
 			return;
 		}
-		nodes[currentNode].name[namePos] = lineBuf[namePos];
+		nodesInfo[currentNode].name[namePos] = lineBuf[namePos];
 		if (lineBuf[namePos] == '\0')
 			break;
 	}
 	
-	char *currentNodeName = nodes[currentNode].name;
+	char *nodeName = nodesInfo[currentNode].name;
 	
 	//check for naming collision
 	for (int i = 0; i <= currentRootNode; i++) {
 		if (!(strTcmp(
-			currentNodeName,
-			nodes[ rootNodes[i] ].name,
+			nodeName,
+			nodesInfo[ rootNodes[i] ].name,
 			' '
 		))) {
 			putError("naming collision on '", currentLine);
-			printf("%s'\n", currentNodeName);
+			printf("%s'\n", nodeName);
 			return;
 		}
 	}
@@ -181,12 +181,12 @@ void initNodes(void) {
 			i++
 		) {
 			if (!(strTcmp(
-				currentNodeName,
-				nodes[ frameforms[currentFrameform].stateNodes[i] ].name,
+				nodeName,
+				nodesInfo[ frameforms[currentFrameform].stateNodes[i] ].name,
 				' '
 			))) {
 				putError("naming collision on '", currentLine);
-				printf("%s'\n", currentNodeName);
+				printf("%s'\n", nodeName);
 				return;
 			}
 		}
@@ -228,13 +228,13 @@ void initNodes(void) {
 		nodes[currentNode].evaluate = eval_fnDef;
 		//else replace that \0 with a \n and continue reading the name
 		for (int i = 0; i < paramCount; i++) {
-			currentNodeName[namePos] = '\n';
+			nodeName[namePos] = '\n';
 			getLine();
 			int bufPos = 0;//would be -1 if we weren't ignoring the tabs
 			while (lineBuf[bufPos] != '\0') {
 				inc_namePos();
 				bufPos++;
-				currentNodeName[namePos] = lineBuf[bufPos];
+				nodeName[namePos] = lineBuf[bufPos];
 			}
 		}
 	}
@@ -270,17 +270,17 @@ void initNodes(void) {
 				case ' ':
 					if (prevDelim != ' ')
 						fold++;
-					currentNodeName[namePos] = '\0';
-					nodeLines[currentNode] = currentLine;
-					nodeLevels[currentNode] = elevation + fold;
+					nodeName[namePos] = '\0';
+					nodesInfo[currentNode].line = currentLine;
+					nodesInfo[currentNode].level = elevation + fold;
 					prevDelim = ' ';
 					break;
 				case '(':
 					fold++;
 					if (lineBuf[bufPos-1] != ')') {
-						currentNodeName[namePos] = '\0';
-						nodeLines[currentNode] = currentLine;
-						nodeLevels[currentNode] = elevation + fold;
+						nodeName[namePos] = '\0';
+						nodesInfo[currentNode].line = currentLine;
+						nodesInfo[currentNode].level = elevation + fold;
 					}
 					prevDelim = '(';
 					break;
@@ -290,15 +290,15 @@ void initNodes(void) {
 							"unnecessary perentheses around '",
 							currentLine
 						);
-						currentNodeName[namePos] = '\0';
-						printf("%s'\n", nodes[currentNode].name);
+						nodeName[namePos] = '\0';
+						printf("%s'\n", nodeName);
 						return;
 					}
 					else {
 						if (lineBuf[bufPos-1] != ')') {
-							currentNodeName[namePos] = '\0';
-							nodeLines[currentNode] = currentLine;
-							nodeLevels[currentNode] = elevation + fold;
+							nodeName[namePos] = '\0';
+							nodesInfo[currentNode].line = currentLine;
+							nodesInfo[currentNode].level = elevation + fold;
 						}
 						fold--;
 					}
@@ -312,24 +312,24 @@ void initNodes(void) {
 					}
 					else
 						if (lineBuf[bufPos-1] != ')') {
-							currentNodeName[namePos] = '\0';
-							nodeLines[currentNode] = currentLine;
-							nodeLevels[currentNode] = elevation + fold;
+							nodeName[namePos] = '\0';
+							nodesInfo[currentNode].line = currentLine;
+							nodesInfo[currentNode].level = elevation + fold;
 						}
 					prevDelim = '\0';
 					break;
 				default:
-					currentNodeName[namePos] = lineBuf[bufPos];
+					nodeName[namePos] = lineBuf[bufPos];
 			}
 		}
 		
 		//connect the nodes to their parents
-		if (nodeLevels[currentNode] < 2)
+		if (nodesInfo[currentNode].level < 2)
 			continue;
 		for (int backstep = 1;; backstep++) {
 			if (
-				nodeLevels[currentNode-backstep] == 
-				nodeLevels[currentNode] - 1
+				nodesInfo[currentNode-backstep].level == 
+				nodesInfo[currentNode].level - 1
 			) {
 				nodeIndex parent = currentNode-backstep;
 				nodes[parent].arguments[nodes[parent].arity] = currentNode;
@@ -350,13 +350,13 @@ void lookupNodes() {
 			continue;
 		}
 		
-		char *nodeName = &nodes[i].name[0];
+		char *nodeName = &nodesInfo[i].name[0];
 		
 		//check for number literal
 		if ( isNumeric(nodeName[0]) ) {
 			for (int namePos = 0; namePos != '\0'; namePos++) {
 				if (!( isNumeric(nodeName[namePos]) )) {
-					putError("invalid number literal: '", nodeLines[i]);
+					putError("invalid number literal: '", nodesInfo[i].line);
 					printf("%s'\n", nodeName);
 					//return;
 				}

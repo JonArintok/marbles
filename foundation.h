@@ -9,25 +9,23 @@ typedef int16_t nodeIndex;
 
 typedef double  number;
 typedef uint8_t byte;
-typedef struct {
-	uint32_t  *dimensions;//0th index holds dimensionality
-	number    *data;
-	nodeIndex *transformations;
-} numArray;
-typedef struct {
-	uint32_t  *dimensions;
-	byte      *data;
-	nodeIndex *transformations;
-} byteArray;
-typedef struct {
-	uint32_t  *dimensions;
-	nodeIndex *data;
-	nodeIndex *transformations;
-} nodeArray;
+
+#define _ARRAY_TYPE_(name, elemType)\
+typedef struct {\
+	elemType  *data;\
+	uint32_t   dataSpace;\
+	uint32_t   dimensionality;\
+	uint32_t  *dimensions;\
+	nodeIndex *transformations;\
+} name;
+_ARRAY_TYPE_(numArray,  number)
+_ARRAY_TYPE_(byteArray, byte)
+_ARRAY_TYPE_(nodeArray, nodeIndex)
 typedef union {
 	number    n;
 	number    n2[2];
 	number    n3[3];
+	number    n4[4];
 	numArray  N;
 	byte      b;
 	byte      b2[2];
@@ -39,9 +37,8 @@ typedef union {
 } outType;
 typedef void (*evaluator)(nodeIndex toBeEvaluated);
 typedef struct {
-	char      *name;       //includes type information and parameter names
-	nodeIndex  definition; //just for argument and variable calls
-	int8_t     argRefIndex;//just for argument calls
+	nodeIndex  definition; //for argument and variable calls
+	int8_t     argRefIndex;//for argument calls
 	int8_t     arity;      //the number of "subnodes", defNodes have 1
 	nodeIndex  arguments[maxArity];//if negative then already evaluated
 	evaluator  evaluate;
@@ -50,8 +47,8 @@ typedef struct {
 
 
 
-#define   maxTokenLength      80
-#define   maxLineLength      200
+#define maxTokenLength 80
+#define maxLineLength 200
 
 typedef struct {
 	char        name[maxTokenLength];
