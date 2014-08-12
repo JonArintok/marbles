@@ -52,3 +52,4 @@ const stdNode *stdNodeTable[stdNodeTableLength] = {
 	&node_mul,
 	&node_div
 };
+

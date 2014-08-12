@@ -14,8 +14,9 @@ typedef uint8_t byte;
 typedef struct {\
 	elemType  *data;\
 	uint32_t   dataSpace;\
-	uint32_t   dimensionality;\
-	uint32_t  *dimensions;\
+	uint32_t   dimensionX;\
+	uint32_t   dimensionY;\
+	uint32_t   dimensionZ;\
 	nodeIndex *transformations;\
 } name;
 _ARRAY_TYPE_(numArray,  number)
@@ -51,11 +52,21 @@ typedef struct {
 #define maxLineLength 200
 
 typedef struct {
-	char        name[maxTokenLength];
-	int16_t     currentStateNode;
-	int16_t     stateNodeSpace;
-	nodeIndex  *stateNodes;
+	char       name[maxTokenLength];
+	int16_t    currentStateNode;
+	int16_t    stateNodeSpace;
+	nodeIndex *stateNodes;
+	//output
+	nodeIndex nextFrameform;
+	nodeIndex frameRate;
+	nodeIndex videoOut;
+	nodeIndex audioOut;
 } frameform;
+
+char *nextFrameformName = "nextFrameform num";
+char *frameRateName     = "frameRate num";
+char *videoOutName      = "videoOut byte||";
+char *audioOutName      = "audioOut num|";
 
 
 node      *nodes;

@@ -1,23 +1,23 @@
 
 
-hyaku num 100                     |variable, numeric literal
+hyaku num 100                     /variable, numeric literal
 
-nihyaku num                       |variable, evaluated at entry
-	mul hyaku 2                     |body
+nihyaku num                       /variable, evaluated at entry
+	mul hyaku 2                     /body
 
-tenPerFrame num nullary           |nullary function
-	mul currentFrame 10             |body
+tenPerFrame num nullary           /nullary function
+	mul currentFrame 10             /body
 
-addmul   num                      |binary function
-	input  num                      |first parameter
-	factor num                      |second parameter
-	mul factor (add factor input)   |body
+addmul   num                      /binary function
+	input  num                      /first parameter
+	factor num                      /second parameter
+	mul factor (add factor input)   /body
 
 
-# enter                           |frameform
+# enter                           /frameform
 
-tehResult num                     |state
-	addmul                          |body
+tehResult num                     /state
+	addmul                          /body
 		tenPerFrame
 		div nihyaku hyaku
 

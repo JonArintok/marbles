@@ -1,6 +1,6 @@
 
 
-#define commentInitChar   '|'
+#define commentInitChar   '/'
 #define frameformInitChar '#'
 #define paramTypeInitChar '<'
 
