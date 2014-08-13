@@ -122,13 +122,16 @@ void inc_currentStateNode(void) {
 
 void cleanUp(void) {
 	
-	for (int i = 0; i <= currentFrameform; i++)
-		free(frameforms[i].stateNodes);
+	for (int ffPos = 0; ffPos <= currentFrameform; ffPos++) {
+		for (int snPos = 0; snPos <= frameforms[ffPos].currentStateNode; snPos++)
+			free( nodesInfo[ frameforms[ffPos].stateNodes[snPos] ].name );
+		free(frameforms[ffPos].stateNodes);
+	}
 	free(frameforms);
 	free(rootNodes);
 	
-	for (int i = 0; i <= currentNode; i++)
-		free(nodesInfo[i].name);
+	for (int rnPos = 0; rnPos <= currentRootNode; rnPos++)
+		free( nodesInfo[ rootNodes[rnPos] ].name );
 	free(nodesInfo);
 	free(nodes);
 }

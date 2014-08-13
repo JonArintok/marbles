@@ -73,7 +73,7 @@ void getLine(void) {
 			fileChar == paramTypeInitChar
 		) {
 			if (!bufPos) {
-				putError("leading character: '", currentLine);
+				putError("leading character '", currentLine);
 				printf("%c", fileChar);
 				puts("' is not allowed\n");
 				return;
@@ -115,65 +115,71 @@ void getLine(void) {
 	}
 }
 
-int strTcmp(char *A, char *B, char AT, char BT) {
+bool matchStrXDelim(char *A, char *B, char AD, char BD) {
+	//return true if the strings (A and B) match up until their 
+	//respective delimeters (AT and BT)
 	char a;
 	char b;
 	for (int i = 0;; i++) {
 		a = A[i];
 		b = B[i];
-		if (a != b || a == AT || b == BT || a == '\0' || b == '\0')
-			return a - b;
+		if (a != b || a == AD || b == BD || a == '\0' || b == '\0') {
+			if (a == AD && b == BD)
+				return true;
+			return false;
+		}
 	}
 }
 
-int findNameCollision(char *nameIn, char AT) {
-	bool nameCollisionFound = false;
+int findNameCollision(char *nameIn, char AD) {
+	
+	#define _putNameCollisionError_\
+		putError("name collision on '", currentLine);\
+		printf("%s'\n", nameIn);\
+		return 1;
 	
 	//check for name collision with stdNodes
 	for (int i = 0; i <= stdNodeTableLength; i++) {
-		if (!(strTcmp(
+		if (matchStrXDelim(
 			nameIn,
 			stdNodeTable[i]->name,
-			AT, ' '
-		))) {
-			nameCollisionFound = true;
-			break;
+			AD, ' '
+		)) {
+			_putNameCollisionError_
 		}
 	}
 	//check for name collision with rootNodes
 	for (int i = 0; i <= currentRootNode; i++) {
-		if (!(strTcmp(
+		if (matchStrXDelim(
 			nameIn,
 			nodesInfo[ rootNodes[i] ].name,
-			AT, ' '
-		))) {
-			nameCollisionFound = true;
-			break;
+			AD, ' '
+		)) {
+			_putNameCollisionError_
 		}
 	}
 	//check for name collision with stateNodes
-	if (inFrameform && !nameCollisionFound) {
+	if (inFrameform) {
 		//check for collision with stateNodes in the currentFrameform
 		for (
 			int i = 0;
 			i <= frameforms[currentFrameform].currentStateNode;
 			i++
 		) {
-			if (!(strTcmp(
+			if (matchStrXDelim(
 				nameIn,
 				nodesInfo[ frameforms[currentFrameform].stateNodes[i] ].name,
-				AT, ' '
-			))) {
-				nameCollisionFound = true;
-				break;
+				AD, ' '
+			)) {
+				_putNameCollisionError_
 			}
 		}
 	}
-	else if (currentFrameform >= 0 && !nameCollisionFound) {
+	else if (currentFrameform >= 0) {
 		//check for collision with any stateNode
 		for (
 			int ffi;
-			ffi <= currentFrameform  &&  !nameCollisionFound;
+			ffi <= currentFrameform;
 			ffi++
 		) {
 			for (
@@ -181,32 +187,23 @@ int findNameCollision(char *nameIn, char AT) {
 				sni <= frameforms[ffi].stateNodes[sni];
 				sni++
 			) {
-				if (!(strTcmp(
+				if (matchStrXDelim(
 					nameIn,
 					nodesInfo[ frameforms[ffi].stateNodes[sni] ].name,
-					AT, ' '
-				))) {
-					nameCollisionFound = true;
-					break;
+					AD, ' '
+				)) {
+					_putNameCollisionError_
 				}
 			}
 			//check for collision with frameform names
-			if (!nameCollisionFound) {
-				if (!(strTcmp(
-					nameIn,
-					frameforms[ffi].name,
-					AT, '\0'
-				))) {
-					nameCollisionFound = true;
-					break;
-				}
+			if (matchStrXDelim(
+				nameIn,
+				frameforms[ffi].name,
+				AD, '\0'
+			)) {
+				_putNameCollisionError_
 			}
 		}
-	}
-	if (nameCollisionFound) {
-		putError("name collision on '", currentLine);
-		printf("%s'\n", nameIn);
-		return 1;
 	}
 	
 	return 0;
@@ -350,11 +347,11 @@ void initNodes(void) {
 					break;
 				case ')':
 					if (prevDelim == '(') {
+						nodeName[namePos] = '\0';
 						putError(
 							"unnecessary perentheses around '",
 							currentLine
 						);
-						nodeName[namePos] = '\0';
 						printf("%s'\n", nodeName);
 						return;
 					}
@@ -370,7 +367,7 @@ void initNodes(void) {
 					break;
 				case '\0':
 					if (fold) {
-						putError("perentheses are off by: ", currentLine);
+						putError("perentheses are off by ", currentLine);
 						printf("%d\n", fold);
 						return;
 					}
@@ -404,40 +401,75 @@ void initNodes(void) {
 }
 
 void lookupNodes() {
-	for (int i = 0; i <= currentNode; i++) {
+	for (int nodePos = 0; nodePos <= currentNode; nodePos++) {
 		//skip defNodes
 		if (
-			nodes[i].evaluate == eval_varDef ||
-			nodes[i].evaluate == eval_fnDef  ||
-			nodes[i].evaluate == eval_stateDef
+			nodes[nodePos].evaluate == eval_varDef ||
+			nodes[nodePos].evaluate == eval_fnDef  ||
+			nodes[nodePos].evaluate == eval_stateDef
 		) {
 			continue;
 		}
 		
-		char *nodeName = &nodesInfo[i].name[0];
+		char *nodeName = nodesInfo[nodePos].name;
+		int   nodeLine = nodesInfo[nodePos].line;
 		
 		//check for number literal
 		if ( isNumeric(nodeName[0]) ) {
 			for (int namePos = 0; namePos != '\0'; namePos++) {
 				if (!( isNumeric(nodeName[namePos]) )) {
-					putError("invalid number literal: '", nodesInfo[i].line);
+					putError("invalid number literal '", nodeLine);
 					printf("%s'\n", nodeName);
-					//return;
+					free(nodeName);
+					break;
 				}
 			}
-			if (!noErrors)
-				continue;
+			if (!noErrors) continue;
 			
-			nodes[i].evaluate = eval_numLit;
-			sscanf(nodeName, "%lf", &nodes[i].output.n);
+			nodes[nodePos].evaluate = eval_numLit;
+			sscanf(nodeName, "%lf", &nodes[nodePos].output.n);
+			nodesInfo[nodePos].name = "numLit num";
+			free(nodeName);
 			return;
 		}
 		
 		//check for reference to stdNode
+		for (int sntPos = 0; sntPos < stdNodeTableLength; sntPos++) {
+			if (matchStrXDelim(
+				nodeName,
+				stdNodeTable[sntPos]->name,
+				'\0', ' '
+			)) {
+				if (nodes[nodePos].arity != stdNodeTable[sntPos]->arity) {
+					putError("", nodeLine);
+					printf(
+						"number of arguments for '%s' is off by %d\n",
+						nodeName,
+						nodes[nodePos].arity - stdNodeTable[sntPos]->arity
+					);
+					free(nodeName);
+					break;
+				}
+				nodes[nodePos].evaluate = stdNodeTable[sntPos]->evaluate;
+				nodesInfo[nodePos].name = stdNodeTable[sntPos]->name;
+				free(nodeName);
+				return;
+			}
+		}
+		if (!noErrors) continue;
+		
+		//check for private stateCall
+		//check for public stateCall
+		//check for fnCall or varCall
+		//check for argCall
 		
 		
+		//check for output
 		
 		
+		//none of the above
+		putError("not recognized: ", nodeLine);
+		printf("'%s'\n", nodeName);
 	}
 }
 

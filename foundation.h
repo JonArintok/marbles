@@ -75,14 +75,8 @@ frameform *frameforms;
 
 
 
-void evaluateNode(nodeIndex toBeEvaluated) {
+#define _evaluateNode_(toBeEvaluated)\
 	nodes[toBeEvaluated].evaluate(toBeEvaluated);
-}
-void evalArgs(nodeIndex self) {
-	for (int i=0; i < nodes[self].arity; i++)
-		evaluateNode( nodes[self].arguments[i] );
-}
-
 
 
 nodeIndex stack[stackSize];//holds the call sources
@@ -109,7 +103,7 @@ void eval_fnCall(nodeIndex self) {
 	
 	nodeIndex fnBody = nodes[self].definition + 1;
 	//evaluate nodes[self.definition] and get the output
-	evaluateNode(fnBody);
+	_evaluateNode_(fnBody)
 	nodes[self].output = nodes[fnBody].output;
 	
 	//reset argument values to positive
@@ -126,7 +120,7 @@ void eval_argCall(nodeIndex self) {
 	
 	//if argNodeIndex is positive, then we need to evaluate
 	if (argNodeIndex >= 0) {
-		evaluateNode(argNodeIndex);
+		_evaluateNode_(argNodeIndex)
 		nodes[self].output = nodes[argNodeIndex].output;
 		
 		//set nodeIndex from the callsource's argument list negative
@@ -146,7 +140,6 @@ void eval_stateCall(nodeIndex self) {
 }
 
 void eval_numLit(nodeIndex self) {}
-
 
 
 int currentFrame = -1;

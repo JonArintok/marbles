@@ -48,14 +48,19 @@ int main(int argc, char **argv) {
 	
 	
 	if (noErrors) {
-		//initialize variables
+		//initialize variables, numLits get evaluated immediately
 		for (int i = 0; i <= currentRootNode; i++) {
-			if (nodes[ rootNodes[i] ].evaluate == eval_varDef)
-				evaluateNode(rootNodes[i]+1);
+			if (nodes[ rootNodes[i] ].evaluate == eval_varDef) {
+				if (nodes[ rootNodes[i+1] ].evaluate == eval_numLit)
+					_evaluateNode_(rootNodes[i])
+				else
+					_evaluateNode_(rootNodes[i]+1)
+			}
 		}
+		//evaluate all variables
 		for (int i = 0; i <= currentRootNode; i++) {
 			if (nodes[ rootNodes[i] ].evaluate == eval_varDef)
-				evaluateNode(rootNodes[i]);
+				_evaluateNode_(rootNodes[i])
 		}
 		
 		//timeFrame may eventually be set in the loop 
@@ -74,7 +79,7 @@ int main(int argc, char **argv) {
 				i <= frameforms[activeFrameform].currentStateNode;
 				i++
 			) {
-				evaluateNode( frameforms[activeFrameform].stateNodes[i] + 1 );
+				_evaluateNode_( frameforms[activeFrameform].stateNodes[i] + 1 )
 			}
 			//update the state and print it
 			nodeIndex stanodi;
@@ -84,7 +89,7 @@ int main(int argc, char **argv) {
 				i++
 			) {
 				stanodi = frameforms[activeFrameform].stateNodes[i];
-				evaluateNode(stanodi);
+				_evaluateNode_(stanodi)
 				printf("%d:\t%f\n", i, nodes[stanodi].output.n);
 			}
 			
