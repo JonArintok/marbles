@@ -400,77 +400,73 @@ void initNodes(void) {
 	}
 }
 
-void lookupNodes() {
-	for (int nodePos = 0; nodePos <= currentNode; nodePos++) {
-		//skip defNodes
-		if (
-			nodes[nodePos].evaluate == eval_varDef ||
-			nodes[nodePos].evaluate == eval_fnDef  ||
-			nodes[nodePos].evaluate == eval_stateDef
-		) {
-			continue;
-		}
-		
-		char *nodeName = nodesInfo[nodePos].name;
-		int   nodeLine = nodesInfo[nodePos].line;
-		
-		//check for number literal
-		if ( isNumeric(nodeName[0]) ) {
-			for (int namePos = 0; namePos != '\0'; namePos++) {
-				if (!( isNumeric(nodeName[namePos]) )) {
-					putError("invalid number literal '", nodeLine);
-					printf("%s'\n", nodeName);
-					free(nodeName);
-					break;
-				}
-			}
-			if (!noErrors) continue;
-			
-			nodes[nodePos].evaluate = eval_numLit;
-			sscanf(nodeName, "%lf", &nodes[nodePos].output.n);
-			nodesInfo[nodePos].name = "numLit num";
-			free(nodeName);
-			return;
-		}
-		
-		//check for reference to stdNode
-		for (int sntPos = 0; sntPos < stdNodeTableLength; sntPos++) {
-			if (matchStrXDelim(
-				nodeName,
-				stdNodeTable[sntPos]->name,
-				'\0', ' '
-			)) {
-				if (nodes[nodePos].arity != stdNodeTable[sntPos]->arity) {
-					putError("", nodeLine);
-					printf(
-						"number of arguments for '%s' is off by %d\n",
-						nodeName,
-						nodes[nodePos].arity - stdNodeTable[sntPos]->arity
-					);
-					free(nodeName);
-					break;
-				}
-				nodes[nodePos].evaluate = stdNodeTable[sntPos]->evaluate;
-				nodesInfo[nodePos].name = stdNodeTable[sntPos]->name;
+void resolveNode(nodeIndex nodePos) {
+	//skip defNodes
+	if (
+		nodes[nodePos].evaluate == eval_varDef ||
+		nodes[nodePos].evaluate == eval_fnDef  ||
+		nodes[nodePos].evaluate == eval_stateDef
+	) {
+		return;
+	}
+	
+	char *nodeName = nodesInfo[nodePos].name;
+	int   nodeLine = nodesInfo[nodePos].line;
+	
+	//check for number literal
+	if ( isNumeric(nodeName[0]) ) {
+		for (int namePos = 0; namePos != '\0'; namePos++) {
+			if (!( isNumeric(nodeName[namePos]) )) {
+				putError("invalid number literal '", nodeLine);
+				printf("%s'\n", nodeName);
 				free(nodeName);
 				return;
 			}
 		}
-		if (!noErrors) continue;
 		
-		//check for private stateCall
-		//check for public stateCall
-		//check for fnCall or varCall
-		//check for argCall
-		
-		
-		//check for output
-		
-		
-		//none of the above
-		putError("not recognized: ", nodeLine);
-		printf("'%s'\n", nodeName);
+		nodes[nodePos].evaluate = eval_numLit;
+		sscanf(nodeName, "%lf", &nodes[nodePos].output.n);
+		nodesInfo[nodePos].name = "numLit num";
+		free(nodeName);
+		return;
 	}
+	
+	//check for reference to stdNode
+	for (int sntPos = 0; sntPos < stdNodeTableLength; sntPos++) {
+		if (matchStrXDelim(
+			nodeName,
+			stdNodeTable[sntPos]->name,
+			'\0', ' '
+		)) {
+			if (nodes[nodePos].arity != stdNodeTable[sntPos]->arity) {
+				putError("", nodeLine);
+				printf(
+					"number of arguments for '%s' is off by %d\n",
+					nodeName,
+					nodes[nodePos].arity - stdNodeTable[sntPos]->arity
+				);
+				free(nodeName);
+				return;
+			}
+			nodes[nodePos].evaluate = stdNodeTable[sntPos]->evaluate;
+			nodesInfo[nodePos].name = stdNodeTable[sntPos]->name;
+			free(nodeName);
+			return;
+		}
+	}
+	
+	//check for private stateCall
+	//check for public stateCall
+	//check for fnCall or varCall
+	//check for argCall
+	
+	
+	//check for output
+	
+	
+	//none of the above
+	putError("not recognized: ", nodeLine);
+	printf("'%s'\n", nodeName);
 }
 
 void initFrameform(void) {
@@ -532,5 +528,9 @@ void  parse(void) {
 			initNodes();
 	}
 	
-	lookupNodes();
+	//resolve each node
+	for (int nodePos = 0; nodePos <= currentNode; nodePos++)
+		resolveNode(nodePos);
+	
+	//check for type errors
 }
