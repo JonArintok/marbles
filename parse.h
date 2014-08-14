@@ -9,13 +9,13 @@ char    *fileName;
 char     lineBuf[maxLineLength];
 
 bool reachedEOF  = false;
-bool noErrors    = true;
 bool inFrameform = false;
+int  errorCount  = 0;
 
 void putError(char *message, int line) {
-	noErrors = false;
+	errorCount++;
 	printf(
-		"error in line %d of %s: %s", 
+		"error in line %4d of %s: %s", 
 		line, fileName, message
 	);
 }
@@ -115,7 +115,7 @@ void getLine(void) {
 	}
 }
 
-bool matchStrXDelim(char *A, char *B, char AD, char BD) {
+bool matchStrXDelim(char *A, char AD, char *B, char BD) {
 	//return true if the strings (A and B) match up until their 
 	//respective delimeters (AT and BT)
 	char a;
@@ -141,9 +141,7 @@ int findNameCollision(char *nameIn, char AD) {
 	//check for name collision with stdNodes
 	for (int i = 0; i <= stdNodeTableLength; i++) {
 		if (matchStrXDelim(
-			nameIn,
-			stdNodeTable[i]->name,
-			AD, ' '
+			nameIn, AD, stdNodeTable[i]->name, ' '
 		)) {
 			_putNameCollisionError_
 		}
@@ -151,9 +149,7 @@ int findNameCollision(char *nameIn, char AD) {
 	//check for name collision with rootNodes
 	for (int i = 0; i <= currentRootNode; i++) {
 		if (matchStrXDelim(
-			nameIn,
-			nodesInfo[ rootNodes[i] ].name,
-			AD, ' '
+			nameIn, AD, nodesInfo[ rootNodes[i] ].name, ' '
 		)) {
 			_putNameCollisionError_
 		}
@@ -167,9 +163,8 @@ int findNameCollision(char *nameIn, char AD) {
 			i++
 		) {
 			if (matchStrXDelim(
-				nameIn,
-				nodesInfo[ frameforms[currentFrameform].stateNodes[i] ].name,
-				AD, ' '
+				nameIn, AD,
+				nodesInfo[ frameforms[currentFrameform].stateNodes[i] ].name, ' '
 			)) {
 				_putNameCollisionError_
 			}
@@ -188,18 +183,16 @@ int findNameCollision(char *nameIn, char AD) {
 				sni++
 			) {
 				if (matchStrXDelim(
-					nameIn,
-					nodesInfo[ frameforms[ffi].stateNodes[sni] ].name,
-					AD, ' '
+					nameIn, AD,
+					nodesInfo[ frameforms[ffi].stateNodes[sni] ].name, ' '
 				)) {
 					_putNameCollisionError_
 				}
 			}
 			//check for collision with frameform names
 			if (matchStrXDelim(
-				nameIn,
-				frameforms[ffi].name,
-				AD, '\0'
+				nameIn, AD,
+				frameforms[ffi].name, '\0'
 			)) {
 				_putNameCollisionError_
 			}
@@ -212,8 +205,8 @@ int findNameCollision(char *nameIn, char AD) {
 void initNodes(void) {
 	//"defNodes" are variables, functions, and stateNodes
 	inc_currentNode();
-	nodes[currentNode].arity = 1;
-	nodes[currentNode].arguments[0] = currentNode + 1;
+	nodes[currentNode].childCount = 1;
+	nodes[currentNode].children[0] = currentNode + 1;
 	nodesInfo[currentNode].line = currentLine;
 	nodesInfo[currentNode].level = 0;
 	
@@ -249,15 +242,13 @@ void initNodes(void) {
 	if ( findNameCollision(nodeName, ' ') )
 		return;
 	
-	
 	//find out how many parameters there are
 	int paramCount = 0;
 	fpos_t filePos;
 	fgetpos(fileStream, &filePos);
 	while (true) {
-		char fileChar;
 		int  indent = 0;
-		while ( (fileChar = fgetc(fileStream)) == '\t')
+		while (fgetc(fileStream) == '\t')
 			indent++;
 		if (indent == 1)
 			paramCount++;
@@ -266,6 +257,7 @@ void initNodes(void) {
 			fsetpos(fileStream, &filePos);
 			break;
 		}
+		char fileChar;
 		while ( (fileChar = fgetc(fileStream)) != '\n') {
 			if (fileChar == EOF) {
 				reachedEOF = true;
@@ -274,7 +266,7 @@ void initNodes(void) {
 			}
 		}
 	}
-	
+	nodesInfo[currentNode].paramCount = paramCount;
 	
 	//determine if it's a stateDef, varDef, or fnDef
 	if ( !paramCount && strcmp(&lineBuf[namePos-7], "nullary") ) {
@@ -298,7 +290,6 @@ void initNodes(void) {
 		}
 	}
 	
-	
 	//update the frameform or rootNode array
 	if (nodes[currentNode].evaluate == eval_stateDef) {
 		inc_currentStateNode();
@@ -308,7 +299,6 @@ void initNodes(void) {
 		inc_currentRootNode();
 		rootNodes[currentRootNode] = currentNode;
 	}
-	
 	
 	//initialize, name, and connect the body's nodes
 	int elevation;
@@ -393,8 +383,8 @@ void initNodes(void) {
 				nodesInfo[currentNode].level - 1
 			) {
 				nodeIndex parent = currentNode-backstep;
-				nodes[parent].arguments[nodes[parent].arity] = currentNode;
-				nodes[parent].arity++;
+				nodes[parent].children[ nodes[parent].childCount ] = currentNode;
+				nodes[parent].childCount++;
 			}
 		}
 	}
@@ -434,16 +424,14 @@ void resolveNode(nodeIndex nodePos) {
 	//check for reference to stdNode
 	for (int sntPos = 0; sntPos < stdNodeTableLength; sntPos++) {
 		if (matchStrXDelim(
-			nodeName,
-			stdNodeTable[sntPos]->name,
-			'\0', ' '
+			nodeName, '\0', stdNodeTable[sntPos]->name, ' '
 		)) {
-			if (nodes[nodePos].arity != stdNodeTable[sntPos]->arity) {
+			if (nodes[nodePos].childCount != stdNodeTable[sntPos]->childCount) {
 				putError("", nodeLine);
 				printf(
 					"number of arguments for '%s' is off by %d\n",
 					nodeName,
-					nodes[nodePos].arity - stdNodeTable[sntPos]->arity
+					nodes[nodePos].childCount - stdNodeTable[sntPos]->childCount
 				);
 				free(nodeName);
 				return;
@@ -458,6 +446,41 @@ void resolveNode(nodeIndex nodePos) {
 	//check for private stateCall
 	//check for public stateCall
 	//check for fnCall or varCall
+	for (int rnPos = 0; rnPos <= currentRootNode; rnPos++) {
+		if (matchStrXDelim(
+			nodeName, '\0', nodesInfo[ rootNodes[rnPos] ].name, ' '
+		)) {
+			nodesInfo[nodePos].name = nodesInfo[ rootNodes[rnPos] ].name;
+			//if it's a function
+			if (nodes[ rootNodes[rnPos] ].evaluate == eval_fnDef) {
+				nodes[nodePos].definition = rootNodes[rnPos];
+				nodes[nodePos].evaluate = eval_fnCall;
+				if (
+					nodes[nodePos].childCount !=
+					nodesInfo[ rootNodes[rnPos] ].childCount
+				) {
+					putError("", nodeLine);
+					printf(
+						"number of arguments for '%s' is off by %d\n",
+						nodeName,
+						nodes[nodePos].childCount
+							- nodesInfo[ rootNodes[rnPos] ].childCount
+					);
+					free(nodeName);
+					return;
+				}
+			}
+			//else it's a variable
+			else {
+				nodes[currentNode].definition = rootNodes[rnPos];
+				nodes[currentNode].evaluate = eval_varCall;
+				//if (nodes[nodePos].childCount != 0)
+					//calling a function held by a variable?
+			}
+			free(nodeName);
+			return;
+		}
+	}
 	//check for argCall
 	
 	
@@ -505,7 +528,7 @@ void initFrameform(void) {
 
 void  parse(void) {
 	//go through the file(s) line by line
-	while ( noErrors ) {
+	while (!errorCount) {
 		getLine();
 		
 		//if we reached the end of the file then we're done
@@ -531,6 +554,8 @@ void  parse(void) {
 	//resolve each node
 	for (int nodePos = 0; nodePos <= currentNode; nodePos++)
 		resolveNode(nodePos);
+	if (errorCount)
+		return;
 	
 	//check for type errors
 }

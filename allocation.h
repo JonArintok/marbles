@@ -21,7 +21,8 @@ uint32_t   currentLine = 0;//line numbers start at 1, not 0
 typedef struct {
 	char    *name; //includes type information and parameter names
 	uint32_t line; //this node was found on this line in the source file
-	uint32_t level;//elevation+fold
+	uint16_t level;//elevation+fold
+	uint16_t paramCount;//for fnDef only
 } nodeInfo;
 nodeInfo *nodesInfo;
 
@@ -49,15 +50,16 @@ void inc_currentNode(void) {
 	//initialize fields
 	nodes[currentNode].definition  = 0;
 	nodes[currentNode].argRefIndex = 0;
-	nodes[currentNode].arity       = 0;
+	nodes[currentNode].childCount  = 0;
 	nodes[currentNode].evaluate    = NULL;
 	nodes[currentNode].output.n    = 0;
-	for (int i = 0; i < maxArity; i++)
-		nodes[currentNode].arguments[i] = 0;
+	for (int i = 0; i < maxChildren; i++)
+		nodes[currentNode].children[i] = 0;
 	
 	nodesInfo[currentNode].name  = initialName;
 	nodesInfo[currentNode].line  = 0;
 	nodesInfo[currentNode].level = 0;
+	nodesInfo[currentNode].paramCount = 0;
 	
 	nodeNameSpace =  0;
 	namePos       = -1;

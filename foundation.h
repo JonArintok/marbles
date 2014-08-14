@@ -1,6 +1,6 @@
 
 
-#define maxArity         8
+#define maxChildren      8
 #define stackSize     1000
 
 
@@ -40,8 +40,8 @@ typedef void (*evaluator)(nodeIndex toBeEvaluated);
 typedef struct {
 	nodeIndex  definition; //for argument and variable calls
 	int8_t     argRefIndex;//for argument calls
-	int8_t     arity;      //the number of "subnodes", defNodes have 1
-	nodeIndex  arguments[maxArity];//if negative then already evaluated
+	int8_t     childCount;      //the number of "subnodes", defNodes have 1
+	nodeIndex  children[maxChildren];//if negative then already evaluated
 	evaluator  evaluate;
 	outType    output;
 } node;
@@ -107,8 +107,8 @@ void eval_fnCall(nodeIndex self) {
 	nodes[self].output = nodes[fnBody].output;
 	
 	//reset argument values to positive
-	for (int i = 0; i < nodes[self].arity; i++)
-		nodes[fnBody-1].arguments[i] &= maxNodeIndex;
+	for (int i = 0; i < nodes[self].childCount; i++)
+		nodes[fnBody-1].children[i] &= maxNodeIndex;
 	
 	stackPos--;
 }
@@ -116,7 +116,7 @@ void eval_fnCall(nodeIndex self) {
 void eval_argCall(nodeIndex self) {
 	//get the nodeIndex of the argument which will have the value we want
 	nodeIndex argNodeIndex = 
-		nodes[ stack[stackPos] ].arguments[ nodes[self].argRefIndex ];
+		nodes[ stack[stackPos] ].children[ nodes[self].argRefIndex ];
 	
 	//if argNodeIndex is positive, then we need to evaluate
 	if (argNodeIndex >= 0) {
@@ -124,7 +124,7 @@ void eval_argCall(nodeIndex self) {
 		nodes[self].output = nodes[argNodeIndex].output;
 		
 		//set nodeIndex from the callsource's argument list negative
-		nodes[ stack[stackPos] ].arguments[ nodes[self].argRefIndex ] *= -1;
+		nodes[ stack[stackPos] ].children[ nodes[self].argRefIndex ] *= -1;
 	}
 	else
 		nodes[self].output = nodes[ argNodeIndex * -1 ].output;

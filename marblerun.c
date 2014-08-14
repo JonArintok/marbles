@@ -47,7 +47,7 @@ int main(int argc, char **argv) {
 	
 	
 	
-	if (noErrors) {
+	if (!errorCount) {
 		//initialize variables, numLits get evaluated immediately
 		for (int i = 0; i <= currentRootNode; i++) {
 			if (nodes[ rootNodes[i] ].evaluate == eval_varDef) {
