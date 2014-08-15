@@ -301,28 +301,27 @@ void initNodes(void) {
 	}
 	
 	//initialize, name, and connect the body's nodes
-	int elevation;
-	int fold  = 0;
-	int bufPos;
-	char prevDelim = '\0';
 	while (true) {
+		int elevation = 0;
+		int fold      = 0;
+		int bufPos    = 0;
+		char prevDelim = '\0';
+		
 		getLine();
-		bufPos = -1;
-		elevation = 0;
-		while (lineBuf[++bufPos] == '\t')
+		for (; lineBuf[bufPos] == '\t'; bufPos++)
 			elevation++;
 		if (!elevation)
 			break;
 		inc_currentNode();
-		bufPos--;
-		while (lineBuf[bufPos++] != '\0') {
+		for (; lineBuf[bufPos] != '\0'; bufPos++) {
 			inc_namePos();
+			nodesInfo[currentNode].line = currentLine;
+			nodesInfo[currentNode].frameform = inFrameform ? currentFrameform : -1;
 			switch (lineBuf[bufPos]) {
 				case ' ':
 					if (prevDelim != ' ')
 						fold++;
 					nodeName[namePos] = '\0';
-					nodesInfo[currentNode].line = currentLine;
 					nodesInfo[currentNode].level = elevation + fold;
 					prevDelim = ' ';
 					break;
@@ -330,7 +329,6 @@ void initNodes(void) {
 					fold++;
 					if (lineBuf[bufPos-1] != ')') {
 						nodeName[namePos] = '\0';
-						nodesInfo[currentNode].line = currentLine;
 						nodesInfo[currentNode].level = elevation + fold;
 					}
 					prevDelim = '(';
@@ -348,7 +346,6 @@ void initNodes(void) {
 					else {
 						if (lineBuf[bufPos-1] != ')') {
 							nodeName[namePos] = '\0';
-							nodesInfo[currentNode].line = currentLine;
 							nodesInfo[currentNode].level = elevation + fold;
 						}
 						fold--;
@@ -364,7 +361,6 @@ void initNodes(void) {
 					else
 						if (lineBuf[bufPos-1] != ')') {
 							nodeName[namePos] = '\0';
-							nodesInfo[currentNode].line = currentLine;
 							nodesInfo[currentNode].level = elevation + fold;
 						}
 					prevDelim = '\0';
@@ -373,19 +369,23 @@ void initNodes(void) {
 					nodeName[namePos] = lineBuf[bufPos];
 			}
 		}
-		
-		//connect the nodes to their parents
-		if (nodesInfo[currentNode].level < 2)
-			continue;
-		for (int backstep = 1;; backstep++) {
-			if (
-				nodesInfo[currentNode-backstep].level == 
-				nodesInfo[currentNode].level - 1
-			) {
-				nodeIndex parent = currentNode-backstep;
-				nodes[parent].children[ nodes[parent].childCount ] = currentNode;
-				nodes[parent].childCount++;
-			}
+	}
+}
+
+void connectNode(nodeIndex nodePos) {	
+	//nodes at levels 0 and 1 should already be connected
+	if (nodesInfo[nodePos].level < 2)
+		return;
+	//look backwards for the node's parent
+	for (int backstep = 1;; backstep++) {
+		if (
+			nodesInfo[nodePos-backstep].level == 
+			nodesInfo[nodePos].level - 1
+		) {
+			nodeIndex parent = nodePos-backstep;
+			nodes[parent].children[ nodes[parent].childCount ] = nodePos;
+			nodes[parent].childCount++;
+			return;
 		}
 	}
 }
@@ -443,8 +443,8 @@ void resolveNode(nodeIndex nodePos) {
 		}
 	}
 	
-	//check for private stateCall
-	//check for public stateCall
+	//check for local stateCall
+	//check for nonlocal stateCall
 	//check for fnCall or varCall
 	for (int rnPos = 0; rnPos <= currentRootNode; rnPos++) {
 		if (matchStrXDelim(
@@ -456,15 +456,14 @@ void resolveNode(nodeIndex nodePos) {
 				nodes[nodePos].definition = rootNodes[rnPos];
 				nodes[nodePos].evaluate = eval_fnCall;
 				if (
-					nodes[nodePos].childCount !=
-					nodesInfo[ rootNodes[rnPos] ].childCount
+					nodes[nodePos].childCount != nodesInfo[ rootNodes[rnPos] ].paramCount
 				) {
 					putError("", nodeLine);
 					printf(
 						"number of arguments for '%s' is off by %d\n",
 						nodeName,
 						nodes[nodePos].childCount
-							- nodesInfo[ rootNodes[rnPos] ].childCount
+							- nodesInfo[ rootNodes[rnPos] ].paramCount
 					);
 					free(nodeName);
 					return;
@@ -483,7 +482,7 @@ void resolveNode(nodeIndex nodePos) {
 	}
 	//check for argCall
 	
-	
+	//check for frameform index
 	//check for output
 	
 	
@@ -551,6 +550,9 @@ void  parse(void) {
 			initNodes();
 	}
 	
+	//connect each node
+	for (int nodePos = 0; nodePos <= currentNode; nodePos++)
+		connectNode(nodePos);
 	//resolve each node
 	for (int nodePos = 0; nodePos <= currentNode; nodePos++)
 		resolveNode(nodePos);
