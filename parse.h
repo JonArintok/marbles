@@ -421,6 +421,9 @@ void resolveNode(nodeIndex nodePos) {
 		return;
 	}
 	
+	
+	//check for output
+	
 	//check for reference to stdNode
 	for (int sntPos = 0; sntPos < stdNodeTableLength; sntPos++) {
 		if (matchStrXDelim(
@@ -443,6 +446,7 @@ void resolveNode(nodeIndex nodePos) {
 		}
 	}
 	
+	//check for frameform index
 	//check for local stateCall
 	//check for nonlocal stateCall
 	//check for fnCall or varCall
@@ -481,9 +485,36 @@ void resolveNode(nodeIndex nodePos) {
 		}
 	}
 	//check for argCall
+	for (int backNode = nodePos;; backNode++) {
+		if (nodesInfo[backNode].level == 0) {
+			if (
+				nodes[backNode].evaluate == eval_fnDef &&
+				nodesInfo[backNode].paramCount
+			) {
+				int   namePos  = 0;
+				int   paramPos = 0;
+				char *backNodeName = nodesInfo[backNode].name;
+				for (; backNodeName[namePos] != '\0'; paramPos++) {
+					for (;
+						backNodeName[namePos] != '\n' &&
+						backNodeName[namePos] != '\0'; 
+						namePos++
+					) {}
+					if (matchStrXDelim(
+						nodeName, '\0', &backNodeName[namePos], ' '
+					)) {
+						nodes[nodePos].definition  = backNode;
+						nodes[nodePos].argRefIndex = paramPos;
+						nodes[nodePos].evaluate    = eval_argCall;
+						return;
+					}
+				}
+				break;
+			}
+			else break;
+		}
+	}
 	
-	//check for frameform index
-	//check for output
 	
 	
 	//none of the above
