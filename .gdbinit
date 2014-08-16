@@ -1,15 +1,9 @@
 
 
-define printNode
+define pNameAndLevel
 	echo name\t
-	print nodes[$arg0].name
-	echo definition\t
-	print nodes[$arg0].definition
-	echo argRefIndex\t
-	print nodes[$arg0].argRefIndex
-	echo arity\t
-	print nodes[$arg0].arity
-	echo evaluate\t
-	print nodes[$arg0].evaluate
+	print nodesInfo[$arg0].name
+	echo level\t
+	print nodesInfo[$arg0].level
 end
 

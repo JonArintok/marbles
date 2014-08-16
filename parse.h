@@ -15,7 +15,7 @@ int  errorCount  = 0;
 void putError(char *message, int line) {
 	errorCount++;
 	printf(
-		"error in line %4d of %s: %s", 
+		"error in line %d of %s: %s", 
 		line, fileName, message
 	);
 }
@@ -139,7 +139,7 @@ int findNameCollision(char *nameIn, char AD) {
 		return 1;
 	
 	//check for name collision with stdNodes
-	for (int i = 0; i <= stdNodeTableLength; i++) {
+	for (int i = 0; i < stdNodeTableLength; i++) {
 		if (matchStrXDelim(
 			nameIn, AD, stdNodeTable[i]->name, ' '
 		)) {
@@ -239,8 +239,8 @@ void initNodes(void) {
 	
 	char *nodeName = nodesInfo[currentNode].name;
 	
-	if ( findNameCollision(nodeName, ' ') )
-		return;
+	//if ( findNameCollision(nodeName, ' ') )
+	//	return;
 	
 	//find out how many parameters there are
 	int paramCount = 0;
@@ -299,13 +299,20 @@ void initNodes(void) {
 		inc_currentRootNode();
 		rootNodes[currentRootNode] = currentNode;
 	}
+
 	
-	//initialize, name, and connect the body's nodes
+	//initialize the nodes in the body of the defNode
+	#define _setNodesInfo_\
+		nodesInfo[currentNode].name[namePos] = '\0';\
+		nodesInfo[currentNode].level = elevation + fold;\
+		nodesInfo[currentNode].line = currentLine;\
+		nodesInfo[currentNode].frameform = inFrameform ? currentFrameform : -1;
+	
 	while (true) {
 		int elevation = 0;
 		int fold      = 0;
 		int bufPos    = 0;
-		char prevDelim = '\0';
+		char prevDelim = '\n';
 		
 		getLine();
 		for (; lineBuf[bufPos] == '\t'; bufPos++)
@@ -313,40 +320,37 @@ void initNodes(void) {
 		if (!elevation)
 			break;
 		inc_currentNode();
-		for (; lineBuf[bufPos] != '\0'; bufPos++) {
+		for (; prevDelim != '\0'; bufPos++) {
 			inc_namePos();
-			nodesInfo[currentNode].line = currentLine;
-			nodesInfo[currentNode].frameform = inFrameform ? currentFrameform : -1;
 			switch (lineBuf[bufPos]) {
 				case ' ':
+					_setNodesInfo_
+					inc_currentNode();
 					if (prevDelim != ' ')
 						fold++;
-					nodeName[namePos] = '\0';
-					nodesInfo[currentNode].level = elevation + fold;
 					prevDelim = ' ';
 					break;
 				case '(':
-					fold++;
 					if (lineBuf[bufPos-1] != ')') {
-						nodeName[namePos] = '\0';
-						nodesInfo[currentNode].level = elevation + fold;
+						_setNodesInfo_
 					}
+					inc_currentNode();
+					fold++;
 					prevDelim = '(';
 					break;
 				case ')':
 					if (prevDelim == '(') {
-						nodeName[namePos] = '\0';
+						nodesInfo[currentNode].name[namePos] = '\0';
 						putError(
 							"unnecessary perentheses around '",
 							currentLine
 						);
-						printf("%s'\n", nodeName);
+						printf("%s'\n", nodesInfo[currentNode].name);
 						return;
 					}
 					else {
 						if (lineBuf[bufPos-1] != ')') {
-							nodeName[namePos] = '\0';
-							nodesInfo[currentNode].level = elevation + fold;
+							_setNodesInfo_
 						}
 						fold--;
 					}
@@ -360,13 +364,12 @@ void initNodes(void) {
 					}
 					else
 						if (lineBuf[bufPos-1] != ')') {
-							nodeName[namePos] = '\0';
-							nodesInfo[currentNode].level = elevation + fold;
+							_setNodesInfo_
 						}
 					prevDelim = '\0';
 					break;
 				default:
-					nodeName[namePos] = lineBuf[bufPos];
+					nodesInfo[currentNode].name[namePos] = lineBuf[bufPos];
 			}
 		}
 	}
@@ -377,14 +380,13 @@ void connectNode(nodeIndex nodePos) {
 	if (nodesInfo[nodePos].level < 2)
 		return;
 	//look backwards for the node's parent
-	for (int backstep = 1;; backstep++) {
+	for (nodeIndex backNode = nodePos - 1;; backNode--) {
 		if (
-			nodesInfo[nodePos-backstep].level == 
+			nodesInfo[backNode].level == 
 			nodesInfo[nodePos].level - 1
 		) {
-			nodeIndex parent = nodePos-backstep;
-			nodes[parent].children[ nodes[parent].childCount ] = nodePos;
-			nodes[parent].childCount++;
+			nodes[backNode].children[ nodes[backNode].childCount ] = nodePos;
+			nodes[backNode].childCount++;
 			return;
 		}
 	}
@@ -491,21 +493,23 @@ void resolveNode(nodeIndex nodePos) {
 				nodes[backNode].evaluate == eval_fnDef &&
 				nodesInfo[backNode].paramCount
 			) {
-				int   namePos  = 0;
+				int   namePos  = 1;
 				int   paramPos = 0;
 				char *backNodeName = nodesInfo[backNode].name;
 				for (; backNodeName[namePos] != '\0'; paramPos++) {
 					for (;
-						backNodeName[namePos] != '\n' &&
-						backNodeName[namePos] != '\0'; 
+						backNodeName[namePos-1] != '\n' &&
+						backNodeName[namePos  ] != '\0'; 
 						namePos++
-					) {}
+					);//bodiless!
 					if (matchStrXDelim(
 						nodeName, '\0', &backNodeName[namePos], ' '
 					)) {
 						nodes[nodePos].definition  = backNode;
 						nodes[nodePos].argRefIndex = paramPos;
 						nodes[nodePos].evaluate    = eval_argCall;
+						nodesInfo[nodePos].name = &backNodeName[namePos];
+						free(nodeName);
 						return;
 					}
 				}
@@ -518,7 +522,7 @@ void resolveNode(nodeIndex nodePos) {
 	
 	
 	//none of the above
-	putError("not recognized: ", nodeLine);
+	putError("did not recognize ", nodeLine);
 	printf("'%s'\n", nodeName);
 }
 
@@ -542,9 +546,9 @@ void initFrameform(void) {
 	}
 	
 	//check for collisions, then inc_currentFrameform
-	inFrameform = false;
-	if ( findNameCollision(&lineBuf[1], '\0') )
-		return;
+	//inFrameform = false;
+	//if ( findNameCollision(&lineBuf[1], '\0') )
+	//	return;
 	inFrameform = true;
 	inc_currentFrameform();
 	

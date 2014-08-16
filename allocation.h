@@ -18,15 +18,6 @@ int        currentFrameform =  -1;
 
 uint32_t   currentLine = 0;//line numbers start at 1, not 0
 
-typedef struct {
-	char    *name; //includes type information and parameter names
-	uint32_t line; //this node was found on this line in the source file
-	uint8_t  level;//elevation+fold
-	int16_t  frameform;//-1 if outside not in frameform
-	uint8_t  paramCount;//for fnDef only
-} nodeInfo;
-nodeInfo *nodesInfo;
-
 
 void init_Allocation(void) {
 	nodeSpace = nodePage;
