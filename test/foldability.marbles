@@ -30,18 +30,14 @@ D num
 E num 150
 
 
-
-
-
-
-
-/C num
+/F num
 /	mul
 /		1.5
-/		add(sub 68 8)(div 20 0.5)
+/		add3 20 (sub 68 8) 20
 
-/D num
-/	mul 1.5(add(sub 68 8)(div 20 0.5))
-/	1   2   3   4   5  5  4   5  5
-/	1   2   2   3   4  4  3   4  4
+
+/G num
+/	mul
+/		1.5
+/		add3 (sub 68 8) 20 20
 

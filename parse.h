@@ -212,7 +212,7 @@ void initNodes(void) {
 	//read the first line into currentNode.name
 	while (true) {
 		inc_namePos();
-		//check for number literal
+		//check for number literal constant
 		if (
 			lineBuf[namePos] == ' ' &&
 			isNumeric( lineBuf[namePos+1] )
@@ -220,6 +220,8 @@ void initNodes(void) {
 			int bufPos = namePos;
 			nodesInfo[currentNode].name[namePos] = '\0';
 			nodes[currentNode].evaluate = eval_varDef;
+			inc_currentRootNode();
+			rootNodes[currentRootNode] = currentNode;
 			inc_currentNode();
 			nodesInfo[currentNode].line = currentLine;
 			nodesInfo[currentNode].level = 1;
@@ -269,8 +271,13 @@ void initNodes(void) {
 	
 	//determine if it's a stateDef, varDef, or fnDef
 	if ( !paramCount && strcmp(&lineBuf[namePos-7], "nullary") ) {
-		if (inFrameform)
+		if (inFrameform) {
 			nodes[currentNode].evaluate = eval_stateDef;
+			inc_currentStateNode();
+			frameforms[currentFrameform].stateNodes[
+				frameforms[currentFrameform].currentStateNode
+			] = currentNode;
+		}
 		else
 			nodes[currentNode].evaluate = eval_varDef;
 	}
@@ -288,16 +295,18 @@ void initNodes(void) {
 			}
 		}
 	}
-	
+	/*
 	//update the frameform or rootNode array
 	if (nodes[currentNode].evaluate == eval_stateDef) {
 		inc_currentStateNode();
-		frameforms[currentFrameform].currentStateNode = currentNode;
+		frameforms[currentFrameform].stateNodes[
+			frameforms[currentFrameform].currentStateNode
+		] = currentNode;
 	}
 	else {
 		inc_currentRootNode();
 		rootNodes[currentRootNode] = currentNode;
-	}
+	}*/
 
 	
 	//initialize the nodes in the body of the defNode

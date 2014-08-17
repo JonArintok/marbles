@@ -125,7 +125,7 @@ void cleanUp(void) {
 	free(rootNodes);
 	
 	for (int rnPos = 0; rnPos <= currentRootNode; rnPos++)
-		free( nodesInfo[ rootNodes[rnPos] ].name );
+		free( nodesInfo[ rootNodes[rnPos] ].name );//invalid read of size 2
 	free(nodesInfo);
 	free(nodes);
 }
