@@ -12,7 +12,7 @@ bool reachedEOF  = false;
 bool inFrameform = false;
 int  errorCount  = 0;
 
-void putError(char *message, int line) {
+void putError(int line, char *message) {
 	errorCount++;
 	printf(
 		"error in line %d of %s: %s", 
@@ -33,7 +33,7 @@ void getLine(void) {
 		
 		//check to be sure we are not overflowing the buffer
 		if (bufPos == maxLineLength) {
-			putError("line is too long\n", currentLine);
+			putError(currentLine, "line is too long\n");
 			return;
 		}
 		
@@ -53,7 +53,7 @@ void getLine(void) {
 		//ignore spaces after frameformInitChar
 		if (fileChar == ' ') {
 			if (!bufPos) {
-				putError("leading space\n", currentLine);
+				putError(currentLine, "leading space\n");
 				return;
 			}
 			if (
@@ -73,9 +73,8 @@ void getLine(void) {
 			fileChar == paramTypeInitChar
 		) {
 			if (!bufPos) {
-				putError("leading character '", currentLine);
-				printf("%c", fileChar);
-				puts("' is not allowed\n");
+				putError(currentLine, "leading character '");
+				printf("%c' is not allowed\n", fileChar);
 				return;
 			}
 			if (lineBuf[bufPos-1] == ' ') {
@@ -86,7 +85,7 @@ void getLine(void) {
 		}
 		//tab characters are for indentation only
 		if (bufPos && fileChar == '\t' && lineBuf[bufPos-1] != '\t') {
-			putError("unexpected tab character\n", currentLine);
+			putError(currentLine, "unexpected tab character\n");
 			return;
 		}
 		
@@ -134,7 +133,7 @@ bool matchStrXDelim(char *A, char AD, char *B, char BD) {
 int findNameCollision(char *nameIn, char AD) {
 	
 	#define _putNameCollisionError_\
-		putError("name collision on '", currentLine);\
+		putError(currentLine, "name collision on '");\
 		printf("%s'\n", nameIn);\
 		return 1;
 	
@@ -261,7 +260,7 @@ void initNodes(void) {
 		while ( (fileChar = fgetc(fileStream)) != '\n') {
 			if (fileChar == EOF) {
 				reachedEOF = true;
-				putError("incomplete definition\n", currentLine);
+				putError(currentLine, "incomplete definition\n");
 				break;
 			}
 		}
@@ -302,17 +301,18 @@ void initNodes(void) {
 
 	
 	//initialize the nodes in the body of the defNode
-	#define _setNodesInfo_\
-		nodesInfo[currentNode].name[namePos] = '\0';\
-		nodesInfo[currentNode].level = elevation + fold;\
-		nodesInfo[currentNode].line = currentLine;\
-		nodesInfo[currentNode].frameform = inFrameform ? currentFrameform : -1;
-	
 	while (true) {
 		int elevation = 0;
 		int fold      = 0;
 		int bufPos    = 0;
 		char prevDelim = '\n';
+		
+		#define _setNodesInfo_\
+			inc_namePos();\
+			nodesInfo[currentNode].name[namePos] = '\0';\
+			nodesInfo[currentNode].level = elevation + fold;\
+			nodesInfo[currentNode].line = currentLine;\
+			nodesInfo[currentNode].frameform = inFrameform ? currentFrameform : -1;
 		
 		getLine();
 		for (; lineBuf[bufPos] == '\t'; bufPos++)
@@ -321,7 +321,6 @@ void initNodes(void) {
 			break;
 		inc_currentNode();
 		for (; prevDelim != '\0'; bufPos++) {
-			inc_namePos();
 			switch (lineBuf[bufPos]) {
 				case ' ':
 					_setNodesInfo_
@@ -333,32 +332,34 @@ void initNodes(void) {
 				case '(':
 					if (lineBuf[bufPos-1] != ')') {
 						_setNodesInfo_
+						inc_currentNode();
 					}
-					inc_currentNode();
-					fold++;
+					if (prevDelim != ' ')
+						fold++;
 					prevDelim = '(';
 					break;
 				case ')':
 					if (prevDelim == '(') {
+						inc_namePos();
 						nodesInfo[currentNode].name[namePos] = '\0';
-						putError(
-							"unnecessary perentheses around '",
-							currentLine
-						);
+						putError(currentLine, "superfluous perentheses around '");
 						printf("%s'\n", nodesInfo[currentNode].name);
 						return;
 					}
-					else {
-						if (lineBuf[bufPos-1] != ')') {
-							_setNodesInfo_
-						}
-						fold--;
+					if (lineBuf[bufPos-1] != ')') {
+						_setNodesInfo_
 					}
+					if (lineBuf[bufPos+1] != '\0' && lineBuf[bufPos+1] != ')') {
+						inc_currentNode();
+					}
+					if (prevDelim == ' ')
+						fold--;
+					fold--;
 					prevDelim = ')';
 					break;
 				case '\0':
-					if (fold) {
-						putError("perentheses are off by ", currentLine);
+					if (fold && prevDelim != ' ') {
+						putError(currentLine, "perentheses are off by ");
 						printf("%d\n", fold);
 						return;
 					}
@@ -369,6 +370,7 @@ void initNodes(void) {
 					prevDelim = '\0';
 					break;
 				default:
+					inc_namePos();
 					nodesInfo[currentNode].name[namePos] = lineBuf[bufPos];
 			}
 		}
@@ -409,7 +411,7 @@ void resolveNode(nodeIndex nodePos) {
 	if ( isNumeric(nodeName[0]) ) {
 		for (int namePos = 0; namePos != '\0'; namePos++) {
 			if (!( isNumeric(nodeName[namePos]) )) {
-				putError("invalid number literal '", nodeLine);
+				putError(nodeLine, "invalid number literal '");
 				printf("%s'\n", nodeName);
 				free(nodeName);
 				return;
@@ -432,7 +434,7 @@ void resolveNode(nodeIndex nodePos) {
 			nodeName, '\0', stdNodeTable[sntPos]->name, ' '
 		)) {
 			if (nodes[nodePos].childCount != stdNodeTable[sntPos]->childCount) {
-				putError("", nodeLine);
+				putError(nodeLine, "");
 				printf(
 					"number of arguments for '%s' is off by %d\n",
 					nodeName,
@@ -464,7 +466,7 @@ void resolveNode(nodeIndex nodePos) {
 				if (
 					nodes[nodePos].childCount != nodesInfo[ rootNodes[rnPos] ].paramCount
 				) {
-					putError("", nodeLine);
+					putError(nodeLine, "");
 					printf(
 						"number of arguments for '%s' is off by %d\n",
 						nodeName,
@@ -519,29 +521,27 @@ void resolveNode(nodeIndex nodePos) {
 		}
 	}
 	
-	
-	
 	//none of the above
-	putError("did not recognize ", nodeLine);
+	putError(nodeLine, "did not recognize ");
 	printf("'%s'\n", nodeName);
 }
 
 void initFrameform(void) {
 	//check for proper frameform name
 	if (lineBuf[1] == '\0') {
-		putError("This frameform must have a name\n", currentLine);
+		putError(currentLine, "This frameform must have a name\n");
 		return;
 	}
 	else if ( isNumeric( lineBuf[1] ) ) {
 		putError(
-			"frameform names may not begin with numeric characters\n",
-			currentLine
+			currentLine,
+			"frameform names may not begin with numeric characters\n"
 		);
 		return;
 	}
 	//allow no spaces in the frameform name
 	if ( strchr(&lineBuf[1], ' ') ) {
-		putError("frameform names may not contain spaces\n", currentLine);
+		putError(currentLine, "frameform names may not contain spaces\n");
 		return;
 	}
 	
