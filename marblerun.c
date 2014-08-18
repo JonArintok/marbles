@@ -33,13 +33,13 @@ int main(int argc, char **argv) {
 	parse();
 	fclose(fileStream);
 	
-	int  exitFrameform   = currentFrameform + 1;
+	int  exitFrameform   = curFrameform + 1;
 	int  activeFrameform = 0;
 	
 	
 	if (!errorCount) {
-		//initialize variables, numLits get evaluated immediately
-		for (int i = 0; i <= currentRootNode; i++) {
+		//initialize global variables, numLits evaluated immediately
+		for (int i = 0; i <= gCurRootNode; i++) {
 			if (nodes[ rootNodes[i] ].evaluate == eval_varDef) {
 				if (nodes[ rootNodes[i+1] ].evaluate == eval_numLit)
 					_evaluateNode_(rootNodes[i])
@@ -47,11 +47,36 @@ int main(int argc, char **argv) {
 					_evaluateNode_(rootNodes[i]+1)
 			}
 		}
-		//evaluate all variables
-		for (int i = 0; i <= currentRootNode; i++) {
+		//evaluate all global variables
+		for (int i = 0; i <= gCurRootNode; i++) {
 			if (nodes[ rootNodes[i] ].evaluate == eval_varDef)
 				_evaluateNode_(rootNodes[i])
 		}
+		//initialize variables in every frameform, numLits evaluated immediately
+		for (int ffi = 0; ffi <= curFrameform; ffi++) {
+			for (int rni = 0; rni <= frameforms[ffi].curRootNode; rni++) {
+				nodeIndex n = frameforms[ffi].rootNodes[rni];
+				if (nodes[n].evaluate == eval_varDef) {
+					if (nodes[n+1].evaluate == eval_numLit)
+						_evaluateNode_(n)
+					else
+						_evaluateNode_(n+1)
+				}
+			}
+		}
+		//evaluate variables in every frameform
+		for (int ffi = 0; ffi <= curFrameform; ffi++) {
+			for (int rni = 0; rni <= frameforms[ffi].curRootNode; rni++) {
+				nodeIndex n = frameforms[ffi].rootNodes[rni];
+				if (nodes[n].evaluate == eval_varDef)
+					_evaluateNode_(rootNodes[i])
+			}
+		}
+		
+		
+		
+		
+		
 		
 		//timeFrame may eventually be set in the loop 
 		//to accommodate variable framerates
@@ -61,30 +86,30 @@ int main(int argc, char **argv) {
 		
 		//the loop
 		while (activeFrameform != exitFrameform) {
-			currentFrame++;
-			
+			curFrame++;
+			nodeIndex n;
 			//evaluate the bodies
 			for (
 				int i = 0;
-				i <= frameforms[activeFrameform].currentStateNode;
+				i <= frameforms[activeFrameform].curStateNode;
 				i++
 			) {
-				_evaluateNode_( frameforms[activeFrameform].stateNodes[i] + 1 )
+				n = frameforms[activeFrameform].stateNodes[i] + 1;
+				_evaluateNode_(n)
 			}
 			//update the state and print it
-			nodeIndex stanodi;
 			for (
 				int i = 0;
-				i <= frameforms[activeFrameform].currentStateNode;
+				i <= frameforms[activeFrameform].curStateNode;
 				i++
 			) {
-				stanodi = frameforms[activeFrameform].stateNodes[i];
-				_evaluateNode_(stanodi)
-				printf("%d:\t%f\n", i, nodes[stanodi].output.n);
+				nodeIndex n = frameforms[activeFrameform].stateNodes[i];
+				_evaluateNode_(n)
+				printf("%d:\t%f\n", i, nodes[n].output.n);
 			}
 			
 			//temporary until conditionals are implemented
-			if (currentFrame == 7)
+			if (curFrame == 7)
 				activeFrameform = exitFrameform;
 			else {
 				timeB = getMicroseconds();

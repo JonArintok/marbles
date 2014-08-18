@@ -1,4 +1,6 @@
 
+/eight num 8
+
 # enter
 
 A num
@@ -7,7 +9,7 @@ A num
 		add
 			sub
 				68
-				8
+				8/eight
 			div
 				20
 				0.5
@@ -16,7 +18,7 @@ B num
 	mul
 		1.5
 		add
-			sub 68 8
+			sub 68 8/eight
 			div 20 0.5
 
 C num
@@ -27,17 +29,17 @@ C num
 D num
 	mul 1.5 (add (sub 68 8) (div 20 0.5))
 
-E num 150
+/E num 150
 
 
 /F num
 /	mul
 /		1.5
-/		add3 20 (sub 68 8) 20
+/		add3 20 (sub 68 eight) 20
 
 
 /G num
 /	mul
 /		1.5
-/		add3 (sub 68 8) 20 20
+/		add3 (sub 68 eight) 20 20
 

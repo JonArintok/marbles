@@ -25,7 +25,7 @@ int isNumeric(char in) {
 }
 
 void getLine(void) {
-	currentLine++;
+	curLine++;
 	
 	//read the next line from the file one character at a time
 	for (int bufPos = 0;; bufPos++) {
@@ -33,7 +33,7 @@ void getLine(void) {
 		
 		//check to be sure we are not overflowing the buffer
 		if (bufPos == maxLineLength) {
-			putError(currentLine, "line is too long\n");
+			putError(curLine, "line is too long\n");
 			return;
 		}
 		
@@ -53,7 +53,7 @@ void getLine(void) {
 		//ignore spaces after frameformInitChar
 		if (fileChar == ' ') {
 			if (!bufPos) {
-				putError(currentLine, "leading space\n");
+				putError(curLine, "leading space\n");
 				return;
 			}
 			if (
@@ -73,7 +73,7 @@ void getLine(void) {
 			fileChar == paramTypeInitChar
 		) {
 			if (!bufPos) {
-				putError(currentLine, "leading character '");
+				putError(curLine, "leading character '");
 				printf("%c' is not allowed\n", fileChar);
 				return;
 			}
@@ -85,7 +85,7 @@ void getLine(void) {
 		}
 		//tab characters are for indentation only
 		if (bufPos && fileChar == '\t' && lineBuf[bufPos-1] != '\t') {
-			putError(currentLine, "unexpected tab character\n");
+			putError(curLine, "unexpected tab character\n");
 			return;
 		}
 		
@@ -133,7 +133,7 @@ bool matchStrXDelim(char *A, char AD, char *B, char BD) {
 int findNameCollision(char *nameIn, char AD) {
 	
 	#define _putNameCollisionError_\
-		putError(currentLine, "name collision on '");\
+		putError(curLine, "name collision on '");\
 		printf("%s'\n", nameIn);\
 		return 1;
 	
@@ -145,35 +145,35 @@ int findNameCollision(char *nameIn, char AD) {
 			_putNameCollisionError_
 		}
 	}
-	//check for name collision with rootNodes
-	for (int i = 0; i <= currentRootNode; i++) {
+	//check for name collision with gRootNodes
+	for (int i = 0; i <= gCurRootNode; i++) {
 		if (matchStrXDelim(
-			nameIn, AD, nodesInfo[ rootNodes[i] ].name, ' '
+			nameIn, AD, nodesInfo[ gRootNodes[i] ].name, ' '
 		)) {
 			_putNameCollisionError_
 		}
 	}
 	//check for name collision with stateNodes
 	if (inFrameform) {
-		//check for collision with stateNodes in the currentFrameform
+		//check for collision with stateNodes in the curFrameform
 		for (
 			int i = 0;
-			i <= frameforms[currentFrameform].currentStateNode;
+			i <= frameforms[curFrameform].curStateNode;
 			i++
 		) {
 			if (matchStrXDelim(
 				nameIn, AD,
-				nodesInfo[ frameforms[currentFrameform].stateNodes[i] ].name, ' '
+				nodesInfo[ frameforms[curFrameform].stateNodes[i] ].name, ' '
 			)) {
 				_putNameCollisionError_
 			}
 		}
 	}
-	else if (currentFrameform >= 0) {
+	else if (curFrameform >= 0) {
 		//check for collision with any stateNode
 		for (
 			int ffi;
-			ffi <= currentFrameform;
+			ffi <= curFrameform;
 			ffi++
 		) {
 			for (
@@ -203,13 +203,13 @@ int findNameCollision(char *nameIn, char AD) {
 
 void initNodes(void) {
 	//"defNodes" are variables, functions, and stateNodes
-	inc_currentNode();
-	nodes[currentNode].childCount = 1;
-	nodes[currentNode].children[0] = currentNode + 1;
-	nodesInfo[currentNode].line = currentLine;
-	nodesInfo[currentNode].level = 0;
+	inc_curNode();
+	nodes[curNode].childCount = 1;
+	nodes[curNode].children[0] = curNode + 1;
+	nodesInfo[curNode].line = curLine;
+	nodesInfo[curNode].level = 0;
 	
-	//read the first line into currentNode.name
+	//read the first line into curNode.name
 	while (true) {
 		inc_namePos();
 		//check for number literal constant
@@ -218,27 +218,27 @@ void initNodes(void) {
 			isNumeric( lineBuf[namePos+1] )
 		) {
 			int bufPos = namePos;
-			nodesInfo[currentNode].name[namePos] = '\0';
-			nodes[currentNode].evaluate = eval_varDef;
-			inc_currentRootNode();
-			rootNodes[currentRootNode] = currentNode;
-			inc_currentNode();
-			nodesInfo[currentNode].line = currentLine;
-			nodesInfo[currentNode].level = 1;
+			nodesInfo[curNode].name[namePos] = '\0';
+			nodes[curNode].evaluate = eval_varDef;
+			inc_gCurRootNode();
+			gRootNodes[gCurRootNode] = curNode;
+			inc_curNode();
+			nodesInfo[curNode].line = curLine;
+			nodesInfo[curNode].level = 1;
 			while (lineBuf[bufPos] != '\0') {
 				inc_namePos();
 				bufPos++;
-				nodesInfo[currentNode].name[namePos] = lineBuf[bufPos];
+				nodesInfo[curNode].name[namePos] = lineBuf[bufPos];
 			}
 			return;
 		}
-		nodesInfo[currentNode].name[namePos] = lineBuf[namePos];
+		nodesInfo[curNode].name[namePos] = lineBuf[namePos];
 		if (lineBuf[namePos] == '\0')
 			break;
 	}
 	
 	
-	char *nodeName = nodesInfo[currentNode].name;
+	char *nodeName = nodesInfo[curNode].name;
 	
 	//if ( findNameCollision(nodeName, ' ') )
 	//	return;
@@ -262,27 +262,27 @@ void initNodes(void) {
 		while ( (fileChar = fgetc(fileStream)) != '\n') {
 			if (fileChar == EOF) {
 				reachedEOF = true;
-				putError(currentLine, "incomplete definition\n");
+				putError(curLine, "incomplete definition\n");
 				break;
 			}
 		}
 	}
-	nodesInfo[currentNode].paramCount = paramCount;
+	nodesInfo[curNode].paramCount = paramCount;
 	
 	//determine if it's a stateDef, varDef, or fnDef
 	if ( !paramCount && strcmp(&lineBuf[namePos-7], "nullary") ) {
 		if (inFrameform) {
-			nodes[currentNode].evaluate = eval_stateDef;
-			inc_currentStateNode();
-			frameforms[currentFrameform].stateNodes[
-				frameforms[currentFrameform].currentStateNode
-			] = currentNode;
+			nodes[curNode].evaluate = eval_stateDef;
+			inc_curStateNode();
+			frameforms[curFrameform].stateNodes[
+				frameforms[curFrameform].curStateNode
+			] = curNode;
 		}
 		else
-			nodes[currentNode].evaluate = eval_varDef;
+			nodes[curNode].evaluate = eval_varDef;
 	}
 	else {
-		nodes[currentNode].evaluate = eval_fnDef;
+		nodes[curNode].evaluate = eval_fnDef;
 		//else replace that \0 with a \n and continue reading the name
 		for (int i = 0; i < paramCount; i++) {
 			nodeName[namePos] = '\n';
@@ -297,15 +297,15 @@ void initNodes(void) {
 	}
 	/*
 	//update the frameform or rootNode array
-	if (nodes[currentNode].evaluate == eval_stateDef) {
-		inc_currentStateNode();
-		frameforms[currentFrameform].stateNodes[
-			frameforms[currentFrameform].currentStateNode
-		] = currentNode;
+	if (nodes[curNode].evaluate == eval_stateDef) {
+		inc_curStateNode();
+		frameforms[curFrameform].stateNodes[
+			frameforms[curFrameform].curStateNode
+		] = curNode;
 	}
 	else {
-		inc_currentRootNode();
-		rootNodes[currentRootNode] = currentNode;
+		inc_gCurRootNode();
+		gRootNodes[gCurRootNode] = curNode;
 	}*/
 
 	
@@ -318,22 +318,22 @@ void initNodes(void) {
 		
 		#define _setNodesInfo_\
 			inc_namePos();\
-			nodesInfo[currentNode].name[namePos] = '\0';\
-			nodesInfo[currentNode].level = elevation + fold;\
-			nodesInfo[currentNode].line = currentLine;\
-			nodesInfo[currentNode].frameform = inFrameform ? currentFrameform : -1;
+			nodesInfo[curNode].name[namePos] = '\0';\
+			nodesInfo[curNode].level = elevation + fold;\
+			nodesInfo[curNode].line = curLine;\
+			nodesInfo[curNode].frameform = inFrameform ? curFrameform : -1;
 		
 		getLine();
 		for (; lineBuf[bufPos] == '\t'; bufPos++)
 			elevation++;
 		if (!elevation)
 			break;
-		inc_currentNode();
+		inc_curNode();
 		for (; prevDelim != '\0'; bufPos++) {
 			switch (lineBuf[bufPos]) {
 				case ' ':
 					_setNodesInfo_
-					inc_currentNode();
+					inc_curNode();
 					if (prevDelim != ' ')
 						fold++;
 					prevDelim = ' ';
@@ -341,7 +341,7 @@ void initNodes(void) {
 				case '(':
 					if (lineBuf[bufPos-1] != ')') {
 						_setNodesInfo_
-						inc_currentNode();
+						inc_curNode();
 					}
 					if (prevDelim != ' ')
 						fold++;
@@ -350,16 +350,16 @@ void initNodes(void) {
 				case ')':
 					if (prevDelim == '(') {
 						inc_namePos();
-						nodesInfo[currentNode].name[namePos] = '\0';
-						putError(currentLine, "superfluous perentheses around '");
-						printf("%s'\n", nodesInfo[currentNode].name);
+						nodesInfo[curNode].name[namePos] = '\0';
+						putError(curLine, "superfluous perentheses around '");
+						printf("%s'\n", nodesInfo[curNode].name);
 						return;
 					}
 					if (lineBuf[bufPos-1] != ')') {
 						_setNodesInfo_
 					}
 					if (lineBuf[bufPos+1] != '\0' && lineBuf[bufPos+1] != ')') {
-						inc_currentNode();
+						inc_curNode();
 					}
 					if (prevDelim == ' ')
 						fold--;
@@ -368,7 +368,7 @@ void initNodes(void) {
 					break;
 				case '\0':
 					if (fold && prevDelim != ' ') {
-						putError(currentLine, "perentheses are off by ");
+						putError(curLine, "perentheses are off by ");
 						printf("%d\n", fold);
 						return;
 					}
@@ -380,7 +380,7 @@ void initNodes(void) {
 					break;
 				default:
 					inc_namePos();
-					nodesInfo[currentNode].name[namePos] = lineBuf[bufPos];
+					nodesInfo[curNode].name[namePos] = lineBuf[bufPos];
 			}
 		}
 	}
@@ -463,24 +463,24 @@ void resolveNode(nodeIndex nodePos) {
 	//check for local stateCall
 	//check for nonlocal stateCall
 	//check for fnCall or varCall
-	for (int rnPos = 0; rnPos <= currentRootNode; rnPos++) {
+	for (int rnPos = 0; rnPos <= gCurRootNode; rnPos++) {
 		if (matchStrXDelim(
-			nodeName, '\0', nodesInfo[ rootNodes[rnPos] ].name, ' '
+			nodeName, '\0', nodesInfo[ gRootNodes[rnPos] ].name, ' '
 		)) {
-			nodesInfo[nodePos].name = nodesInfo[ rootNodes[rnPos] ].name;
+			nodesInfo[nodePos].name = nodesInfo[ gRootNodes[rnPos] ].name;
 			//if it's a function
-			if (nodes[ rootNodes[rnPos] ].evaluate == eval_fnDef) {
-				nodes[nodePos].definition = rootNodes[rnPos];
+			if (nodes[ gRootNodes[rnPos] ].evaluate == eval_fnDef) {
+				nodes[nodePos].definition = gRootNodes[rnPos];
 				nodes[nodePos].evaluate = eval_fnCall;
 				if (
-					nodes[nodePos].childCount != nodesInfo[ rootNodes[rnPos] ].paramCount
+					nodes[nodePos].childCount != nodesInfo[ gRootNodes[rnPos] ].paramCount
 				) {
 					putError(nodeLine, "");
 					printf(
 						"number of arguments for '%s' is off by %d\n",
 						nodeName,
 						nodes[nodePos].childCount
-							- nodesInfo[ rootNodes[rnPos] ].paramCount
+							- nodesInfo[ gRootNodes[rnPos] ].paramCount
 					);
 					free(nodeName);
 					return;
@@ -488,8 +488,8 @@ void resolveNode(nodeIndex nodePos) {
 			}
 			//else it's a variable
 			else {
-				nodes[currentNode].definition = rootNodes[rnPos];
-				nodes[currentNode].evaluate = eval_varCall;
+				nodes[curNode].definition = gRootNodes[rnPos];
+				nodes[curNode].evaluate = eval_varCall;
 				//if (nodes[nodePos].childCount != 0)
 					//calling a function held by a variable?
 			}
@@ -538,32 +538,32 @@ void resolveNode(nodeIndex nodePos) {
 void initFrameform(void) {
 	//check for proper frameform name
 	if (lineBuf[1] == '\0') {
-		putError(currentLine, "This frameform must have a name\n");
+		putError(curLine, "This frameform must have a name\n");
 		return;
 	}
 	else if ( isNumeric( lineBuf[1] ) ) {
 		putError(
-			currentLine,
+			curLine,
 			"frameform names may not begin with numeric characters\n"
 		);
 		return;
 	}
 	//allow no spaces in the frameform name
 	if ( strchr(&lineBuf[1], ' ') ) {
-		putError(currentLine, "frameform names may not contain spaces\n");
+		putError(curLine, "frameform names may not contain spaces\n");
 		return;
 	}
 	
-	//check for collisions, then inc_currentFrameform
+	//check for collisions, then inc_curFrameform
 	//inFrameform = false;
 	//if ( findNameCollision(&lineBuf[1], '\0') )
 	//	return;
 	inFrameform = true;
-	inc_currentFrameform();
+	inc_curFrameform();
 	
-	//copy from lineBuf to frameforms[currentFrameform].name
+	//copy from lineBuf to frameforms[curFrameform].name
 	strncpy(
-		&frameforms[currentFrameform].name[0],
+		&frameforms[curFrameform].name[0],
 		&lineBuf[1],
 		maxTokenLength
 	);
@@ -594,11 +594,14 @@ void  parse(void) {
 			initNodes();
 	}
 	
+	//check for naming collisions
+	
+	
 	//connect each node
-	for (int nodePos = 0; nodePos <= currentNode; nodePos++)
+	for (int nodePos = 0; nodePos <= curNode; nodePos++)
 		connectNode(nodePos);
 	//resolve each node
-	for (int nodePos = 0; nodePos <= currentNode; nodePos++)
+	for (int nodePos = 0; nodePos <= curNode; nodePos++)
 		resolveNode(nodePos);
 	if (errorCount)
 		return;

@@ -48,14 +48,17 @@ typedef struct {
 
 
 
-#define maxTokenLength 80
-#define maxLineLength 200
+#define maxTokenLength 64
+#define maxLineLength 256
 
 typedef struct {
-	char       name[maxTokenLength];
-	int16_t    currentStateNode;
+	char       name[maxLineLength];
+	int16_t    curStateNode;
 	int16_t    stateNodeSpace;
 	nodeIndex *stateNodes;
+	int16_t    curRootNode;
+	int16_t    rootNodeSpace;
+	nodeIndex *rootNodes;
 	//output
 	nodeIndex nextFrameform;
 	nodeIndex frameRate;
@@ -70,7 +73,7 @@ char *audioOutName      = "audioOut num|";
 
 
 node      *nodes;
-nodeIndex *rootNodes;
+nodeIndex *gRootNodes;
 frameform *frameforms;
 
 
@@ -142,12 +145,13 @@ void eval_stateCall(nodeIndex self) {
 void eval_numLit(nodeIndex self) {}
 
 
-int currentFrame = -1;
+int curFrame = -1;
 
-char *initialName = "! ! unnamed ! !";
+char *unnamed = "!!  unnamed  !!";
 
 
 //this value will eventually be taken from the .marbles source to be run
 number run_fps = 10;
+
 
 
