@@ -2,7 +2,7 @@
 
 typedef struct {
 	char     *name;
-	uint8_t   childCount;
+	uint8_t   arity;
 	evaluator evaluate;
 } stdNode;
 
@@ -24,29 +24,29 @@ void name(nodeIndex self) {\
 _evalArith_(eval_add, +, n)
 const stdNode node_add = {
 	.name = "add" _arithType_,
-	.childCount = 2,
-	.evaluate   = eval_add,
+	.arity    = 2,
+	.evaluate = eval_add,
 };
 
 _evalArith_(eval_sub, -, n)
 const stdNode node_sub = {
 	.name = "sub" _arithType_,
-	.childCount     = 2,
+	.arity     = 2,
 	.evaluate  = eval_sub,
 };
 
 _evalArith_(eval_mul, *, n)
 const stdNode node_mul = {
 	.name = "mul" _arithType_,
-	.childCount = 2,
-	.evaluate   = eval_mul,
+	.arity    = 2,
+	.evaluate = eval_mul,
 };
 
 _evalArith_(eval_div, /, n)
 const stdNode node_div = {
 	.name = "div" _arithType_,
-	.childCount = 2,
-	.evaluate   = eval_div,
+	.arity    = 2,
+	.evaluate = eval_div,
 };
 
 #define stdNodeTableLength  4

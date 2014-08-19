@@ -1,8 +1,12 @@
 
 
-#define commentInitChar   '/'
-#define frameformInitChar '#'
-#define paramTypeInitChar '<'
+#define charTag_comment   '/'
+#define charTag_frameform '#'
+#define charTag_paramType '<'
+#define scopeTag_state "state"
+#define scopeTag_share "share"
+#define scopeTag_out   "out"
+#define nullaryTag "nullary"
 
 FILE    *fileStream;
 char    *fileName;
@@ -49,8 +53,8 @@ void getLine(void) {
 		//homogenize formatting:
 		//ignore redundant spaces,
 		//ignore spaces around parentheses
-		//ignore spaces around paramTypeInitChar
-		//ignore spaces after frameformInitChar
+		//ignore spaces around charTag_paramType
+		//ignore spaces after charTag_frameform
 		if (fileChar == ' ') {
 			if (!bufPos) {
 				putError(curLine, "leading space\n");
@@ -60,8 +64,8 @@ void getLine(void) {
 				lineBuf[bufPos-1] == ' ' ||
 				lineBuf[bufPos-1] == '(' ||
 				lineBuf[bufPos-1] == ')' ||
-				lineBuf[bufPos-1] == frameformInitChar ||
-				lineBuf[bufPos-1] == paramTypeInitChar
+				lineBuf[bufPos-1] == charTag_frameform ||
+				lineBuf[bufPos-1] == charTag_paramType
 			) {
 				bufPos--;
 				continue;
@@ -70,7 +74,7 @@ void getLine(void) {
 		if (
 			fileChar == '(' ||
 			fileChar == ')' ||
-			fileChar == paramTypeInitChar
+			fileChar == charTag_paramType
 		) {
 			if (!bufPos) {
 				putError(curLine, "leading character '");
@@ -92,7 +96,7 @@ void getLine(void) {
 		lineBuf[bufPos] = fileChar;
 		
 		//ignore comments
-		if (fileChar == commentInitChar) {
+		if (fileChar == charTag_comment) {
 			//end of the line
 			if (bufPos && lineBuf[bufPos-1] == ' ')
 				lineBuf[bufPos-1] = '\0';
@@ -130,76 +134,6 @@ bool matchStrXDelim(char *A, char AD, char *B, char BD) {
 	}
 }
 
-int findNameCollision(char *nameIn, char AD) {
-	
-	#define _putNameCollisionError_\
-		putError(curLine, "name collision on '");\
-		printf("%s'\n", nameIn);\
-		return 1;
-	
-	//check for name collision with stdNodes
-	for (int i = 0; i < stdNodeTableLength; i++) {
-		if (matchStrXDelim(
-			nameIn, AD, stdNodeTable[i]->name, ' '
-		)) {
-			_putNameCollisionError_
-		}
-	}
-	//check for name collision with gRootNodes
-	for (int i = 0; i <= gCurRootNode; i++) {
-		if (matchStrXDelim(
-			nameIn, AD, nodesInfo[ gRootNodes[i] ].name, ' '
-		)) {
-			_putNameCollisionError_
-		}
-	}
-	//check for name collision with stateNodes
-	if (inFrameform) {
-		//check for collision with stateNodes in the curFrameform
-		for (
-			int i = 0;
-			i <= frameforms[curFrameform].curStateNode;
-			i++
-		) {
-			if (matchStrXDelim(
-				nameIn, AD,
-				nodesInfo[ frameforms[curFrameform].stateNodes[i] ].name, ' '
-			)) {
-				_putNameCollisionError_
-			}
-		}
-	}
-	else if (curFrameform >= 0) {
-		//check for collision with any stateNode
-		for (
-			int ffi;
-			ffi <= curFrameform;
-			ffi++
-		) {
-			for (
-				int sni = 0;
-				sni <= frameforms[ffi].stateNodes[sni];
-				sni++
-			) {
-				if (matchStrXDelim(
-					nameIn, AD,
-					nodesInfo[ frameforms[ffi].stateNodes[sni] ].name, ' '
-				)) {
-					_putNameCollisionError_
-				}
-			}
-			//check for collision with frameform names
-			if (matchStrXDelim(
-				nameIn, AD,
-				frameforms[ffi].name, '\0'
-			)) {
-				_putNameCollisionError_
-			}
-		}
-	}
-	
-	return 0;
-}
 
 void initNodes(void) {
 	//"defNodes" are variables, functions, and stateNodes
@@ -209,39 +143,42 @@ void initNodes(void) {
 	nodesInfo[curNode].line = curLine;
 	nodesInfo[curNode].level = 0;
 	
+	char *nodeName = nodesInfo[curNode].name;
+	
 	//read the first line into curNode.name
 	while (true) {
 		inc_namePos();
-		//check for number literal constant
+		//check for number literal
 		if (
 			lineBuf[namePos] == ' ' &&
 			isNumeric( lineBuf[namePos+1] )
 		) {
 			int bufPos = namePos;
-			nodesInfo[curNode].name[namePos] = '\0';
+			nodeName[namePos] = '\0';
 			nodes[curNode].evaluate = eval_varDef;
-			inc_gCurRootNode();
-			gRootNodes[gCurRootNode] = curNode;
+			if (inFrameform) {
+				inc_curRootNode();
+				frameforms[curFrameform].rootNodes[curRootNode] = curNode;
+			}
+			else {
+				inc_gCurRootNode();
+				gRootNodes[gCurRootNode] = curNode;
+			}
 			inc_curNode();
 			nodesInfo[curNode].line = curLine;
 			nodesInfo[curNode].level = 1;
 			while (lineBuf[bufPos] != '\0') {
 				inc_namePos();
 				bufPos++;
-				nodesInfo[curNode].name[namePos] = lineBuf[bufPos];
+				nodeName[namePos] = lineBuf[bufPos];
 			}
 			return;
 		}
-		nodesInfo[curNode].name[namePos] = lineBuf[namePos];
+		nodeName[namePos] = lineBuf[namePos];
 		if (lineBuf[namePos] == '\0')
 			break;
 	}
 	
-	
-	char *nodeName = nodesInfo[curNode].name;
-	
-	//if ( findNameCollision(nodeName, ' ') )
-	//	return;
 	
 	//find out how many parameters there are
 	int paramCount = 0;
@@ -267,8 +204,32 @@ void initNodes(void) {
 			}
 		}
 	}
-	nodesInfo[curNode].paramCount = paramCount;
+	nodesInfo[curNode].arity = paramCount;
 	
+	
+	/*
+	
+	ending:                  meaning:
+	scopeTag_state           stateDef, local
+	scopeTag_share           shareDef, local
+	scopeTag_out             outDef, global or local
+	nullaryTag               fnDefN, global or local
+	(none), paramCount > 0   fnDef, global or local
+	(none), paramCount == 0  varDef, global or local
+	
+	scopeTags are removed from nodesInfo[i].name
+	the nullaryTag is part of the type declaration
+	
+	*/
+	
+	
+	
+	
+	
+	
+	
+	
+	/*
 	//determine if it's a stateDef, varDef, or fnDef
 	if ( !paramCount && strcmp(&lineBuf[namePos-7], "nullary") ) {
 		if (inFrameform) {
@@ -295,7 +256,6 @@ void initNodes(void) {
 			}
 		}
 	}
-	/*
 	//update the frameform or rootNode array
 	if (nodes[curNode].evaluate == eval_stateDef) {
 		inc_curStateNode();
@@ -554,12 +514,8 @@ void initFrameform(void) {
 		return;
 	}
 	
-	//check for collisions, then inc_curFrameform
-	//inFrameform = false;
-	//if ( findNameCollision(&lineBuf[1], '\0') )
-	//	return;
-	inFrameform = true;
 	inc_curFrameform();
+	inFrameform = true;
 	
 	//copy from lineBuf to frameforms[curFrameform].name
 	strncpy(
@@ -583,8 +539,8 @@ void  parse(void) {
 			continue;
 		
 		//check for beginning or end of frameform
-		if (lineBuf[0] == frameformInitChar) {
-			if (lineBuf[1] == frameformInitChar)
+		if (lineBuf[0] == charTag_frameform) {
+			if (lineBuf[1] == charTag_frameform)
 				inFrameform = false;
 			else
 				initFrameform();

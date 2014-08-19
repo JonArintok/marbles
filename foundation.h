@@ -86,17 +86,19 @@ nodeIndex stack[stackSize];//holds the call sources
 uint32_t stackPos;
 
 
+void eval_numLit(nodeIndex self) {}
 
 void eval_varDef(nodeIndex self) {
 	nodes[self].output = nodes[self+1].output;
 }
-
 void eval_varCall(nodeIndex self) {
 	nodes[self].output = nodes[ nodes[self].definition ].output;
 }
 
-
 void eval_fnDef(nodeIndex self) {
+	nodes[self].output = nodes[self+1].output;
+}
+void eval_fnDefN(nodeIndex self) {
 	nodes[self].output = nodes[self+1].output;
 }
 
@@ -112,6 +114,17 @@ void eval_fnCall(nodeIndex self) {
 	//reset argument values to positive
 	for (int i = 0; i < nodes[self].childCount; i++)
 		nodes[fnBody-1].children[i] &= maxNodeIndex;
+	
+	stackPos--;
+}
+void eval_fnCallN(nodeIndex self) {
+	stackPos++;
+	stack[stackPos] = self;
+	
+	nodeIndex fnBody = nodes[self].definition + 1;
+	//evaluate nodes[self.definition] and get the output
+	_evaluateNode_(fnBody)
+	nodes[self].output = nodes[fnBody].output;
 	
 	stackPos--;
 }
@@ -137,12 +150,17 @@ void eval_argCall(nodeIndex self) {
 void eval_stateDef(nodeIndex self) {
 	nodes[self].output = nodes[self+1].output;
 }
-
+void eval_shareDef(nodeIndex self) {
+	nodes[self].output = nodes[self+1].output;
+}
 void eval_stateCall(nodeIndex self) {
 	nodes[self].output = nodes[ nodes[self].definition ].output;
 }
+void eval_shareCall(nodeIndex self) {
+	nodes[self].output = nodes[ nodes[self].definition ].output;
+}
 
-void eval_numLit(nodeIndex self) {}
+void eval_outDef(nodeIndex self) {}
 
 
 int curFrame = -1;
