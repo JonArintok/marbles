@@ -40,17 +40,17 @@ int main(int argc, char **argv) {
 	if (!errorCount) {
 		//initialize global variables, numLits evaluated immediately
 		for (int i = 0; i <= gCurRootNode; i++) {
-			if (nodes[ rootNodes[i] ].evaluate == eval_varDef) {
-				if (nodes[ rootNodes[i+1] ].evaluate == eval_numLit)
-					_evaluateNode_(rootNodes[i])
+			if (nodes[ gRootNodes[i] ].evaluate == eval_varDef) {
+				if (nodes[ gRootNodes[i+1] ].evaluate == eval_numLit)
+					_evaluateNode_(gRootNodes[i])
 				else
-					_evaluateNode_(rootNodes[i]+1)
+					_evaluateNode_(gRootNodes[i]+1)
 			}
 		}
 		//evaluate all global variables
 		for (int i = 0; i <= gCurRootNode; i++) {
-			if (nodes[ rootNodes[i] ].evaluate == eval_varDef)
-				_evaluateNode_(rootNodes[i])
+			if (nodes[ gRootNodes[i] ].evaluate == eval_varDef)
+				_evaluateNode_(gRootNodes[i])
 		}
 		//initialize variables in every frameform, numLits evaluated immediately
 		for (int ffi = 0; ffi <= curFrameform; ffi++) {
@@ -69,7 +69,7 @@ int main(int argc, char **argv) {
 			for (int rni = 0; rni <= frameforms[ffi].curRootNode; rni++) {
 				nodeIndex n = frameforms[ffi].rootNodes[rni];
 				if (nodes[n].evaluate == eval_varDef)
-					_evaluateNode_(rootNodes[i])
+					_evaluateNode_(n)
 			}
 		}
 		

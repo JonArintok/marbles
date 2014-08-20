@@ -1,45 +1,30 @@
 
-/eight num 8
 
 # enter
 
-A num
+state A num
 	mul
 		1.5
 		add
 			sub
 				68
-				8/eight
+				8
 			div
 				20
 				0.5
 
-B num
+state B num
 	mul
 		1.5
 		add
-			sub 68 8/eight
+			sub 68 8
 			div 20 0.5
 
-C num
+state C num
 	mul
 		1.5
 		add (sub 68 8) (div 20 0.5)
 
-D num
+state D num
 	mul 1.5 (add (sub 68 8) (div 20 0.5))
-
-/E num 150
-
-
-/F num
-/	mul
-/		1.5
-/		add3 20 (sub 68 eight) 20
-
-
-/G num
-/	mul
-/		1.5
-/		add3 (sub 68 eight) 20 20
 

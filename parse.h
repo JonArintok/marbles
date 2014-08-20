@@ -3,10 +3,10 @@
 #define charTag_comment   '/'
 #define charTag_frameform '#'
 #define charTag_paramType '<'
-#define scopeTag_state "state"
-#define scopeTag_share "share"
-#define scopeTag_out   "out"
-#define nullaryTag "nullary"
+#define decTag_var   "var"
+#define decTag_fn    "fn"
+#define decTag_state "state"
+#define decTag_share "share"
 
 FILE    *fileStream;
 char    *fileName;
@@ -118,7 +118,7 @@ void getLine(void) {
 	}
 }
 
-bool matchStrXDelim(char *A, char AD, char *B, char BD) {
+bool matchStrWDelim(char *A, char AD, char *B, char BD) {
 	//return true if the strings (A and B) match up until their 
 	//respective delimeters (AT and BT)
 	char a;
@@ -134,6 +134,25 @@ bool matchStrXDelim(char *A, char AD, char *B, char BD) {
 	}
 }
 
+void setBodyNode(int level) {
+	inc_namePos();
+	nodesInfo[curNode].name[namePos] = '\0';
+	nodesInfo[curNode].level = level;
+	nodesInfo[curNode].line = curLine;
+	nodesInfo[curNode].frameform = inFrameform ? curFrameform : -1;
+	
+	//the nodes at levels 0 and 1 should already be connected
+	if (level < 2)
+		return;
+	//look backwards for the node's parent
+	for (nodeIndex backNode = curNode - 1;; backNode--) {
+		if (level == nodesInfo[curNode].level - 1) {
+			nodes[backNode].children[ nodes[backNode].childCount ] = curNode;
+			nodes[backNode].childCount++;
+			return;
+		}
+	}
+}
 
 void initNodes(void) {
 	//"defNodes" are variables, functions, and stateNodes
@@ -148,7 +167,7 @@ void initNodes(void) {
 	//read the first line into curNode.name
 	while (true) {
 		inc_namePos();
-		//check for number literal
+		//check for in-line number literal
 		if (
 			lineBuf[namePos] == ' ' &&
 			isNumeric( lineBuf[namePos+1] )
@@ -158,7 +177,9 @@ void initNodes(void) {
 			nodes[curNode].evaluate = eval_varDef;
 			if (inFrameform) {
 				inc_curRootNode();
-				frameforms[curFrameform].rootNodes[curRootNode] = curNode;
+				frameforms[curFrameform].rootNodes[
+					frameforms[curFrameform].curRootNode
+				] = curNode;
 			}
 			else {
 				inc_gCurRootNode();
@@ -174,6 +195,7 @@ void initNodes(void) {
 			}
 			return;
 		}
+		//else just read it into the node's name
 		nodeName[namePos] = lineBuf[namePos];
 		if (lineBuf[namePos] == '\0')
 			break;
@@ -207,44 +229,9 @@ void initNodes(void) {
 	nodesInfo[curNode].arity = paramCount;
 	
 	
-	/*
-	
-	ending:                  meaning:
-	scopeTag_state           stateDef, local
-	scopeTag_share           shareDef, local
-	scopeTag_out             outDef, global or local
-	nullaryTag               fnDefN, global or local
-	(none), paramCount > 0   fnDef, global or local
-	(none), paramCount == 0  varDef, global or local
-	
-	scopeTags are removed from nodesInfo[i].name
-	the nullaryTag is part of the type declaration
-	
-	*/
-	
-	
-	
-	
-	
-	
-	
-	
-	/*
-	//determine if it's a stateDef, varDef, or fnDef
-	if ( !paramCount && strcmp(&lineBuf[namePos-7], "nullary") ) {
-		if (inFrameform) {
-			nodes[curNode].evaluate = eval_stateDef;
-			inc_curStateNode();
-			frameforms[curFrameform].stateNodes[
-				frameforms[curFrameform].curStateNode
-			] = curNode;
-		}
-		else
-			nodes[curNode].evaluate = eval_varDef;
-	}
-	else {
-		nodes[curNode].evaluate = eval_fnDef;
-		//else replace that \0 with a \n and continue reading the name
+	if (matchStrWDelim(decTag_fn, '\0', lineBuf, ' ')) {
+		nodes[curNode].evaluate = paramCount ? eval_fnDef : eval_fnDefN;
+		//else replace that \0 with a \n and read the parameters into the name
 		for (int i = 0; i < paramCount; i++) {
 			nodeName[namePos] = '\n';
 			getLine();
@@ -256,18 +243,52 @@ void initNodes(void) {
 			}
 		}
 	}
-	//update the frameform or rootNode array
-	if (nodes[curNode].evaluate == eval_stateDef) {
+	else if (matchStrWDelim(decTag_var, '\0', lineBuf, ' ')) {
+		nodes[curNode].evaluate = eval_varDef;
+		if (paramCount) {
+			putError(curLine, "variable appears to be declared with arguments");
+			return;
+		}
+	}
+	else if (matchStrWDelim(decTag_state, '\0', lineBuf, ' '))
+		nodes[curNode].evaluate = eval_stateDef;
+	else if (matchStrWDelim(decTag_share, '\0', lineBuf, ' '))
+		nodes[curNode].evaluate = eval_shareDef;
+	else {
+		putError(curLine, "decTag is not recognized");
+		return;
+	}
+	
+	if (
+		nodes[curNode].evaluate == eval_stateDef ||
+		nodes[curNode].evaluate == eval_shareDef
+	) {
+		if (!inFrameform) {
+			putError(curLine, "state declared outside of frameform");
+			return;
+		}
 		inc_curStateNode();
 		frameforms[curFrameform].stateNodes[
 			frameforms[curFrameform].curStateNode
 		] = curNode;
 	}
-	else {
-		inc_gCurRootNode();
-		gRootNodes[gCurRootNode] = curNode;
-	}*/
-
+	else if (
+		nodes[curNode].evaluate == eval_varDef ||
+		nodes[curNode].evaluate == eval_fnDef ||
+		nodes[curNode].evaluate == eval_fnDefN
+	) {
+		if (inFrameform) {
+			inc_curRootNode();
+			frameforms[curFrameform].rootNodes[
+				frameforms[curFrameform].curRootNode
+			] = curNode;
+		}
+		else {
+			inc_gCurRootNode();
+			gRootNodes[gCurRootNode] = curNode;
+		}
+	}
+	
 	
 	//initialize the nodes in the body of the defNode
 	while (true) {
@@ -275,13 +296,6 @@ void initNodes(void) {
 		int fold      = 0;
 		int bufPos    = 0;
 		char prevDelim = '\n';
-		
-		#define _setNodesInfo_\
-			inc_namePos();\
-			nodesInfo[curNode].name[namePos] = '\0';\
-			nodesInfo[curNode].level = elevation + fold;\
-			nodesInfo[curNode].line = curLine;\
-			nodesInfo[curNode].frameform = inFrameform ? curFrameform : -1;
 		
 		getLine();
 		for (; lineBuf[bufPos] == '\t'; bufPos++)
@@ -292,7 +306,7 @@ void initNodes(void) {
 		for (; prevDelim != '\0'; bufPos++) {
 			switch (lineBuf[bufPos]) {
 				case ' ':
-					_setNodesInfo_
+					setBodyNode(elevation+fold);
 					inc_curNode();
 					if (prevDelim != ' ')
 						fold++;
@@ -300,10 +314,10 @@ void initNodes(void) {
 					break;
 				case '(':
 					if (lineBuf[bufPos-1] != ')') {
-						_setNodesInfo_
+						setBodyNode(elevation+fold);
 						inc_curNode();
 					}
-					if (prevDelim != ' ')
+					if (prevDelim != ' ' && prevDelim != ')')
 						fold++;
 					prevDelim = '(';
 					break;
@@ -315,14 +329,10 @@ void initNodes(void) {
 						printf("%s'\n", nodesInfo[curNode].name);
 						return;
 					}
-					if (lineBuf[bufPos-1] != ')') {
-						_setNodesInfo_
-					}
-					if (lineBuf[bufPos+1] != '\0' && lineBuf[bufPos+1] != ')') {
+					if (lineBuf[bufPos-1] != ')')
+						setBodyNode(elevation+fold);
+					if (lineBuf[bufPos+1] != '\0' && lineBuf[bufPos+1] != ')')
 						inc_curNode();
-					}
-					if (prevDelim == ' ')
-						fold--;
 					fold--;
 					prevDelim = ')';
 					break;
@@ -333,9 +343,8 @@ void initNodes(void) {
 						return;
 					}
 					else
-						if (lineBuf[bufPos-1] != ')') {
-							_setNodesInfo_
-						}
+						if (lineBuf[bufPos-1] != ')')
+							setBodyNode(elevation+fold);
 					prevDelim = '\0';
 					break;
 				default:
@@ -346,32 +355,23 @@ void initNodes(void) {
 	}
 }
 
-void connectNode(nodeIndex nodePos) {	
-	//nodes at levels 0 and 1 should already be connected
-	if (nodesInfo[nodePos].level < 2)
-		return;
-	//look backwards for the node's parent
-	for (nodeIndex backNode = nodePos - 1;; backNode--) {
-		if (
-			nodesInfo[backNode].level == 
-			nodesInfo[nodePos].level - 1
-		) {
-			nodes[backNode].children[ nodes[backNode].childCount ] = nodePos;
-			nodes[backNode].childCount++;
-			return;
-		}
+bool isDefNode(nodeIndex n) {
+	if (
+		nodes[n].evaluate == eval_varDef   ||
+		nodes[n].evaluate == eval_fnDef    ||
+		nodes[n].evaluate == eval_fnDefN   ||
+		nodes[n].evaluate == eval_stateDef ||
+		nodes[n].evaluate == eval_shareDef
+	) {
+		return true;
 	}
+	return false;
 }
 
 void resolveNode(nodeIndex nodePos) {
 	//skip defNodes
-	if (
-		nodes[nodePos].evaluate == eval_varDef ||
-		nodes[nodePos].evaluate == eval_fnDef  ||
-		nodes[nodePos].evaluate == eval_stateDef
-	) {
+	if (isDefNode(nodePos))
 		return;
-	}
 	
 	char *nodeName = nodesInfo[nodePos].name;
 	int   nodeLine = nodesInfo[nodePos].line;
@@ -386,7 +386,6 @@ void resolveNode(nodeIndex nodePos) {
 				return;
 			}
 		}
-		
 		nodes[nodePos].evaluate = eval_numLit;
 		sscanf(nodeName, "%lf", &nodes[nodePos].output.n);
 		nodesInfo[nodePos].name = "numLit num";
@@ -395,19 +394,15 @@ void resolveNode(nodeIndex nodePos) {
 	}
 	
 	
-	//check for output
-	
 	//check for reference to stdNode
 	for (int sntPos = 0; sntPos < stdNodeTableLength; sntPos++) {
-		if (matchStrXDelim(
-			nodeName, '\0', stdNodeTable[sntPos]->name, ' '
-		)) {
-			if (nodes[nodePos].childCount != stdNodeTable[sntPos]->childCount) {
+		if (matchStrWDelim(nodeName, '\0', stdNodeTable[sntPos]->name, ' ')) {
+			if (nodes[nodePos].childCount != stdNodeTable[sntPos]->arity) {
 				putError(nodeLine, "");
 				printf(
 					"number of arguments for '%s' is off by %d\n",
 					nodeName,
-					nodes[nodePos].childCount - stdNodeTable[sntPos]->childCount
+					nodes[nodePos].childCount - stdNodeTable[sntPos]->arity
 				);
 				free(nodeName);
 				return;
@@ -420,35 +415,37 @@ void resolveNode(nodeIndex nodePos) {
 	}
 	
 	//check for frameform index
-	//check for local stateCall
-	//check for nonlocal stateCall
-	//check for fnCall or varCall
+	//check for local state or share call
+	//check for nonlocal state or share Call
+	//check for local fnCall or varCall
+	//check for global fnCall or varCall
 	for (int rnPos = 0; rnPos <= gCurRootNode; rnPos++) {
-		if (matchStrXDelim(
+		if (matchStrWDelim(
 			nodeName, '\0', nodesInfo[ gRootNodes[rnPos] ].name, ' '
 		)) {
 			nodesInfo[nodePos].name = nodesInfo[ gRootNodes[rnPos] ].name;
-			//if it's a function
+			nodes[nodePos].definition = gRootNodes[rnPos];
+			//if it's a function with parameters
 			if (nodes[ gRootNodes[rnPos] ].evaluate == eval_fnDef) {
-				nodes[nodePos].definition = gRootNodes[rnPos];
 				nodes[nodePos].evaluate = eval_fnCall;
 				if (
-					nodes[nodePos].childCount != nodesInfo[ gRootNodes[rnPos] ].paramCount
+					nodes[nodePos].childCount != nodesInfo[ gRootNodes[rnPos] ].arity
 				) {
 					putError(nodeLine, "");
 					printf(
 						"number of arguments for '%s' is off by %d\n",
 						nodeName,
-						nodes[nodePos].childCount
-							- nodesInfo[ gRootNodes[rnPos] ].paramCount
+						nodes[nodePos].childCount - nodesInfo[ gRootNodes[rnPos] ].arity
 					);
 					free(nodeName);
 					return;
 				}
 			}
+			//else perhaps it's a nullary function
+			else if (nodes[ gRootNodes[rnPos] ].evaluate == eval_fnDef)
+				nodes[nodePos].evaluate = eval_fnCallN;
 			//else it's a variable
 			else {
-				nodes[curNode].definition = gRootNodes[rnPos];
 				nodes[curNode].evaluate = eval_varCall;
 				//if (nodes[nodePos].childCount != 0)
 					//calling a function held by a variable?
@@ -460,20 +457,16 @@ void resolveNode(nodeIndex nodePos) {
 	//check for argCall
 	for (int backNode = nodePos;; backNode++) {
 		if (nodesInfo[backNode].level == 0) {
-			if (
-				nodes[backNode].evaluate == eval_fnDef &&
-				nodesInfo[backNode].paramCount
-			) {
+			if (nodes[backNode].evaluate == eval_fnDef) {
 				int   namePos  = 1;
 				int   paramPos = 0;
 				char *backNodeName = nodesInfo[backNode].name;
 				for (; backNodeName[namePos] != '\0'; paramPos++) {
 					for (;
-						backNodeName[namePos-1] != '\n' &&
-						backNodeName[namePos  ] != '\0'; 
+						backNodeName[namePos-1] != '\n' && backNodeName[namePos] != '\0';
 						namePos++
 					);//bodiless!
-					if (matchStrXDelim(
+					if (matchStrWDelim(
 						nodeName, '\0', &backNodeName[namePos], ' '
 					)) {
 						nodes[nodePos].definition  = backNode;
@@ -553,9 +546,6 @@ void  parse(void) {
 	//check for naming collisions
 	
 	
-	//connect each node
-	for (int nodePos = 0; nodePos <= curNode; nodePos++)
-		connectNode(nodePos);
 	//resolve each node
 	for (int nodePos = 0; nodePos <= curNode; nodePos++)
 		resolveNode(nodePos);

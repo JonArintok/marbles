@@ -29,7 +29,7 @@ void init_Allocation(void) {
 	frameforms = malloc(sizeof(frameform) * frameformSpace);
 	
 	gRootNodeSpace = nodeIndexPage;
-	rootNodes = malloc(sizeof(nodeIndex) * gRootNodeSpace);
+	gRootNodes = malloc(sizeof(nodeIndex) * gRootNodeSpace);
 }
 
 void inc_curNode(void) {
@@ -49,10 +49,10 @@ void inc_curNode(void) {
 	for (int i = 0; i < maxChildren; i++)
 		nodes[curNode].children[i] = 0;
 	
-	nodesInfo[curNode].name  = initialName;
+	nodesInfo[curNode].name  = unnamed;
 	nodesInfo[curNode].line  = 0;
 	nodesInfo[curNode].level = 0;
-	nodesInfo[curNode].paramCount = 0;
+	nodesInfo[curNode].arity = 0;
 	
 	nodeNameSpace =  0;
 	namePos       = -1;
@@ -61,7 +61,7 @@ void inc_curNode(void) {
 void inc_namePos(void) {
 	namePos++;
 	if (namePos == nodeNameSpace) {
-		nodeNameSpace += nodeNamePage;
+		nodeNameSpace += namePage;
 		if (!(namePos))
 			nodesInfo[curNode].name = malloc(sizeof(char) * nodeNameSpace);
 		else {
@@ -77,7 +77,7 @@ void inc_gCurRootNode(void) {
 	gCurRootNode++;
 	if (gCurRootNode == gRootNodeSpace) {
 		gRootNodeSpace += nodeIndexPage;
-		rootNodes = realloc(rootNodes, sizeof(nodeIndex) * gRootNodeSpace);
+		gRootNodes = realloc(gRootNodes, sizeof(nodeIndex) * gRootNodeSpace);
 	}
 }
 
@@ -134,15 +134,18 @@ void inc_curRootNode(void) {
 void cleanUp(void) {
 	
 	for (int ffPos = 0; ffPos <= curFrameform; ffPos++) {
-		for (int snPos = 0; snPos <= frameforms[ffPos].curStateNode; snPos++)
+		for (int snPos = 0; snPos <= frameforms[ffPos].curStateNode; snPos++) {
 			free( nodesInfo[ frameforms[ffPos].stateNodes[snPos] ].name );
+			free( nodesInfo[ frameforms[ffPos].rootNodes[snPos] ].name );
+		}
 		free(frameforms[ffPos].stateNodes);
+		free(frameforms[ffPos].rootNodes);
 	}
 	free(frameforms);
-	free(rootNodes);
+	free(gRootNodes);
 	
 	for (int rnPos = 0; rnPos <= gCurRootNode; rnPos++)
-		free( nodesInfo[ rootNodes[rnPos] ].name );//invalid read of size 2
+		free( nodesInfo[ gRootNodes[rnPos] ].name );
 	free(nodesInfo);
 	free(nodes);
 }
