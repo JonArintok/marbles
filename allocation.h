@@ -133,10 +133,10 @@ void inc_curRootNode(void) {
 void cleanUp(void) {
 	
 	for (int ffPos = 0; ffPos <= curFrameform; ffPos++) {
-		for (int snPos = 0; snPos <= frameforms[ffPos].curStateNode; snPos++) {
+		for (int snPos = 0; snPos <= frameforms[ffPos].curStateNode; snPos++)
 			free( nodesInfo[ frameforms[ffPos].stateNodes[snPos] ].name );
-			free( nodesInfo[ frameforms[ffPos].rootNodes[snPos] ].name );
-		}
+		for (int rnPos = 0; rnPos <= frameforms[ffPos].curRootNode; rnPos++)
+			free( nodesInfo[ frameforms[ffPos].rootNodes[rnPos] ].name );
 		free(frameforms[ffPos].stateNodes);
 		free(frameforms[ffPos].rootNodes);
 	}
