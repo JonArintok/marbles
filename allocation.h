@@ -62,12 +62,11 @@ void inc_namePos(void) {
 	namePos++;
 	if (namePos == nodeNameSpace) {
 		nodeNameSpace += namePage;
-		if (!(namePos))
+		if (!namePos)
 			nodesInfo[curNode].name = malloc(sizeof(char) * nodeNameSpace);
 		else {
 			nodesInfo[curNode].name = realloc(
-				nodesInfo[curNode].name, 
-				sizeof(char) * nodeNameSpace
+				nodesInfo[curNode].name, sizeof(char) * nodeNameSpace
 			);
 		}
 	}

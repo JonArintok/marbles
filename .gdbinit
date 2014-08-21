@@ -4,7 +4,26 @@ define tfld
 	run test/foldability.marbles
 end
 
-break marblerun.c:35
+break parse.h:314
+
+define nnp
+	next
+	echo curNode....
+	output curNode
+	echo \n
+	echo name.......
+	output nodesInfo[curNode].name
+	echo \n
+	echo line.......
+	output nodesInfo[curNode].line
+	echo \n
+	echo prevDelim..
+	output prevDelim
+	echo \n
+	echo \n
+end
+
+
 
 
 define listNodes
@@ -38,27 +57,3 @@ define listNodes
 		set $i = $i + 1
 	end
 end
-
-define stepAndPrint
-	next
-	echo name........
-	output nodesInfo[currentNode].name
-	echo \n
-	echo level.......
-	output nodesInfo[currentNode].level
-	echo \n
-	echo childCount..
-	output nodes[currentNode].childCount
-	echo \n
-	echo children....
-	output nodes[currentNode].children
-	echo \n
-	echo evaluate....
-	output nodes[currentNode].evaluate
-	echo \n
-	echo output.n....
-	output nodes[currentNode].output.n
-	echo \n
-end
-
-

@@ -134,6 +134,22 @@ bool matchStrWDelim(char *A, char AD, char *B, char BD) {
 	}
 }
 
+int strRemoveUpToIncl(char *s, char d) {
+	for (int rpos = 0;; rpos++) {
+		if (s[rpos] == d) {
+			rpos++;
+			int wpos = 0;
+			for (;; wpos++) {
+				s[wpos] = s[rpos+wpos];
+				if (!s[wpos]) break;
+			}
+			return wpos;
+		}
+		else if (!s[rpos])
+			return 0;
+	}
+}
+
 void setBodyNode(int level) {
 	inc_namePos();
 	nodesInfo[curNode].name[namePos] = '\0';
@@ -146,7 +162,7 @@ void setBodyNode(int level) {
 		return;
 	//look backwards for the node's parent
 	for (nodeIndex backNode = curNode - 1;; backNode--) {
-		if (level == nodesInfo[curNode].level - 1) {
+		if (nodesInfo[backNode].level == level - 1) {
 			nodes[backNode].children[ nodes[backNode].childCount ] = curNode;
 			nodes[backNode].childCount++;
 			return;
@@ -160,9 +176,7 @@ void initNodes(void) {
 	nodes[curNode].childCount = 1;
 	nodes[curNode].children[0] = curNode + 1;
 	nodesInfo[curNode].line = curLine;
-	nodesInfo[curNode].level = 0;
 	
-	char *nodeName = nodesInfo[curNode].name;
 	
 	//read the first line into curNode.name
 	while (true) {
@@ -173,7 +187,7 @@ void initNodes(void) {
 			isNumeric( lineBuf[namePos+1] )
 		) {
 			int bufPos = namePos;
-			nodeName[namePos] = '\0';
+			nodesInfo[curNode].name[namePos] = '\0';
 			nodes[curNode].evaluate = eval_varDef;
 			if (inFrameform) {
 				inc_curRootNode();
@@ -188,18 +202,20 @@ void initNodes(void) {
 			inc_curNode();
 			nodesInfo[curNode].line = curLine;
 			nodesInfo[curNode].level = 1;
-			while (lineBuf[bufPos] != '\0') {
+			while (lineBuf[bufPos] /* != '\0' */) {
 				inc_namePos();
 				bufPos++;
-				nodeName[namePos] = lineBuf[bufPos];
+				nodesInfo[curNode].name[namePos] = lineBuf[bufPos];
 			}
 			return;
 		}
 		//else just read it into the node's name
-		nodeName[namePos] = lineBuf[namePos];
+		nodesInfo[curNode].name[namePos] = lineBuf[namePos];
 		if (lineBuf[namePos] == '\0')
 			break;
 	}
+	
+	char *nodeName = nodesInfo[curNode].name;
 	
 	
 	//find out how many parameters there are
@@ -228,7 +244,7 @@ void initNodes(void) {
 	}
 	nodesInfo[curNode].arity = paramCount;
 	
-	
+	//determine what is being declared based on the decTag
 	if (matchStrWDelim(decTag_fn, '\0', lineBuf, ' ')) {
 		nodes[curNode].evaluate = paramCount ? eval_fnDef : eval_fnDefN;
 		//else replace that \0 with a \n and read the parameters into the name
@@ -236,7 +252,7 @@ void initNodes(void) {
 			nodeName[namePos] = '\n';
 			getLine();
 			int bufPos = 0;//would be -1 if we weren't ignoring the tabs
-			while (lineBuf[bufPos] != '\0') {
+			while (lineBuf[bufPos] /* != '\0' */) {
 				inc_namePos();
 				bufPos++;
 				nodeName[namePos] = lineBuf[bufPos];
@@ -259,6 +275,10 @@ void initNodes(void) {
 		return;
 	}
 	
+	//remove the decTag
+	strRemoveUpToIncl(nodeName, ' ');
+	
+	//update the relevant node reference array
 	if (
 		nodes[curNode].evaluate == eval_stateDef ||
 		nodes[curNode].evaluate == eval_shareDef
@@ -274,7 +294,7 @@ void initNodes(void) {
 	}
 	else if (
 		nodes[curNode].evaluate == eval_varDef ||
-		nodes[curNode].evaluate == eval_fnDef ||
+		nodes[curNode].evaluate == eval_fnDef  ||
 		nodes[curNode].evaluate == eval_fnDefN
 	) {
 		if (inFrameform) {
@@ -292,34 +312,35 @@ void initNodes(void) {
 	
 	//initialize the nodes in the body of the defNode
 	while (true) {
-		int elevation = 0;
-		int fold      = 0;
-		int bufPos    = 0;
+		int level  = 0;
+		int peren  = 0;
+		int bufPos = 0;
 		char prevDelim = '\n';
 		
 		getLine();
 		for (; lineBuf[bufPos] == '\t'; bufPos++)
-			elevation++;
-		if (!elevation)
+			level++;
+		if (!level)
 			break;
 		inc_curNode();
-		for (; prevDelim != '\0'; bufPos++) {
+		for (; prevDelim /* != '\0' */; bufPos++) {
 			switch (lineBuf[bufPos]) {
 				case ' ':
-					setBodyNode(elevation+fold);
+					setBodyNode(level);
 					inc_curNode();
 					if (prevDelim != ' ')
-						fold++;
+						level++;
 					prevDelim = ' ';
 					break;
 				case '(':
 					if (lineBuf[bufPos-1] != ')') {
-						setBodyNode(elevation+fold);
+						setBodyNode(level);
 						inc_curNode();
 					}
 					if (prevDelim != ' ' && prevDelim != ')')
-						fold++;
+						level++;
 					prevDelim = '(';
+					peren++;
 					break;
 				case ')':
 					if (prevDelim == '(') {
@@ -330,21 +351,22 @@ void initNodes(void) {
 						return;
 					}
 					if (lineBuf[bufPos-1] != ')')
-						setBodyNode(elevation+fold);
-					if (lineBuf[bufPos+1] != '\0' && lineBuf[bufPos+1] != ')')
+						setBodyNode(level);
+					if (lineBuf[bufPos+1] /* != '\0' */ && lineBuf[bufPos+1] != ')')
 						inc_curNode();
-					fold--;
+					level--;
 					prevDelim = ')';
+					peren--;
 					break;
 				case '\0':
-					if (fold && prevDelim != ' ') {
+					if (peren) {
 						putError(curLine, "perentheses are off by ");
-						printf("%d\n", fold);
+						printf("%d\n", peren);
 						return;
 					}
 					else
 						if (lineBuf[bufPos-1] != ')')
-							setBodyNode(elevation+fold);
+							setBodyNode(level);
 					prevDelim = '\0';
 					break;
 				default:
@@ -378,7 +400,7 @@ void resolveNode(nodeIndex nodePos) {
 	
 	//check for number literal
 	if ( isNumeric(nodeName[0]) ) {
-		for (int namePos = 0; namePos != '\0'; namePos++) {
+		for (int namePos = 0; namePos /* != '\0' */; namePos++) {
 			if (!( isNumeric(nodeName[namePos]) )) {
 				putError(nodeLine, "invalid number literal '");
 				printf("%s'\n", nodeName);
@@ -461,9 +483,9 @@ void resolveNode(nodeIndex nodePos) {
 				int   namePos  = 1;
 				int   paramPos = 0;
 				char *backNodeName = nodesInfo[backNode].name;
-				for (; backNodeName[namePos] != '\0'; paramPos++) {
+				for (; backNodeName[namePos] /* != '\0' */; paramPos++) {
 					for (;
-						backNodeName[namePos-1] != '\n' && backNodeName[namePos] != '\0';
+						backNodeName[namePos-1] != '\n' && backNodeName[namePos] /* != '\0' */;
 						namePos++
 					);//bodiless!
 					if (matchStrWDelim(
