@@ -11,8 +11,22 @@ long  getMicroseconds() {
 
 #define microSleep usleep
 
-
 #elif __APPLE__
 #elif _WIN32
 #endif
+
+
+//eventually will come from frameforms[activeFrameform].frameRate
+double frameRate = 20;
+
+void frameWait_default(long *prevTime) {
+	long timeWait = 1e6/frameRate - (getMicroseconds() - *prevTime);
+	if (timeWait < 0)
+		printf("\n!! timeWait : %lo !!\n\n", timeWait);
+	else
+		microSleep(timeWait);
+	*prevTime = getMicroseconds();
+}
+
+void (*frameWait)(long *prevTime) = frameWait_default;
 

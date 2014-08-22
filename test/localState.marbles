@@ -1,0 +1,10 @@
+
+
+@enter
+
+state foo num
+	+ foo bar
+
+share bar num
+	+ foo bar
+

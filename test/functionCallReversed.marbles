@@ -1,0 +1,25 @@
+
+
+@enter                            `frameform, entry point
+
+state result num                  `state
+	addmul                          `body
+		tenPerFrame
+		div nihyaku hyaku
+
+@.
+
+fn addmul num                     `global function
+	input  num                      `first parameter
+	factor num                      `second parameter
+	* factor (+ factor input)       `body
+
+fn tenPerFrame num                `global nullary function
+	* currentFrame 10               `body
+
+var nihyaku num                   `global variable
+	* hyaku 2                       `body, evaluated after literals
+
+var hyaku num                     `global variable
+	100                             `numeric literal, evaluated immediately
+

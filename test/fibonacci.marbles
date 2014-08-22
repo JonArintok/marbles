@@ -1,0 +1,29 @@
+
+fn fibonacciA num
+	n num
+	? (= n 0) 0 (? (= n 1) 1 (fibonacci (- n 1) (- n 2) ) )
+
+
+fn fibonacciB num
+	n num
+	?
+		= n 0
+		0
+		?
+			= n 1
+			1
+			fibonacci (- n 1) (- n 2)
+
+
+var exitAt num
+	12
+
+
+@enter
+
+state fibCounter num
+	fibonacciA currentFrame
+
+nextFrameform
+	? (> curFrame exitAt) exit enter
+

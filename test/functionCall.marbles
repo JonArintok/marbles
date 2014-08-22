@@ -1,23 +1,25 @@
 
 
-var hyaku num 100                 /variable with inline numeric literal
+var hyaku num                     `global variable
+	100                             `numeric literal, evaluated immediately
 
-var nihyaku num                   /variable, evaluated at entry
-	mul hyaku 2                     /body
+var nihyaku num                   `global variable
+	* hyaku 2                       `body, evaluated after literals
 
-fn tenPerFrame num                /nullary function
-	mul currentFrame 10             /body
+fn tenPerFrame num                `global nullary function
+	* currentFrame 10               `body
 
-fn addmul num                     /binary function
-	input  num                      /first parameter
-	factor num                      /second parameter
-	mul factor (add factor input)   /body
+fn addmul num                     `global function
+	input  num                      `first parameter
+	factor num                      `second parameter
+	* factor (+ factor input)       `body
 
 
-# enter                           /frameform
+@enter                            `frameform, entry point
 
-state result num                  /state
-	addmul                          /body
+state result num                  `state
+	addmul                          `body
 		tenPerFrame
 		div nihyaku hyaku
+
 

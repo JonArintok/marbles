@@ -1,0 +1,23 @@
+
+
+@enter
+
+state upCounter num
+	+ counter increm
+
+nextFrameform
+	? (!< counter 10) other enter
+
+@other
+
+state newCounter num
+	- counter increm 
+
+nextFrameform
+	? (!> newCounter -10) exit other
+
+@.
+
+var increm num
+	0.25
+

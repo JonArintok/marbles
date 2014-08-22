@@ -23,28 +23,28 @@ void name(nodeIndex self) {\
 
 _evalArith_(eval_add, +, n)
 const stdNode node_add = {
-	.name = "add" _arithType_,
+	.name = "+" _arithType_,
 	.arity    = 2,
 	.evaluate = eval_add,
 };
 
 _evalArith_(eval_sub, -, n)
 const stdNode node_sub = {
-	.name = "sub" _arithType_,
+	.name = "-" _arithType_,
 	.arity     = 2,
 	.evaluate  = eval_sub,
 };
 
 _evalArith_(eval_mul, *, n)
 const stdNode node_mul = {
-	.name = "mul" _arithType_,
+	.name = "*" _arithType_,
 	.arity    = 2,
 	.evaluate = eval_mul,
 };
 
 _evalArith_(eval_div, /, n)
 const stdNode node_div = {
-	.name = "div" _arithType_,
+	.name = "/" _arithType_,
 	.arity    = 2,
 	.evaluate = eval_div,
 };

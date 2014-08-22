@@ -1,12 +1,13 @@
 
 
-#define charTag_comment   '/'
-#define charTag_frameform '#'
-#define charTag_paramType '<'
+#define charTag_comment   '`'
+#define charTag_frameform '@'
+#define charTag_paramType '&'
 #define decTag_var   "var"
 #define decTag_fn    "fn"
 #define decTag_state "state"
 #define decTag_share "share"
+#define entryPointName "enter"
 
 FILE    *fileStream;
 char    *fileName;
@@ -15,6 +16,7 @@ char     lineBuf[maxLineLength];
 bool reachedEOF  = false;
 bool inFrameform = false;
 int  errorCount  = 0;
+
 
 void putError(int line, char *message) {
 	errorCount++;
@@ -25,7 +27,7 @@ void putError(int line, char *message) {
 }
 
 int isNumeric(char in) {
-	return  (in >=  '0' && in <=  '9') || in == '-' || in == '.';
+	return  (in >=  '0' && in <=  '9') || in == '.';
 }
 
 void getLine(void) {
@@ -202,7 +204,7 @@ void initNodes(void) {
 			inc_curNode();
 			nodesInfo[curNode].line = curLine;
 			nodesInfo[curNode].level = 1;
-			while (lineBuf[bufPos] /* != '\0' */) {
+			while (lineBuf[bufPos]) {
 				inc_namePos();
 				bufPos++;
 				nodesInfo[curNode].name[namePos] = lineBuf[bufPos];
@@ -252,7 +254,7 @@ void initNodes(void) {
 			nodeName[namePos] = '\n';
 			getLine();
 			int bufPos = 0;//would be -1 if we weren't ignoring the tabs
-			while (lineBuf[bufPos] /* != '\0' */) {
+			while (lineBuf[bufPos]) {
 				inc_namePos();
 				bufPos++;
 				nodeName[namePos] = lineBuf[bufPos];
@@ -323,7 +325,7 @@ void initNodes(void) {
 		if (!level)
 			break;
 		inc_curNode();
-		for (; prevDelim /* != '\0' */; bufPos++) {
+		for (; prevDelim; bufPos++) {
 			switch (lineBuf[bufPos]) {
 				case ' ':
 					setBodyNode(level);
@@ -352,7 +354,7 @@ void initNodes(void) {
 					}
 					if (lineBuf[bufPos-1] != ')')
 						setBodyNode(level);
-					if (lineBuf[bufPos+1] /* != '\0' */ && lineBuf[bufPos+1] != ')')
+					if (lineBuf[bufPos+1] && lineBuf[bufPos+1] != ')')
 						inc_curNode();
 					level--;
 					prevDelim = ')';
@@ -399,8 +401,11 @@ void resolveNode(nodeIndex nodePos) {
 	int   nodeLine = nodesInfo[nodePos].line;
 	
 	//check for number literal
-	if ( isNumeric(nodeName[0]) ) {
-		for (int namePos = 0; namePos /* != '\0' */; namePos++) {
+	if (
+		isdigit(nodeName[0]) ||
+		( nodeName[0] == '-' && isdigit(nodeName[1]) )
+	) {
+		for (int namePos = 0; namePos; namePos++) {
 			if (!( isNumeric(nodeName[namePos]) )) {
 				putError(nodeLine, "invalid number literal '");
 				printf("%s'\n", nodeName);
@@ -438,7 +443,7 @@ void resolveNode(nodeIndex nodePos) {
 	
 	//check for frameform index
 	//check for local state or share call
-	//check for nonlocal state or share Call
+	//check for nonlocal share Call
 	//check for local fnCall or varCall
 	//check for global fnCall or varCall
 	for (int rnPos = 0; rnPos <= gCurRootNode; rnPos++) {
@@ -483,9 +488,9 @@ void resolveNode(nodeIndex nodePos) {
 				int   namePos  = 1;
 				int   paramPos = 0;
 				char *backNodeName = nodesInfo[backNode].name;
-				for (; backNodeName[namePos] /* != '\0' */; paramPos++) {
+				for (; backNodeName[namePos]; paramPos++) {
 					for (;
-						backNodeName[namePos-1] != '\n' && backNodeName[namePos] /* != '\0' */;
+						backNodeName[namePos-1] != '\n' && backNodeName[namePos];
 						namePos++
 					);//bodiless!
 					if (matchStrWDelim(
@@ -532,6 +537,9 @@ void initFrameform(void) {
 	inc_curFrameform();
 	inFrameform = true;
 	
+	if (!(strcmp(&lineBuf[1], entryPointName)))
+		activeFrameform = curFrameform;
+	
 	//copy from lineBuf to frameforms[curFrameform].name
 	strncpy(
 		&frameforms[curFrameform].name[0],
@@ -555,7 +563,7 @@ void  parse(void) {
 		
 		//check for beginning or end of frameform
 		if (lineBuf[0] == charTag_frameform) {
-			if (lineBuf[1] == charTag_frameform)
+			if (lineBuf[1] == '.')
 				inFrameform = false;
 			else
 				initFrameform();

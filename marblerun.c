@@ -3,6 +3,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <ctype.h>
 #include <stdint.h>
 #include <stdbool.h>
 #include <unistd.h>
@@ -33,8 +34,11 @@ int main(int argc, char **argv) {
 	parse();
 	fclose(fileStream);
 	
-	int  exitFrameform   = curFrameform + 1;
-	int  activeFrameform = 0;
+	
+	//temporary
+	int exitFrameform = curFrameform + 1;	
+	int runLimit = 14;
+	
 	
 	
 	if (!errorCount) {
@@ -74,15 +78,9 @@ int main(int argc, char **argv) {
 		}
 		
 		
-		
-		
-		
-		
 		//timeFrame may eventually be set in the loop 
 		//to accommodate variable framerates
-		long  timeFrame = 1e6/run_fps;
-		long  timeA = getMicroseconds();
-		long  timeB;
+		long frameTimeStamp = getMicroseconds();
 		
 		//the loop
 		while (activeFrameform != exitFrameform) {
@@ -109,16 +107,10 @@ int main(int argc, char **argv) {
 			}
 			
 			//temporary until conditionals are implemented
-			if (curFrame == 7)
+			if (curFrame == runLimit)
 				activeFrameform = exitFrameform;
-			else {
-				timeB = getMicroseconds();
-				long  timeWait = timeFrame - (timeB - timeA);
-				if (timeWait < 0)
-					printf("\n\n!! timeWait : %zu !!\n\n", timeWait);
-				microSleep(timeWait);
-				timeA = getMicroseconds();
-			}
+			else
+				frameWait(&frameTimeStamp);
 		}
 	}
 	

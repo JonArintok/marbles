@@ -1,0 +1,11 @@
+
+
+@enter
+
+state foo
+	+ foo other:foo
+
+@other
+
+share foo num
+	2

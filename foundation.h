@@ -10,18 +10,16 @@ typedef int16_t nodeIndex;
 typedef double  number;
 typedef uint8_t byte;
 
-#define _ARRAY_TYPE_(name, elemType)\
+#define _arrayType_(name, elemType)\
 typedef struct {\
 	elemType  *data;\
-	uint32_t   dataSpace;\
-	uint32_t   dimensionX;\
-	uint32_t   dimensionY;\
-	uint32_t   dimensionZ;\
+	uint64_t   dataSpace;\
+	uint64_t   length;\
 	nodeIndex *transformations;\
 } name;
-_ARRAY_TYPE_(numArray,  number)
-_ARRAY_TYPE_(byteArray, byte)
-_ARRAY_TYPE_(nodeArray, nodeIndex)
+_arrayType_(numArray,  number)
+_arrayType_(byteArray, byte)
+_arrayType_(nodeArray, nodeIndex)
 typedef union {
 	number    n;
 	number    n2[2];
@@ -38,9 +36,9 @@ typedef union {
 } outType;
 typedef void (*evaluator)(nodeIndex toBeEvaluated);
 typedef struct {
-	nodeIndex  definition; //for argument and variable calls
+	nodeIndex  definition;//for argument and variable calls
 	int8_t     argRefIndex;//for argument calls
-	int8_t     childCount;      //the number of "subnodes", defNodes have 1
+	int8_t     childCount;//the number of "subnodes", defNodes have 1
 	nodeIndex  children[maxChildren];//if negative then already evaluated
 	evaluator  evaluate;
 	outType    output;
@@ -167,9 +165,11 @@ int curFrame = -1;
 
 char *unnamed = "!!  unnamed  !!";
 
+bool audioEnabled = false;
+bool videoEnabled = false;
 
-//this value will eventually be taken from the .marbles source to be run
-number run_fps = 10;
+
+int  activeFrameform = 0;
 
 
 

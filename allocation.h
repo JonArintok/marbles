@@ -90,16 +90,21 @@ void inc_curFrameform(void) {
 		);
 	}
 	
-	frameforms[curFrameform].curStateNode = -1;
+	frameforms[curFrameform].curStateNode   = -1;
 	frameforms[curFrameform].stateNodeSpace = nodeIndexPage;
 	frameforms[curFrameform].stateNodes = malloc(
 		sizeof(nodeIndex) * frameforms[curFrameform].stateNodeSpace
 	);
-	frameforms[curFrameform].curRootNode = -1;
+	frameforms[curFrameform].curRootNode   = -1;
 	frameforms[curFrameform].rootNodeSpace = nodeIndexPage;
 	frameforms[curFrameform].rootNodes = malloc(
 		sizeof(nodeIndex) * frameforms[curFrameform].rootNodeSpace
 	);
+	
+	frameforms[curFrameform].nextFrameform = -1;
+	frameforms[curFrameform].frameRate     = -1;
+	frameforms[curFrameform].videoOut      = -1;
+	frameforms[curFrameform].audioOut      = -1;
 }
 
 void inc_curStateNode(void) {
@@ -135,9 +140,9 @@ void cleanUp(void) {
 	for (int ffPos = 0; ffPos <= curFrameform; ffPos++) {
 		for (int snPos = 0; snPos <= frameforms[ffPos].curStateNode; snPos++)
 			free( nodesInfo[ frameforms[ffPos].stateNodes[snPos] ].name );
+		free(frameforms[ffPos].stateNodes);
 		for (int rnPos = 0; rnPos <= frameforms[ffPos].curRootNode; rnPos++)
 			free( nodesInfo[ frameforms[ffPos].rootNodes[rnPos] ].name );
-		free(frameforms[ffPos].stateNodes);
 		free(frameforms[ffPos].rootNodes);
 	}
 	free(frameforms);
