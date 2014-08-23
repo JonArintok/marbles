@@ -8,7 +8,7 @@ typedef struct {
 
 #define _evalArgs_\
 	for (int i=0; i < nodes[self].childCount; i++)\
-		_evaluateNode_( nodes[self].children[i] );\
+		_evaluateNode_( nodes[self].children[i] )\
 
 #define _evalArith_(name, op, type) \
 void name(nodeIndex self) {\

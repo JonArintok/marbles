@@ -17,7 +17,6 @@ bool reachedEOF  = false;
 bool inFrameform = false;
 int  errorCount  = 0;
 
-
 void putError(int line, char *message) {
 	errorCount++;
 	printf(
@@ -183,35 +182,6 @@ void initNodes(void) {
 	//read the first line into curNode.name
 	while (true) {
 		inc_namePos();
-		//check for in-line number literal
-		if (
-			lineBuf[namePos] == ' ' &&
-			isNumeric( lineBuf[namePos+1] )
-		) {
-			int bufPos = namePos;
-			nodesInfo[curNode].name[namePos] = '\0';
-			nodes[curNode].evaluate = eval_varDef;
-			if (inFrameform) {
-				inc_curRootNode();
-				frameforms[curFrameform].rootNodes[
-					frameforms[curFrameform].curRootNode
-				] = curNode;
-			}
-			else {
-				inc_gCurRootNode();
-				gRootNodes[gCurRootNode] = curNode;
-			}
-			inc_curNode();
-			nodesInfo[curNode].line = curLine;
-			nodesInfo[curNode].level = 1;
-			while (lineBuf[bufPos]) {
-				inc_namePos();
-				bufPos++;
-				nodesInfo[curNode].name[namePos] = lineBuf[bufPos];
-			}
-			return;
-		}
-		//else just read it into the node's name
 		nodesInfo[curNode].name[namePos] = lineBuf[namePos];
 		if (lineBuf[namePos] == '\0')
 			break;
@@ -277,7 +247,7 @@ void initNodes(void) {
 		return;
 	}
 	
-	//remove the decTag
+	//the decTag is no longer needed
 	strRemoveUpToIncl(nodeName, ' ');
 	
 	//update the relevant node reference array
@@ -392,6 +362,36 @@ bool isDefNode(nodeIndex n) {
 	return false;
 }
 
+void attachFnOrVarCall(nodeIndex def, nodeIndex call) {
+	nodesInfo[call].name = nodesInfo[def].name;
+	nodes[call].definition = def;
+	//if it's a function with parameters
+	if (nodes[def].evaluate == eval_fnDef) {
+		nodes[call].evaluate = eval_fnCall;
+		if (
+			nodes[call].childCount != nodesInfo[def].arity
+		) {
+			putError(nodesInfo[call].line, "");
+			printf(
+				"number of arguments for '%s' is off by %d\n",
+				nodesInfo[call].name,
+				nodes[call].childCount - nodesInfo[def].arity
+			);
+			return;
+		}
+	}
+	//else perhaps it's a nullary function
+	else if (nodes[def].evaluate == eval_fnDefN)
+		nodes[call].evaluate = eval_fnCallN;
+	//else it's a variable
+	else if (nodes[def].evaluate == eval_varDef) {
+		nodes[call].evaluate = eval_varCall;
+		//if (nodes[call].childCount != 0)
+			//calling a function held by a variable?
+	}
+	else _shouldNotBeHere_
+}
+
 void resolveNode(nodeIndex nodePos) {
 	//skip defNodes
 	if (isDefNode(nodePos))
@@ -399,12 +399,10 @@ void resolveNode(nodeIndex nodePos) {
 	
 	char *nodeName = nodesInfo[nodePos].name;
 	int   nodeLine = nodesInfo[nodePos].line;
+	int   nodeFf   = nodesInfo[nodePos].frameform;
 	
 	//check for number literal
-	if (
-		isdigit(nodeName[0]) ||
-		( nodeName[0] == '-' && isdigit(nodeName[1]) )
-	) {
+	if (isdigit(nodeName[0]) || (nodeName[0] == '-' && isdigit(nodeName[1]))) {
 		for (int namePos = 0; namePos; namePos++) {
 			if (!( isNumeric(nodeName[namePos]) )) {
 				putError(nodeLine, "invalid number literal '");
@@ -442,41 +440,48 @@ void resolveNode(nodeIndex nodePos) {
 	}
 	
 	//check for frameform index
-	//check for local state or share call
+	
+	//check for reference to local declaration
+	if (nodeFf > -1) {
+		//check for local state or share call
+		for (int snPos = 0; snPos <= frameforms[nodeFf].curStateNode; snPos++) {
+			if (matchStrWDelim(
+				nodeName, '\0',
+				nodesInfo[ frameforms[nodeFf].stateNodes[snPos] ].name, ' '
+			)) {
+				nodeIndex sDef = frameforms[nodeFf].stateNodes[snPos];
+				nodes[nodePos].definition = sDef;
+				nodesInfo[nodePos].name = nodesInfo[sDef].name;
+				free(nodeName);
+				if (nodes[sDef].evaluate == eval_stateDef)
+					nodes[nodePos].evaluate = eval_stateCall;
+				else if (nodes[sDef].evaluate == eval_shareDef)
+					nodes[nodePos].evaluate = eval_shareCall;
+				else _shouldNotBeHere_
+				return;
+			}
+		}
+		//check for local fnCall or varCall
+		for (int rnPos = 0; rnPos <= frameforms[nodeFf].curRootNode; rnPos++) {
+			if (matchStrWDelim(
+				nodeName, '\0',
+				nodesInfo[ frameforms[nodeFf].rootNodes[rnPos] ].name, ' '
+			)) {
+				attachFnOrVarCall(frameforms[nodeFf].rootNodes[rnPos], nodePos);
+				free(nodeName);
+				return;
+			}
+		}
+	}
+	
 	//check for nonlocal share Call
-	//check for local fnCall or varCall
+	
 	//check for global fnCall or varCall
-	for (int rnPos = 0; rnPos <= gCurRootNode; rnPos++) {
+	for (int grnPos = 0; grnPos <= gCurRootNode; grnPos++) {
 		if (matchStrWDelim(
-			nodeName, '\0', nodesInfo[ gRootNodes[rnPos] ].name, ' '
+			nodeName, '\0', nodesInfo[ gRootNodes[grnPos] ].name, ' '
 		)) {
-			nodesInfo[nodePos].name = nodesInfo[ gRootNodes[rnPos] ].name;
-			nodes[nodePos].definition = gRootNodes[rnPos];
-			//if it's a function with parameters
-			if (nodes[ gRootNodes[rnPos] ].evaluate == eval_fnDef) {
-				nodes[nodePos].evaluate = eval_fnCall;
-				if (
-					nodes[nodePos].childCount != nodesInfo[ gRootNodes[rnPos] ].arity
-				) {
-					putError(nodeLine, "");
-					printf(
-						"number of arguments for '%s' is off by %d\n",
-						nodeName,
-						nodes[nodePos].childCount - nodesInfo[ gRootNodes[rnPos] ].arity
-					);
-					free(nodeName);
-					return;
-				}
-			}
-			//else perhaps it's a nullary function
-			else if (nodes[ gRootNodes[rnPos] ].evaluate == eval_fnDef)
-				nodes[nodePos].evaluate = eval_fnCallN;
-			//else it's a variable
-			else {
-				nodes[curNode].evaluate = eval_varCall;
-				//if (nodes[nodePos].childCount != 0)
-					//calling a function held by a variable?
-			}
+			attachFnOrVarCall(gRootNodes[grnPos], nodePos);
 			free(nodeName);
 			return;
 		}

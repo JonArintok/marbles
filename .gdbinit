@@ -1,10 +1,12 @@
 
 
-define tfld
-	run test/foldability.marbles
+define test
+	echo running test/localState.marbles ...
+	echo \n
+	run test/localState.marbles
 end
 
-break parse.h:314
+break parse.h:447
 
 define nnp
 	next
@@ -24,35 +26,38 @@ define nnp
 end
 
 
+define pnode
+	echo node:
+	output $arg0
+	echo \n
+	echo name........
+	output nodesInfo[$arg0].name
+	echo \n
+	echo line........
+	output nodesInfo[$arg0].line
+	echo \n
+	echo level.......
+	output nodesInfo[$arg0].level
+	echo \n
+	echo childCount..
+	output nodes[$arg0].childCount
+	echo \n
+	echo children....
+	output nodes[$arg0].children
+	echo \n
+	echo evaluate....
+	output nodes[$arg0].evaluate
+	echo \n
+	echo output.n....
+	output nodes[$arg0].output.n
+	echo \n
+end
+	
 
-
-define listNodes
+define pnodes
 	set $i = $arg0
 	while $i <= $arg1
-		echo \n
-		echo node:
-		output $i
-		echo \n
-		echo name........
-		output nodesInfo[$i].name
-		echo \n
-		echo line........
-		output nodesInfo[$i].line
-		echo \n
-		echo level.......
-		output nodesInfo[$i].level
-		echo \n
-		echo childCount..
-		output nodes[$i].childCount
-		echo \n
-		echo children....
-		output nodes[$i].children
-		echo \n
-		echo evaluate....
-		output nodes[$i].evaluate
-		echo \n
-		echo output.n....
-		output nodes[$i].output.n
+		pnode $i
 		echo \n
 		set $i = $i + 1
 	end

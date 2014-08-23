@@ -10,29 +10,33 @@ typedef int16_t nodeIndex;
 typedef double  number;
 typedef uint8_t byte;
 
+typedef void (*transform)(void *data);
 #define _arrayType_(name, elemType)\
 typedef struct {\
 	elemType  *data;\
 	uint64_t   dataSpace;\
-	uint64_t   length;\
-	nodeIndex *transformations;\
+	uint64_t   dimensionX;\
+	uint64_t   dimensionY;\
+	uint64_t   dimensionZ;\
+	transform *transforms;\
+	uint32_t   transformCount;\
 } name;
 _arrayType_(numArray,  number)
 _arrayType_(byteArray, byte)
 _arrayType_(nodeArray, nodeIndex)
 typedef union {
-	number    n;
-	number    n2[2];
-	number    n3[3];
-	number    n4[4];
-	numArray  N;
-	byte      b;
-	byte      b2[2];
-	byte      b3[3];
-	byte      b4[4];
-	byteArray B;
-	nodeIndex f;
-	nodeArray F;
+	number     n;
+	number     n2[2];
+	number     n3[3];
+	number     n4[4];
+	numArray  *N;
+	byte       b;
+	byte       b2[2];
+	byte       b3[3];
+	byte       b4[4];
+	byteArray *B;
+	nodeIndex  f;
+	nodeArray *F;
 } outType;
 typedef void (*evaluator)(nodeIndex toBeEvaluated);
 typedef struct {

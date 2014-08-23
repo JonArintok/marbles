@@ -1,4 +1,3 @@
-//
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -7,6 +6,9 @@
 #include <stdint.h>
 #include <stdbool.h>
 #include <unistd.h>
+
+#define _shouldNotBeHere_ \
+	printf("\n!! Should not be here: line %d of %s !!\n", __LINE__, __FILE__);
 
 #include "foundation.h"
 #include "stdNodeTable.h"

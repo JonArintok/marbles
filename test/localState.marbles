@@ -3,8 +3,11 @@
 @enter
 
 state foo num
-	+ foo bar
+	+ varble (+ bar foo)
 
 share bar num
-	+ foo bar
+	+ varble (+ foo bar)
+
+var varble num
+	2
 
