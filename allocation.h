@@ -41,7 +41,7 @@ void inc_curNode(void) {
 	}
 	
 	//initialize fields
-	nodes[curNode].definition  = 0;
+	nodes[curNode].definition  = maxNodeIndex;
 	nodes[curNode].argRefIndex = 0;
 	nodes[curNode].childCount  = 0;
 	nodes[curNode].evaluate    = NULL;
@@ -53,6 +53,7 @@ void inc_curNode(void) {
 	nodesInfo[curNode].line  = 0;
 	nodesInfo[curNode].level = 0;
 	nodesInfo[curNode].arity = 0;
+	nodesInfo[curNode].frameform = -1;
 	
 	nodeNameSpace =  0;
 	namePos       = -1;
@@ -146,10 +147,11 @@ void cleanUp(void) {
 		free(frameforms[ffPos].rootNodes);
 	}
 	free(frameforms);
-	free(gRootNodes);
 	
 	for (int rnPos = 0; rnPos <= gCurRootNode; rnPos++)
 		free( nodesInfo[ gRootNodes[rnPos] ].name );
+	free(gRootNodes);
+	
 	free(nodesInfo);
 	free(nodes);
 }

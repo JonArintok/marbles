@@ -1,6 +1,6 @@
 
 
-#define charTag_comment   '`'
+#define charTag_comment   '|'
 #define charTag_frameform '@'
 #define charTag_paramType '&'
 #define decTag_var   "var"
@@ -177,6 +177,8 @@ void initNodes(void) {
 	nodes[curNode].childCount = 1;
 	nodes[curNode].children[0] = curNode + 1;
 	nodesInfo[curNode].line = curLine;
+	if (inFrameform)
+		nodesInfo[curNode].frameform = curFrameform;
 	
 	
 	//read the first line into curNode.name
@@ -187,8 +189,7 @@ void initNodes(void) {
 			break;
 	}
 	
-	char *nodeName = nodesInfo[curNode].name;
-	
+	//char *nodeName = nodesInfo[curNode].name;//leads to errors in valgrind
 	
 	//find out how many parameters there are
 	int paramCount = 0;
@@ -221,13 +222,13 @@ void initNodes(void) {
 		nodes[curNode].evaluate = paramCount ? eval_fnDef : eval_fnDefN;
 		//else replace that \0 with a \n and read the parameters into the name
 		for (int i = 0; i < paramCount; i++) {
-			nodeName[namePos] = '\n';
+			nodesInfo[curNode].name[namePos] = '\n';
 			getLine();
 			int bufPos = 0;//would be -1 if we weren't ignoring the tabs
 			while (lineBuf[bufPos]) {
 				inc_namePos();
 				bufPos++;
-				nodeName[namePos] = lineBuf[bufPos];
+				nodesInfo[curNode].name[namePos] = lineBuf[bufPos];
 			}
 		}
 	}
@@ -248,7 +249,7 @@ void initNodes(void) {
 	}
 	
 	//the decTag is no longer needed
-	strRemoveUpToIncl(nodeName, ' ');
+	strRemoveUpToIncl(nodesInfo[curNode].name, ' ');
 	
 	//update the relevant node reference array
 	if (
@@ -486,28 +487,29 @@ void resolveNode(nodeIndex nodePos) {
 			return;
 		}
 	}
+	
 	//check for argCall
-	for (int backNode = nodePos;; backNode++) {
+	for (int backNode = nodePos;; backNode--) {
 		if (nodesInfo[backNode].level == 0) {
 			if (nodes[backNode].evaluate == eval_fnDef) {
-				int   namePos  = 1;
-				int   paramPos = 0;
-				char *backNodeName = nodesInfo[backNode].name;
-				for (; backNodeName[namePos]; paramPos++) {
-					for (;
-						backNodeName[namePos-1] != '\n' && backNodeName[namePos];
-						namePos++
-					);//bodiless!
-					if (matchStrWDelim(
-						nodeName, '\0', &backNodeName[namePos], ' '
-					)) {
+				int   bnNamePos  = 1;
+				int   paramPos   = 0;
+				char *bnNodeName = nodesInfo[backNode].name;
+				for (; 
+					bnNodeName[bnNamePos] && paramPos < nodesInfo[backNode].arity;
+					paramPos++
+				) {
+					while (bnNodeName[bnNamePos] && bnNodeName[bnNamePos-1] != '\n')
+						bnNamePos++;
+					if (matchStrWDelim(nodeName, '\0', &bnNodeName[bnNamePos], ' ')) {
 						nodes[nodePos].definition  = backNode;
 						nodes[nodePos].argRefIndex = paramPos;
 						nodes[nodePos].evaluate    = eval_argCall;
-						nodesInfo[nodePos].name = &backNodeName[namePos];
+						nodesInfo[nodePos].name    = &bnNodeName[bnNamePos];
 						free(nodeName);
 						return;
 					}
+					bnNamePos++;
 				}
 				break;
 			}

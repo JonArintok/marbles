@@ -108,27 +108,29 @@ void eval_fnCall(nodeIndex self) {
 	stackPos++;
 	stack[stackPos] = self;
 	
-	nodeIndex fnBody = nodes[self].definition + 1;
+	nodeIndex fnDef = nodes[self].definition;
+	nodeIndex fnBody = fnDef + 1;
 	//evaluate nodes[self.definition] and get the output
 	_evaluateNode_(fnBody)
 	nodes[self].output = nodes[fnBody].output;
 	
 	//reset argument values to positive
 	for (int i = 0; i < nodes[self].childCount; i++)
-		nodes[fnBody-1].children[i] &= maxNodeIndex;
+		if (nodes[self].children[i] < 0)
+			nodes[self].children[i] *= -1;
 	
 	stackPos--;
 }
 void eval_fnCallN(nodeIndex self) {
-	stackPos++;
-	stack[stackPos] = self;
+	//stackPos++;
+	//stack[stackPos] = self;
 	
 	nodeIndex fnBody = nodes[self].definition + 1;
 	//evaluate nodes[self.definition] and get the output
 	_evaluateNode_(fnBody)
 	nodes[self].output = nodes[fnBody].output;
 	
-	stackPos--;
+	//stackPos--;
 }
 
 void eval_argCall(nodeIndex self) {
@@ -164,16 +166,7 @@ void eval_shareCall(nodeIndex self) {
 
 void eval_outDef(nodeIndex self) {}
 
-
-int curFrame = -1;
-
 char *unnamed = "!!  unnamed  !!";
-
-bool audioEnabled = false;
-bool videoEnabled = false;
-
-
-int  activeFrameform = 0;
 
 
 

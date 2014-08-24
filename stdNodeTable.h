@@ -49,12 +49,25 @@ const stdNode node_div = {
 	.evaluate = eval_div,
 };
 
-#define stdNodeTableLength  4
+
+void eval_currentFrame(nodeIndex self) {
+	nodes[self].output.n = curFrame;
+}
+const stdNode node_curFrame = {
+	.name = "currentFrame num",
+	.arity = 0,
+	.evaluate = eval_currentFrame,
+};
+
+
+
+#define stdNodeTableLength  5
 const stdNode *stdNodeTable[stdNodeTableLength] = {
 	&node_add,
 	&node_sub,
 	&node_mul,
-	&node_div
+	&node_div,
+	&node_curFrame
 };
 
 

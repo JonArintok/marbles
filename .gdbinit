@@ -1,30 +1,12 @@
 
 
 define test
-	echo running test/localState.marbles ...
+	echo running test/functionCallReversed.marbles...
 	echo \n
-	run test/localState.marbles
+	run test/functionCallReversed.marbles
 end
 
-break parse.h:447
-
-define nnp
-	next
-	echo curNode....
-	output curNode
-	echo \n
-	echo name.......
-	output nodesInfo[curNode].name
-	echo \n
-	echo line.......
-	output nodesInfo[curNode].line
-	echo \n
-	echo prevDelim..
-	output prevDelim
-	echo \n
-	echo \n
-end
-
+break marblerun.c:51
 
 define pnode
 	echo node:
@@ -38,6 +20,15 @@ define pnode
 	echo \n
 	echo level.......
 	output nodesInfo[$arg0].level
+	echo \n
+	echo frameform...
+	output nodesInfo[$arg0].frameform
+	echo \n
+	echo definition..
+	output nodes[$arg0].definition
+	echo \n
+	echo argRefIndex.
+	output nodes[$arg0].argRefIndex
 	echo \n
 	echo childCount..
 	output nodes[$arg0].childCount
@@ -62,3 +53,9 @@ define pnodes
 		set $i = $i + 1
 	end
 end
+
+define nnp
+	next
+	pnode curNode
+end
+

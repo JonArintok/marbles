@@ -7,16 +7,21 @@
 #include <stdbool.h>
 #include <unistd.h>
 
+
 #define _shouldNotBeHere_ \
 	printf("\n!! Should not be here: line %d of %s !!\n", __LINE__, __FILE__);
+
+int  curFrame = -1;
+bool audioEnabled = false;
+bool videoEnabled = false;
+int  activeFrameform = 0;
+
 
 #include "foundation.h"
 #include "stdNodeTable.h"
 #include "allocation.h"
 #include "timeKeeping.h"
 #include "parse.h"
-
-
 
 
 int main(int argc, char **argv) {
@@ -44,29 +49,33 @@ int main(int argc, char **argv) {
 	
 	
 	if (!errorCount) {
-		//initialize global variables, numLits evaluated immediately
+		//evaluate all literal variables first
+		for (int i = 0; i <= gCurRootNode; i++)
+			if (
+				nodes[ gRootNodes[i] ].evaluate == eval_varDef &&
+				nodes[gRootNodes[i]+1].evaluate == eval_numLit
+			) {
+				_evaluateNode_(gRootNodes[i])
+			}
+		//evaluate all other global variables
 		for (int i = 0; i <= gCurRootNode; i++) {
-			if (nodes[ gRootNodes[i] ].evaluate == eval_varDef) {
-				if (nodes[ gRootNodes[i+1] ].evaluate == eval_numLit)
-					_evaluateNode_(gRootNodes[i])
-				else
-					_evaluateNode_(gRootNodes[i]+1)
+			if (
+				nodes[ gRootNodes[i] ].evaluate == eval_varDef &&
+				nodes[gRootNodes[i]+1].evaluate != eval_numLit
+			) {
+				_evaluateNode_(gRootNodes[i]+1)
+				_evaluateNode_(gRootNodes[i])
 			}
 		}
-		//evaluate all global variables
-		for (int i = 0; i <= gCurRootNode; i++) {
-			if (nodes[ gRootNodes[i] ].evaluate == eval_varDef)
-				_evaluateNode_(gRootNodes[i])
-		}
-		//initialize variables in every frameform, numLits evaluated immediately
+		//evaluate all literal variables in every frameform
 		for (int ffi = 0; ffi <= curFrameform; ffi++) {
 			for (int rni = 0; rni <= frameforms[ffi].curRootNode; rni++) {
 				nodeIndex n = frameforms[ffi].rootNodes[rni];
-				if (nodes[n].evaluate == eval_varDef) {
-					if (nodes[n+1].evaluate == eval_numLit)
-						_evaluateNode_(n)
-					else
-						_evaluateNode_(n+1)
+				if (
+					nodes[n].evaluate == eval_varDef &&
+					nodes[n+1].evaluate == eval_numLit
+				) {
+					_evaluateNode_(n)
 				}
 			}
 		}
@@ -74,8 +83,13 @@ int main(int argc, char **argv) {
 		for (int ffi = 0; ffi <= curFrameform; ffi++) {
 			for (int rni = 0; rni <= frameforms[ffi].curRootNode; rni++) {
 				nodeIndex n = frameforms[ffi].rootNodes[rni];
-				if (nodes[n].evaluate == eval_varDef)
+				if (
+					nodes[n].evaluate == eval_varDef &&
+					nodes[n+1].evaluate != eval_numLit
+				) {
+					_evaluateNode_(n+1)
 					_evaluateNode_(n)
+				}
 			}
 		}
 		
