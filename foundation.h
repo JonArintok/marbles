@@ -122,15 +122,9 @@ void eval_fnCall(nodeIndex self) {
 	stackPos--;
 }
 void eval_fnCallN(nodeIndex self) {
-	//stackPos++;
-	//stack[stackPos] = self;
-	
 	nodeIndex fnBody = nodes[self].definition + 1;
-	//evaluate nodes[self.definition] and get the output
 	_evaluateNode_(fnBody)
 	nodes[self].output = nodes[fnBody].output;
-	
-	//stackPos--;
 }
 
 void eval_argCall(nodeIndex self) {

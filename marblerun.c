@@ -93,6 +93,11 @@ int main(int argc, char **argv) {
 			}
 		}
 		
+		//just for test/nonlocalState
+		activeFrameform = 1;
+		exitFrameform = 2;
+		
+		
 		
 		//timeFrame may eventually be set in the loop 
 		//to accommodate variable framerates
@@ -101,28 +106,22 @@ int main(int argc, char **argv) {
 		//the loop
 		while (activeFrameform != exitFrameform) {
 			curFrame++;
-			nodeIndex n;
+			int csn = frameforms[activeFrameform].curStateNode;
 			//evaluate the bodies
-			for (
-				int i = 0;
-				i <= frameforms[activeFrameform].curStateNode;
-				i++
-			) {
-				n = frameforms[activeFrameform].stateNodes[i] + 1;
+			for (int i = 0; i <= csn; i++) {
+				nodeIndex n = frameforms[activeFrameform].stateNodes[i] + 1;
 				_evaluateNode_(n)
 			}
 			//update the state and print it
-			for (
-				int i = 0;
-				i <= frameforms[activeFrameform].curStateNode;
-				i++
-			) {
+			for (int i = 0; i <= csn; i++) {
 				nodeIndex n = frameforms[activeFrameform].stateNodes[i];
 				_evaluateNode_(n)
 				printf("%d:\t%f\n", i, nodes[n].output.n);
 			}
 			
 			//temporary until conditionals are implemented
+			if (curFrame == runLimit/2)
+				activeFrameform = 0;
 			if (curFrame == runLimit)
 				activeFrameform = exitFrameform;
 			else

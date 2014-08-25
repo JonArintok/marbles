@@ -2,7 +2,7 @@
 
 @enter
 
-state foo
+state foo num
 	+ foo other:foo
 
 @other

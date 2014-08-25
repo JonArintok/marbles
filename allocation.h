@@ -41,7 +41,7 @@ void inc_curNode(void) {
 	}
 	
 	//initialize fields
-	nodes[curNode].definition  = maxNodeIndex;
+	nodes[curNode].definition  = -1;
 	nodes[curNode].argRefIndex = 0;
 	nodes[curNode].childCount  = 0;
 	nodes[curNode].evaluate    = NULL;
@@ -55,21 +55,18 @@ void inc_curNode(void) {
 	nodesInfo[curNode].arity = 0;
 	nodesInfo[curNode].frameform = -1;
 	
-	nodeNameSpace =  0;
-	namePos       = -1;
+	nodeNameSpace = namePage;
+	nodesInfo[curNode].name = malloc(sizeof(char) * nodeNameSpace);
+	namePos = -1;
 }
 
 void inc_namePos(void) {
 	namePos++;
 	if (namePos == nodeNameSpace) {
 		nodeNameSpace += namePage;
-		if (!namePos)
-			nodesInfo[curNode].name = malloc(sizeof(char) * nodeNameSpace);
-		else {
-			nodesInfo[curNode].name = realloc(
-				nodesInfo[curNode].name, sizeof(char) * nodeNameSpace
-			);
-		}
+		nodesInfo[curNode].name = realloc(
+			nodesInfo[curNode].name, sizeof(char) * nodeNameSpace
+		);
 	}
 }
 

@@ -3,6 +3,7 @@
 #define charTag_comment   '|'
 #define charTag_frameform '@'
 #define charTag_paramType '&'
+#define charTag_shareRead ':'
 #define decTag_var   "var"
 #define decTag_fn    "fn"
 #define decTag_state "state"
@@ -48,6 +49,7 @@ void getLine(void) {
 		//check for EOF
 		if (fileChar == EOF) {
 			reachedEOF = true;
+			lineBuf[0] = '\0';
 			break;
 		}
 		
@@ -138,12 +140,9 @@ bool matchStrWDelim(char *A, char AD, char *B, char BD) {
 int strRemoveUpToIncl(char *s, char d) {
 	for (int rpos = 0;; rpos++) {
 		if (s[rpos] == d) {
-			rpos++;
 			int wpos = 0;
-			for (;; wpos++) {
-				s[wpos] = s[rpos+wpos];
-				if (!s[wpos]) break;
-			}
+			for (; s[rpos]; wpos++)//"uninitialised value" from valgrind sometimes?
+				s[wpos] = s[++rpos];
 			return wpos;
 		}
 		else if (!s[rpos])
@@ -182,14 +181,10 @@ void initNodes(void) {
 	
 	
 	//read the first line into curNode.name
-	while (true) {
-		inc_namePos();
+	inc_namePos();
+	for (; lineBuf[namePos] != '\0'; inc_namePos())
 		nodesInfo[curNode].name[namePos] = lineBuf[namePos];
-		if (lineBuf[namePos] == '\0')
-			break;
-	}
 	
-	//char *nodeName = nodesInfo[curNode].name;//leads to errors in valgrind
 	
 	//find out how many parameters there are
 	int paramCount = 0;
@@ -446,11 +441,8 @@ void resolveNode(nodeIndex nodePos) {
 	if (nodeFf > -1) {
 		//check for local state or share call
 		for (int snPos = 0; snPos <= frameforms[nodeFf].curStateNode; snPos++) {
-			if (matchStrWDelim(
-				nodeName, '\0',
-				nodesInfo[ frameforms[nodeFf].stateNodes[snPos] ].name, ' '
-			)) {
-				nodeIndex sDef = frameforms[nodeFf].stateNodes[snPos];
+			nodeIndex sDef = frameforms[nodeFf].stateNodes[snPos];
+			if (matchStrWDelim(nodeName, '\0', nodesInfo[sDef].name, ' ')) {
 				nodes[nodePos].definition = sDef;
 				nodesInfo[nodePos].name = nodesInfo[sDef].name;
 				free(nodeName);
@@ -476,6 +468,75 @@ void resolveNode(nodeIndex nodePos) {
 	}
 	
 	//check for nonlocal share Call
+	for (int nnPos = 0; nodeName[nnPos]; nnPos++) {
+		if (nodeName[nnPos] == charTag_shareRead){
+			if (!nnPos) {
+				putError(nodeLine, "expected the name of a frameform before '");
+				printf("%c'\n", charTag_shareRead);
+				free(nodeName);
+				return;
+			}
+			if (!nodeName[nnPos+1]) {
+				putError(
+					nodeLine, 
+					"expected the name of some state declared with '"
+				);
+				printf("%s' afer '%c'\n", decTag_share, charTag_shareRead);
+				free(nodeName);
+				return;
+			}
+			for (int ffPos = 0; ffPos <= curFrameform; ffPos++) {
+				if (matchStrWDelim(
+					nodeName, charTag_shareRead, frameforms[ffPos].name, '\0'
+				)) {
+					if (ffPos == nodeFf) {
+						putError(nodeLine, "attempted to read local state '");
+						printf("%s' as if it were nonlocal\n", &nodeName[nnPos+1]);
+						free(nodeName);
+						return;
+					}
+					for (
+						int snPos = 0;
+						snPos <= frameforms[ffPos].curStateNode;
+						snPos++
+					) {
+						nodeIndex sDef = frameforms[ffPos].stateNodes[snPos];
+						if (matchStrWDelim(
+							&nodeName[nnPos+1], '\0',
+							nodesInfo[sDef].name, ' '
+						)) {
+							if (nodes[sDef].evaluate == eval_stateDef) {
+								putError(nodeLine, "cannot read '");
+								printf("%s' from '", &nodeName[nnPos+1]);
+								for (int i = 0; i < nnPos; putc(nodeName[i++], stdout));
+								puts("'");
+								free(nodeName);
+								return;
+							}
+							nodes[nodePos].definition = sDef;
+							nodesInfo[nodePos].name = nodesInfo[sDef].name;
+							free(nodeName);
+							if (nodes[sDef].evaluate == eval_shareDef)
+								nodes[nodePos].evaluate = eval_shareCall;
+							else _shouldNotBeHere_
+							return;
+						}
+					}
+					putError(nodeLine, "did not find '");
+					printf("%s' in '", &nodeName[nnPos+1]);
+					for (int i = 0; i < nnPos; putc(nodeName[i++], stdout));
+					puts("'");
+					free(nodeName);
+					return;
+				}
+			}
+			putError(nodeLine, "did not recognize frameform '");
+			for (int i = 0; i < nnPos; putc(nodeName[i++], stdout));
+			puts("'");
+			free(nodeName);
+			return;
+		}
+	}
 	
 	//check for global fnCall or varCall
 	for (int grnPos = 0; grnPos <= gCurRootNode; grnPos++) {

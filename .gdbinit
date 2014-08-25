@@ -1,12 +1,12 @@
 
 
 define test
-	echo running test/functionCallReversed.marbles...
+	echo running test/nonlocalState.marbles...
 	echo \n
-	run test/functionCallReversed.marbles
+	run test/nonlocalState.marbles
 end
 
-break marblerun.c:51
+#break marblerun.c:107
 
 define pnode
 	echo node:
