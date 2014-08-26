@@ -93,11 +93,6 @@ int main(int argc, char **argv) {
 			}
 		}
 		
-		//just for test/nonlocalState
-		activeFrameform = 1;
-		exitFrameform = 2;
-		
-		
 		
 		//timeFrame may eventually be set in the loop 
 		//to accommodate variable framerates
@@ -120,8 +115,6 @@ int main(int argc, char **argv) {
 			}
 			
 			//temporary until conditionals are implemented
-			if (curFrame == runLimit/2)
-				activeFrameform = 0;
 			if (curFrame == runLimit)
 				activeFrameform = exitFrameform;
 			else

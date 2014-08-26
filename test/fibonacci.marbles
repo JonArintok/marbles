@@ -12,17 +12,21 @@ fn fibonacciB num
 		?
 			= n 1
 			1
-			fibonacci (- n 1) (- n 2)
-
-
-var exitAt num
-	12
+			fibonacci
+				- n 1
+				- n 2
 
 
 @enter
 
-state fibCounter num
+state fibCounterAout num
 	fibonacciA currentFrame
+
+state fibCounterBout num
+	fibonacciB currentFrame
+
+var exitAt num
+	12
 
 nextFrameform
 	? (> curFrame exitAt) exit enter

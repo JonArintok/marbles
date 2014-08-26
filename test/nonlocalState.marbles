@@ -2,10 +2,16 @@
 
 @enter
 
-state foo num
-	+ foo other:foo
+share foo num
+	2
+
+nextFrameform
+	other
 
 @other
 
-share foo num
-	2
+state foo num
+	+ foo other:foo
+
+nextFrameform
+	? (> currentFrame 20) exit activeFrameform

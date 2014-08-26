@@ -1,0 +1,33 @@
+| should generate alternating 1s and zeros
+
+@enter
+
+state a num
+	? (= 2 2) 1 0
+state b num
+	? (= 2 4) 1 0
+state c num
+	? (< 2 4) 1 0
+state d num
+	? (< 4 2) 1 0
+state e num
+	? (> 4 2) 1 0
+state f num
+	? (> 2 4) 1 0
+
+state g num
+	? (!= 2 2) 0 1
+state h num
+	? (!= 2 4) 0 1
+state i num
+	? (!< 2 4) 0 1
+state j num
+	? (!< 4 2) 0 1
+state k num
+	? (!> 4 2) 0 1
+state l num
+	? (!> 2 4) 0 1
+
+state m num
+	? (!(!> 2 4)) 0 1
+

@@ -230,7 +230,7 @@ void initNodes(void) {
 	else if (matchStrWDelim(decTag_var, '\0', lineBuf, ' ')) {
 		nodes[curNode].evaluate = eval_varDef;
 		if (paramCount) {
-			putError(curLine, "variable appears to be declared with arguments");
+			putError(curLine, "variable appears to be declared with arguments\n");
 			return;
 		}
 	}
@@ -239,7 +239,7 @@ void initNodes(void) {
 	else if (matchStrWDelim(decTag_share, '\0', lineBuf, ' '))
 		nodes[curNode].evaluate = eval_shareDef;
 	else {
-		putError(curLine, "decTag is not recognized");
+		putError(curLine, "decTag is not recognized\n");
 		return;
 	}
 	
@@ -252,7 +252,7 @@ void initNodes(void) {
 		nodes[curNode].evaluate == eval_shareDef
 	) {
 		if (!inFrameform) {
-			putError(curLine, "state declared outside of frameform");
+			putError(curLine, "state declared outside of frameform\n");
 			return;
 		}
 		inc_curStateNode();
@@ -285,18 +285,24 @@ void initNodes(void) {
 		int bufPos = 0;
 		char prevDelim = '\n';
 		
+		fgetpos(fileStream, &filePos);
 		getLine();
 		for (; lineBuf[bufPos] == '\t'; bufPos++)
 			level++;
-		if (!level)
+		if (!level) {
+			if (lineBuf[0]) {
+				fsetpos(fileStream, &filePos);
+				curLine--;
+			}
 			break;
+		}
 		inc_curNode();
 		for (; prevDelim; bufPos++) {
 			switch (lineBuf[bufPos]) {
 				case ' ':
 					setBodyNode(level);
 					inc_curNode();
-					if (prevDelim != ' ')
+					if (prevDelim == '(' || prevDelim == '\n')
 						level++;
 					prevDelim = ' ';
 					break;
@@ -581,6 +587,7 @@ void resolveNode(nodeIndex nodePos) {
 	//none of the above
 	putError(nodeLine, "did not recognize ");
 	printf("'%s'\n", nodeName);
+	free(nodeName);
 }
 
 void initFrameform(void) {

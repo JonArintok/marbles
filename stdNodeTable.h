@@ -6,49 +6,59 @@ typedef struct {
 	evaluator evaluate;
 } stdNode;
 
-#define _evalArgs_\
-	for (int i=0; i < nodes[self].childCount; i++)\
-		_evaluateNode_( nodes[self].children[i] )\
+#define _biop_(eval_name, node_name, title, op, type) \
+void eval_name(nodeIndex self) {\
+	nodeIndex arg0 = nodes[self].children[0];\
+	nodeIndex arg1 = nodes[self].children[1];\
+	_evaluateNode_(arg0)\
+	_evaluateNode_(arg1)\
+	nodes[self].output.type = \
+		nodes[arg0].output.type op nodes[arg1].output.type;\
+}\
+const stdNode node_name = {\
+	.name = title " num\na num\nb num",\
+	.arity    = 2,\
+	.evaluate = eval_name\
+};
 
-#define _evalArith_(name, op, type) \
-void name(nodeIndex self) {\
-	_evalArgs_\
-	nodes[self].output.type\
-		= nodes[ nodes[self].children[0] ].output.type\
-		op nodes[ nodes[self].children[1] ].output.type\
-	;\
+_biop_(eval_add, node_add, "+", +, n)
+_biop_(eval_sub, node_sub, "-", -, n)
+_biop_(eval_mul, node_mul, "*", *, n)
+_biop_(eval_div, node_div, "/", /, n)
+_biop_(eval_equal,          node_equal,           "=", ==, n)
+_biop_(eval_lessThan,       node_lessThan,        "<",  <, n)
+_biop_(eval_greaterThan,    node_greaterThan,     ">",  >, n)
+_biop_(eval_notEqual,       node_notEqual,       "!=", !=, n)
+_biop_(eval_notLessThan,    node_notLessThan,    "!<", >=, n)
+_biop_(eval_notGreaterThan, node_notGreaterThan, "!>", <=, n)
+
+void eval_if(nodeIndex self) {
+	nodeIndex cond = nodes[self].children[0];
+	nodeIndex selection;
+	_evaluateNode_(cond)
+	if (nodes[cond].output.n)
+		selection = nodes[self].children[1];
+	else
+		selection = nodes[self].children[2];
+	_evaluateNode_(selection)
+	nodes[self].output = nodes[selection].output;
 }
-
-#define  _arithType_  " num\na num\nb num"
-
-_evalArith_(eval_add, +, n)
-const stdNode node_add = {
-	.name = "+" _arithType_,
-	.arity    = 2,
-	.evaluate = eval_add,
+const stdNode node_if = {
+	.name = "? num\ncondition num\nifTrue num\nelse num",
+	.arity = 3,
+	.evaluate = eval_if,
 };
 
-_evalArith_(eval_sub, -, n)
-const stdNode node_sub = {
-	.name = "-" _arithType_,
-	.arity     = 2,
-	.evaluate  = eval_sub,
+void eval_not(nodeIndex self) {
+	nodeIndex arg = nodes[self].children[0];
+	_evaluateNode_(arg)
+	nodes[self].output.n = nodes[arg].output.n ? 0 : 1;
+}
+const stdNode node_not = {
+	.name = "! num\na num",
+	.arity = 1,
+	.evaluate = eval_not,
 };
-
-_evalArith_(eval_mul, *, n)
-const stdNode node_mul = {
-	.name = "*" _arithType_,
-	.arity    = 2,
-	.evaluate = eval_mul,
-};
-
-_evalArith_(eval_div, /, n)
-const stdNode node_div = {
-	.name = "/" _arithType_,
-	.arity    = 2,
-	.evaluate = eval_div,
-};
-
 
 void eval_currentFrame(nodeIndex self) {
 	nodes[self].output.n = curFrame;
@@ -61,16 +71,22 @@ const stdNode node_curFrame = {
 
 
 
-#define stdNodeTableLength  5
+#define stdNodeTableLength  13
 const stdNode *stdNodeTable[stdNodeTableLength] = {
 	&node_add,
 	&node_sub,
 	&node_mul,
 	&node_div,
+	&node_equal,
+	&node_lessThan,
+	&node_greaterThan,
+	&node_notEqual,
+	&node_notLessThan,
+	&node_notGreaterThan,
+	&node_if,
+	&node_not,
 	&node_curFrame
 };
-
-
 
 
 typedef struct {
