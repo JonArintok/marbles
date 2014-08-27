@@ -16,8 +16,6 @@ long  getMicroseconds() {
 #endif
 
 
-//eventually will come from frameforms[activeFrameform].frameRate
-double frameRate = 20;
 
 void frameWait_default(long *prevTime) {
 	long timeWait = 1e6/frameRate - (getMicroseconds() - *prevTime);

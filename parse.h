@@ -9,6 +9,7 @@
 #define decTag_state "state"
 #define decTag_share "share"
 #define entryPointName "enter"
+#define exitPointName  "exit"
 
 FILE    *fileStream;
 char    *fileName;
@@ -186,34 +187,78 @@ void initNodes(void) {
 		nodesInfo[curNode].name[namePos] = lineBuf[namePos];
 	
 	
-	//find out how many parameters there are
-	int paramCount = 0;
-	fpos_t filePos;
-	fgetpos(fileStream, &filePos);
-	while (true) {
-		int  indent = 0;
-		while (fgetc(fileStream) == '\t')
-			indent++;
-		if (indent == 1)
-			paramCount++;
-		else {
-			paramCount--;
-			fsetpos(fileStream, &filePos);
-			break;
+	//check for global output declaration
+	if (matchStrWDelim(frameRateName, ' ', lineBuf, '\0')) {
+		nodes[curNode].evaluate = eval_outDef;
+		frameRateRoot = curNode;
+	}
+	else if (matchStrWDelim(windowWidthName, ' ', lineBuf, '\0')) {
+		nodes[curNode].evaluate = eval_outDef;
+		windowWidthRoot = curNode;
+		videoEnabled = true;
+	}
+	else if (matchStrWDelim(windowHeightName, ' ', lineBuf, '\0')) {
+		nodes[curNode].evaluate = eval_outDef;
+		windowHeightRoot = curNode;
+		videoEnabled = true;
+	}
+	//check for frameform output declaration
+	else if (matchStrWDelim(nextFrameformName, ' ', lineBuf, '\0')) {
+		if (!inFrameform) {
+			putError(curLine, "cannot declare '");
+			printf("%s' outside of frameform\n", nextFrameformName);
+			return;
 		}
-		char fileChar;
-		while ( (fileChar = fgetc(fileStream)) != '\n') {
-			if (fileChar == EOF) {
-				reachedEOF = true;
-				putError(curLine, "incomplete definition\n");
+		nodes[curNode].evaluate = eval_outDef;
+		frameforms[curFrameform].nextFrameform = curNode;
+	}
+	else if (matchStrWDelim(videoOutName, ' ', lineBuf, '\0')) {
+		if (!inFrameform) {
+			putError(curLine, "cannot declare '");
+			printf("%s' outside of frameform\n", videoOutName);
+			return;
+		}
+		nodes[curNode].evaluate = eval_outDef;
+		frameforms[curFrameform].videoOut = curNode;
+		videoEnabled = true;
+	}
+	else if (matchStrWDelim(audioOutName, ' ', lineBuf, '\0')) {
+		if (!inFrameform) {
+			putError(curLine, "cannot declare '");
+			printf("%s' outside of frameform\n", audioOutName);
+			return;
+		}
+		nodes[curNode].evaluate = eval_outDef;
+		frameforms[curFrameform].audioOut = curNode;
+		audioEnabled = true;
+	}
+	//determine what is being declared based on the decTag
+	else if (matchStrWDelim(decTag_fn, '\0', lineBuf, ' ')) {
+		//find out how many parameters there are
+		int paramCount = 0;
+		fpos_t filePos;
+		fgetpos(fileStream, &filePos);
+		while (true) {
+			int  indent = 0;
+			while (fgetc(fileStream) == '\t')
+				indent++;
+			if (indent == 1)
+				paramCount++;
+			else {
+				paramCount--;
+				fsetpos(fileStream, &filePos);
 				break;
 			}
+			char fileChar;
+			while ( (fileChar = fgetc(fileStream)) != '\n') {
+				if (fileChar == EOF) {
+					reachedEOF = true;
+					putError(curLine, "incomplete definition\n");
+					break;
+				}
+			}
 		}
-	}
-	nodesInfo[curNode].arity = paramCount;
-	
-	//determine what is being declared based on the decTag
-	if (matchStrWDelim(decTag_fn, '\0', lineBuf, ' ')) {
+		nodesInfo[curNode].arity = paramCount;
 		nodes[curNode].evaluate = paramCount ? eval_fnDef : eval_fnDefN;
 		//else replace that \0 with a \n and read the parameters into the name
 		for (int i = 0; i < paramCount; i++) {
@@ -227,13 +272,8 @@ void initNodes(void) {
 			}
 		}
 	}
-	else if (matchStrWDelim(decTag_var, '\0', lineBuf, ' ')) {
+	else if (matchStrWDelim(decTag_var, '\0', lineBuf, ' '))
 		nodes[curNode].evaluate = eval_varDef;
-		if (paramCount) {
-			putError(curLine, "variable appears to be declared with arguments\n");
-			return;
-		}
-	}
 	else if (matchStrWDelim(decTag_state, '\0', lineBuf, ' '))
 		nodes[curNode].evaluate = eval_stateDef;
 	else if (matchStrWDelim(decTag_share, '\0', lineBuf, ' '))
@@ -263,7 +303,8 @@ void initNodes(void) {
 	else if (
 		nodes[curNode].evaluate == eval_varDef ||
 		nodes[curNode].evaluate == eval_fnDef  ||
-		nodes[curNode].evaluate == eval_fnDefN
+		nodes[curNode].evaluate == eval_fnDefN ||
+		nodes[curNode].evaluate == eval_outDef
 	) {
 		if (inFrameform) {
 			inc_curRootNode();
@@ -284,7 +325,7 @@ void initNodes(void) {
 		int peren  = 0;
 		int bufPos = 0;
 		char prevDelim = '\n';
-		
+		fpos_t filePos;
 		fgetpos(fileStream, &filePos);
 		getLine();
 		for (; lineBuf[bufPos] == '\t'; bufPos++)
@@ -357,7 +398,8 @@ bool isDefNode(nodeIndex n) {
 		nodes[n].evaluate == eval_fnDef    ||
 		nodes[n].evaluate == eval_fnDefN   ||
 		nodes[n].evaluate == eval_stateDef ||
-		nodes[n].evaluate == eval_shareDef
+		nodes[n].evaluate == eval_shareDef ||
+		nodes[n].evaluate == eval_outDef
 	) {
 		return true;
 	}
@@ -415,7 +457,7 @@ void resolveNode(nodeIndex nodePos) {
 		}
 		nodes[nodePos].evaluate = eval_numLit;
 		sscanf(nodeName, "%lf", &nodes[nodePos].output.n);
-		nodesInfo[nodePos].name = "numLit num";
+		nodesInfo[nodePos].name = name_numLit;
 		free(nodeName);
 		return;
 	}
@@ -442,6 +484,23 @@ void resolveNode(nodeIndex nodePos) {
 	}
 	
 	//check for frameform index
+	for (int ffPos = 0; ffPos <= curFrameform; ffPos++) {
+		if (!(strcmp(nodeName, frameforms[ffPos].name))) {
+			nodes[nodePos].output.n = ffPos;
+			nodes[nodePos].evaluate = eval_frameformRef;
+			nodesInfo[nodePos].name = name_frameformRef;
+			free(nodeName);
+			return;
+		}
+	}
+	//check for reference to exit
+	if (!(strcmp(nodeName, exitPointName))) {
+		nodes[nodePos].output.n = exitFrameform;
+		nodes[nodePos].evaluate = eval_frameformRef;
+		nodesInfo[nodePos].name = name_frameformRef;
+		free(nodeName);
+		return;
+	}
 	
 	//check for reference to local declaration
 	if (nodeFf > -1) {
@@ -608,12 +667,19 @@ void initFrameform(void) {
 		putError(curLine, "frameform names may not contain spaces\n");
 		return;
 	}
+	//allow no declarations of exitPointName
+	if (!(strcmp(&lineBuf[1], exitPointName))) {
+		putError(curLine, "cannot name a frameform '");
+		printf("%s'\n", exitPointName);
+		return;
+	}
 	
 	inc_curFrameform();
 	inFrameform = true;
 	
 	if (!(strcmp(&lineBuf[1], entryPointName)))
 		activeFrameform = curFrameform;
+	
 	
 	//copy from lineBuf to frameforms[curFrameform].name
 	strncpy(
@@ -648,8 +714,8 @@ void  parse(void) {
 			initNodes();
 	}
 	
-	//check for naming collisions
-	
+	//the exitFrameform is not actually a frameform, just a number
+	exitFrameform = curFrameform + 1;
 	
 	//resolve each node
 	for (int nodePos = 0; nodePos <= curNode; nodePos++)
@@ -657,5 +723,4 @@ void  parse(void) {
 	if (errorCount)
 		return;
 	
-	//check for type errors
 }

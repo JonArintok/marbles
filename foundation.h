@@ -61,22 +61,37 @@ typedef struct {
 	int16_t    curRootNode;
 	int16_t    rootNodeSpace;
 	nodeIndex *rootNodes;
-	//output
+	//per-frameform outputs
 	nodeIndex nextFrameform;
-	nodeIndex frameRate;
 	nodeIndex videoOut;
 	nodeIndex audioOut;
 } frameform;
-
 char *nextFrameformName = "nextFrameform num";
-char *frameRateName     = "frameRate num";
-char *videoOutName      = "videoOut byte||";
-char *audioOutName      = "audioOut num|";
+char *videoOutName      = "videoOut quobyte..";//type name pending
+char *audioOutName      = "audioOut num.";
 
 
 node      *nodes;
 nodeIndex *gRootNodes;
 frameform *frameforms;
+
+
+
+
+//global outputs
+double frameRate    = defaultFrameRate;
+double windowWidth  = defaultWindowWidth;
+double windowHeight = defaultWindowHeight;
+nodeIndex frameRateRoot    = -1;
+nodeIndex windowWidthRoot  = -1;
+nodeIndex windowHeightRoot = -1;
+char *frameRateName    = "frameRate num";
+char *windowWidthName  = "windowWidth num";
+char *windowHeightName = "windowHeight num";
+
+void eval_outDef(nodeIndex self) {
+	nodes[self].output = nodes[self+1].output;
+}
 
 
 
@@ -86,9 +101,6 @@ frameform *frameforms;
 
 nodeIndex stack[stackSize];//holds the call sources
 uint32_t stackPos;
-
-
-void eval_numLit(nodeIndex self) {}
 
 void eval_varDef(nodeIndex self) {
 	nodes[self].output = nodes[self+1].output;
@@ -158,9 +170,10 @@ void eval_shareCall(nodeIndex self) {
 	nodes[self].output = nodes[ nodes[self].definition ].output;
 }
 
-void eval_outDef(nodeIndex self) {}
 
-char *unnamed = "!!  unnamed  !!";
+char *name_frameformRef = "frameformRef num";
+void eval_frameformRef(nodeIndex self) {}
 
-
+char *name_numLit = "numLit num";
+void eval_numLit(nodeIndex self) {}
 

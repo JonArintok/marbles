@@ -1,4 +1,5 @@
 
+
 #define    nodePage 16 //for arrays of nodes
 #define    namePage 16 //for arrays of chars
 
@@ -16,6 +17,8 @@ int        gCurRootNode   = -1;
 #define    frameformPage 16
 int        frameformSpace =  0;
 int        curFrameform   = -1;
+
+char *unnamed = "!!  unnamed  !!";
 
 uint32_t   curLine = 0;//line numbers start at 1, not 0
 
@@ -100,7 +103,6 @@ void inc_curFrameform(void) {
 	);
 	
 	frameforms[curFrameform].nextFrameform = -1;
-	frameforms[curFrameform].frameRate     = -1;
 	frameforms[curFrameform].videoOut      = -1;
 	frameforms[curFrameform].audioOut      = -1;
 }

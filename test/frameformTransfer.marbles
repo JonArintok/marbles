@@ -1,20 +1,20 @@
 
 
-@enter
-
-state upCounter num
-	+ counter increm
-
-nextFrameform
-	? (!< counter 10) other enter
-
 @other
 
 state newCounter num
-	- counter increm 
+	- newCounter increm
 
 nextFrameform
 	? (!> newCounter -10) exit other
+
+@enter
+
+state upCounter num
+	+ upCounter increm
+
+nextFrameform
+	? (!< upCounter 10) other enter
 
 @.
 

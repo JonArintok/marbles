@@ -1,12 +1,13 @@
 
 
 define test
-	echo running test/nonlocalState.marbles...
+	echo running test/frameformTransfer.marbles...
 	echo \n
-	run test/nonlocalState.marbles
+	run test/frameformTransfer.marbles
 end
 
-#break marblerun.c:107
+break initNodes
+break parse.h:723
 
 define pnode
 	echo node:
