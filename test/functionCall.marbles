@@ -19,7 +19,8 @@ fn addmul num                |global function
 
 state result num             |state
 	addmul                     |body
-		tenPerFrame
 		/ nihyaku hyaku
+		tenPerFrame
 
-
+next                         |next frameform
+	? (> result 1000) exit enter

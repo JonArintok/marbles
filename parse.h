@@ -11,13 +11,15 @@
 #define entryPointName "enter"
 #define exitPointName  "exit"
 
-FILE    *fileStream;
-char    *fileName;
-char     lineBuf[maxLineLength];
+FILE *fileStream;
+char *fileName;
+char  lineBuf[maxLineLength];
 
 bool reachedEOF  = false;
 bool inFrameform = false;
 int  errorCount  = 0;
+
+
 
 void putError(int line, char *message) {
 	errorCount++;
@@ -102,20 +104,22 @@ void getLine(void) {
 		//ignore comments
 		if (fileChar == charTag_comment) {
 			//end of the line
-			if (bufPos && lineBuf[bufPos-1] == ' ')
-				lineBuf[bufPos-1] = '\0';
-			else
-				lineBuf[bufPos] = '\0';
+			//if (bufPos && lineBuf[bufPos-1] == ' ')
+			//	lineBuf[bufPos-1] = '\0';
+			//else
+			//	lineBuf[bufPos] = '\0';
 			//read through to the newline character
 			while ( (fileChar = fgetc(fileStream)) != '\n' )
 				if (fileChar == EOF) 
 					reachedEOF = true;
-			break;
+			//break;
 		}
 		
 		//check for newline character
 		if (fileChar == '\n') {
 			//end of the line
+			while (bufPos && lineBuf[bufPos-1] == ' ')
+				bufPos--;
 			lineBuf[bufPos] = '\0';
 			break;
 		}
@@ -149,6 +153,10 @@ int strRemoveUpToIncl(char *s, char d) {
 		else if (!s[rpos])
 			return 0;
 	}
+}
+
+void printUpTo(char *s, char d) {
+	for (int i = 0; s[i] != d; putc(s[i++], stdout));
 }
 
 void setBodyNode(int level) {
@@ -551,15 +559,11 @@ void resolveNode(nodeIndex nodePos) {
 				return;
 			}
 			for (int ffPos = 0; ffPos <= curFrameform; ffPos++) {
+				if (ffPos == nodeFf)
+					continue;
 				if (matchStrWDelim(
 					nodeName, charTag_shareRead, frameforms[ffPos].name, '\0'
 				)) {
-					if (ffPos == nodeFf) {
-						putError(nodeLine, "attempted to read local state '");
-						printf("%s' as if it were nonlocal\n", &nodeName[nnPos+1]);
-						free(nodeName);
-						return;
-					}
 					for (
 						int snPos = 0;
 						snPos <= frameforms[ffPos].curStateNode;
@@ -573,7 +577,7 @@ void resolveNode(nodeIndex nodePos) {
 							if (nodes[sDef].evaluate == eval_stateDef) {
 								putError(nodeLine, "cannot read '");
 								printf("%s' from '", &nodeName[nnPos+1]);
-								for (int i = 0; i < nnPos; putc(nodeName[i++], stdout));
+								printUpTo(nodeName, charTag_shareRead);
 								puts("'");
 								free(nodeName);
 								return;
@@ -589,14 +593,22 @@ void resolveNode(nodeIndex nodePos) {
 					}
 					putError(nodeLine, "did not find '");
 					printf("%s' in '", &nodeName[nnPos+1]);
-					for (int i = 0; i < nnPos; putc(nodeName[i++], stdout));
+					printUpTo(nodeName, charTag_shareRead);
 					puts("'");
 					free(nodeName);
 					return;
 				}
 			}
+			if (matchStrWDelim(
+				nodeName, charTag_shareRead, frameforms[nodeFf].name, '\0'
+			)) {
+				putError(nodeLine, "attempted to read local state '");
+				printf("%s' as if it were nonlocal\n", &nodeName[nnPos+1]);
+				free(nodeName);
+				return;
+			}
 			putError(nodeLine, "did not recognize frameform '");
-			for (int i = 0; i < nnPos; putc(nodeName[i++], stdout));
+			printUpTo(nodeName, charTag_shareRead);
 			puts("'");
 			free(nodeName);
 			return;
@@ -676,10 +688,10 @@ void initFrameform(void) {
 	
 	inc_curFrameform();
 	inFrameform = true;
+	frameforms[curFrameform].line = curLine;
 	
 	if (!(strcmp(&lineBuf[1], entryPointName)))
 		activeFrameform = curFrameform;
-	
 	
 	//copy from lineBuf to frameforms[curFrameform].name
 	strncpy(
@@ -722,5 +734,16 @@ void  parse(void) {
 		resolveNode(nodePos);
 	if (errorCount)
 		return;
+	
+	//check each frameform for errors
+	for (int ffPos = 0; ffPos <= curFrameform; ffPos++) {
+		if (frameforms[ffPos].nextFrameform < 0) {
+			putError(frameforms[ffPos].line, "frameform '");
+			printf("%s' needs a '", frameforms[ffPos].name);
+			printUpTo(nextFrameformName, ' ');
+			puts("' declaration");
+			return;
+		}
+	}
 	
 }

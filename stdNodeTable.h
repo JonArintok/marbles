@@ -88,12 +88,3 @@ const stdNode *stdNodeTable[stdNodeTableLength] = {
 	&node_curFrame
 };
 
-
-typedef struct {
-	char    *name; //includes type information and parameter names
-	uint32_t line; //this node was found on this line in the source file
-	uint8_t  level;//elevation+fold
-	int16_t  frameform;//-1 if outside not in frameform
-	uint8_t  arity;//for fnDef only
-} nodeInfo;
-nodeInfo *nodesInfo;

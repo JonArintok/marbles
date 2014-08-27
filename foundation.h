@@ -48,6 +48,15 @@ typedef struct {
 	outType    output;
 } node;
 
+//for non-performance critical info not needed beyond parsing
+typedef struct {
+	char    *name; //includes type information and parameter names
+	uint32_t line; //this node was found on this line in the source file
+	uint8_t  level;//elevation+fold
+	int16_t  frameform;//-1 if outside not in frameform
+	uint8_t  arity;//for fnDef only
+} nodeInfo;
+nodeInfo *nodesInfo;
 
 
 #define maxTokenLength 64
@@ -55,6 +64,7 @@ typedef struct {
 
 typedef struct {
 	char       name[maxLineLength];
+	uint32_t   line;
 	int16_t    curStateNode;
 	int16_t    stateNodeSpace;
 	nodeIndex *stateNodes;
@@ -66,7 +76,7 @@ typedef struct {
 	nodeIndex videoOut;
 	nodeIndex audioOut;
 } frameform;
-char *nextFrameformName = "nextFrameform num";
+char *nextFrameformName = "next num";
 char *videoOutName      = "videoOut quobyte..";//type name pending
 char *audioOutName      = "audioOut num.";
 

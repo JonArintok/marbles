@@ -140,20 +140,16 @@ int main(int argc, char **argv) {
 		
 		long frameTimeStamp = getMicroseconds();
 		//the loop
-		while (activeFrameform != exitFrameform) {
+		while (true) {
 			curFrame++;
 			int csn = frameforms[activeFrameform].curStateNode;
-			nodeIndex nfRoot = frameforms[activeFrameform].nextFrameform;
+			nodeIndex nextRoot = frameforms[activeFrameform].nextFrameform;
 			
 			//evaluate the bodies
 			for (int i = 0; i <= csn; i++) {
 				nodeIndex n = frameforms[activeFrameform].stateNodes[i] + 1;
 				_evaluateNode_(n)
 			}
-			//evaluate next frameform
-			if (nfRoot > -1)
-				_evaluateNode_(nfRoot+1)
-			
 			
 			//update the state and print it (for now)
 			for (int i = 0; i <= csn; i++) {
@@ -161,12 +157,17 @@ int main(int argc, char **argv) {
 				_evaluateNode_(n)
 				printf("%d:\t%f\n", i, nodes[n].output.n);
 			}
-			if (nfRoot > -1) {
-				_evaluateNode_(nfRoot)
-				activeFrameform = nodes[nfRoot].output.n;
+			
+			//next frameform is determined between frames
+			if (nextRoot > -1) {
+				_evaluateNode_(nextRoot+1)
+				activeFrameform = nodes[nextRoot+1].output.n;
 			}
 			
-			frameWait(&frameTimeStamp);
+			if (activeFrameform == exitFrameform)
+				break;
+			else
+				frameWait(&frameTimeStamp);
 		}
 	}
 	

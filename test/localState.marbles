@@ -11,3 +11,6 @@ share bar num
 var varble num
 	2
 
+next
+	? (> foo 10) exit enter
+

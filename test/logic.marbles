@@ -31,3 +31,5 @@ state l num
 state m num
 	? (!(!> 2 4)) 0 1
 
+next
+	exit

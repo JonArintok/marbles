@@ -1,19 +1,22 @@
 
+frameRate
+	60
 
 @other
 
-state newCounter num
-	- newCounter increm
+state dnCounter num
+	- dnCounter increm
 
-nextFrameform
-	? (!> newCounter -10) exit other
+next
+	? (!> dnCounter -10) exit other
+
 
 @enter
 
-state upCounter num
+share upCounter num
 	+ upCounter increm
 
-nextFrameform
+next
 	? (!< upCounter 10) other enter
 
 @.

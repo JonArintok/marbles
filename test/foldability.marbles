@@ -28,3 +28,5 @@ state C num
 state D num
 	* -1.5 (- 0 (+ (- 68 8) (/ 20 0.5) ) )
 
+next
+	exit
