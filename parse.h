@@ -179,155 +179,7 @@ void setBodyNode(int level) {
 	}
 }
 
-void initNodes(void) {
-	//"defNodes" are variables, functions, and stateNodes
-	inc_curNode();
-	nodes[curNode].childCount = 1;
-	nodes[curNode].children[0] = curNode + 1;
-	nodesInfo[curNode].line = curLine;
-	if (inFrameform)
-		nodesInfo[curNode].frameform = curFrameform;
-	
-	
-	//read the first line into curNode.name
-	inc_namePos();
-	for (; lineBuf[namePos] != '\0'; inc_namePos())
-		nodesInfo[curNode].name[namePos] = lineBuf[namePos];
-	
-	
-	//check for global output declaration
-	if (matchStrWDelim(frameRateName, ' ', lineBuf, '\0')) {
-		nodes[curNode].evaluate = eval_outDef;
-		frameRateRoot = curNode;
-	}
-	else if (matchStrWDelim(windowWidthName, ' ', lineBuf, '\0')) {
-		nodes[curNode].evaluate = eval_outDef;
-		windowWidthRoot = curNode;
-		videoEnabled = true;
-	}
-	else if (matchStrWDelim(windowHeightName, ' ', lineBuf, '\0')) {
-		nodes[curNode].evaluate = eval_outDef;
-		windowHeightRoot = curNode;
-		videoEnabled = true;
-	}
-	//check for frameform output declaration
-	else if (matchStrWDelim(nextFrameformName, ' ', lineBuf, '\0')) {
-		if (!inFrameform) {
-			putError(curLine, "cannot declare '");
-			printf("%s' outside of frameform\n", nextFrameformName);
-			return;
-		}
-		nodes[curNode].evaluate = eval_outDef;
-		frameforms[curFrameform].nextFrameform = curNode;
-	}
-	else if (matchStrWDelim(videoOutName, ' ', lineBuf, '\0')) {
-		if (!inFrameform) {
-			putError(curLine, "cannot declare '");
-			printf("%s' outside of frameform\n", videoOutName);
-			return;
-		}
-		nodes[curNode].evaluate = eval_outDef;
-		frameforms[curFrameform].videoOut = curNode;
-		videoEnabled = true;
-	}
-	else if (matchStrWDelim(audioOutName, ' ', lineBuf, '\0')) {
-		if (!inFrameform) {
-			putError(curLine, "cannot declare '");
-			printf("%s' outside of frameform\n", audioOutName);
-			return;
-		}
-		nodes[curNode].evaluate = eval_outDef;
-		frameforms[curFrameform].audioOut = curNode;
-		audioEnabled = true;
-	}
-	//determine what is being declared based on the decTag
-	else if (matchStrWDelim(decTag_fn, '\0', lineBuf, ' ')) {
-		//find out how many parameters there are
-		int paramCount = 0;
-		fpos_t filePos;
-		fgetpos(fileStream, &filePos);
-		while (true) {
-			int  indent = 0;
-			while (fgetc(fileStream) == '\t')
-				indent++;
-			if (indent == 1)
-				paramCount++;
-			else {
-				paramCount--;
-				fsetpos(fileStream, &filePos);
-				break;
-			}
-			char fileChar;
-			while ( (fileChar = fgetc(fileStream)) != '\n') {
-				if (fileChar == EOF) {
-					reachedEOF = true;
-					putError(curLine, "incomplete definition\n");
-					break;
-				}
-			}
-		}
-		nodesInfo[curNode].arity = paramCount;
-		nodes[curNode].evaluate = paramCount ? eval_fnDef : eval_fnDefN;
-		//else replace that \0 with a \n and read the parameters into the name
-		for (int i = 0; i < paramCount; i++) {
-			nodesInfo[curNode].name[namePos] = '\n';
-			getLine();
-			int bufPos = 0;//would be -1 if we weren't ignoring the tabs
-			while (lineBuf[bufPos]) {
-				inc_namePos();
-				bufPos++;
-				nodesInfo[curNode].name[namePos] = lineBuf[bufPos];
-			}
-		}
-	}
-	else if (matchStrWDelim(decTag_var, '\0', lineBuf, ' '))
-		nodes[curNode].evaluate = eval_varDef;
-	else if (matchStrWDelim(decTag_state, '\0', lineBuf, ' '))
-		nodes[curNode].evaluate = eval_stateDef;
-	else if (matchStrWDelim(decTag_share, '\0', lineBuf, ' '))
-		nodes[curNode].evaluate = eval_shareDef;
-	else {
-		putError(curLine, "decTag is not recognized\n");
-		return;
-	}
-	
-	//the decTag is no longer needed
-	strRemoveUpToIncl(nodesInfo[curNode].name, ' ');
-	
-	//update the relevant node reference array
-	if (
-		nodes[curNode].evaluate == eval_stateDef ||
-		nodes[curNode].evaluate == eval_shareDef
-	) {
-		if (!inFrameform) {
-			putError(curLine, "state declared outside of frameform\n");
-			return;
-		}
-		inc_curStateNode();
-		frameforms[curFrameform].stateNodes[
-			frameforms[curFrameform].curStateNode
-		] = curNode;
-	}
-	else if (
-		nodes[curNode].evaluate == eval_varDef ||
-		nodes[curNode].evaluate == eval_fnDef  ||
-		nodes[curNode].evaluate == eval_fnDefN ||
-		nodes[curNode].evaluate == eval_outDef
-	) {
-		if (inFrameform) {
-			inc_curRootNode();
-			frameforms[curFrameform].rootNodes[
-				frameforms[curFrameform].curRootNode
-			] = curNode;
-		}
-		else {
-			inc_gCurRootNode();
-			gRootNodes[gCurRootNode] = curNode;
-		}
-	}
-	
-	
-	//initialize the nodes in the body of the defNode
+void getBody(void) {
 	while (true) {
 		int level  = 0;
 		int peren  = 0;
@@ -400,14 +252,160 @@ void initNodes(void) {
 	}
 }
 
+void initNodes(void) {
+	//"defNodes" are variables, functions, and stateNodes
+	inc_curNode();
+	nodes[curNode].childCount = 1;
+	nodes[curNode].children[0] = curNode + 1;
+	nodesInfo[curNode].line = curLine;
+	if (inFrameform)
+		nodesInfo[curNode].frameform = curFrameform;
+	
+	
+	//read the first line into curNode.name
+	inc_namePos();
+	for (; lineBuf[namePos] != '\0'; inc_namePos())
+		nodesInfo[curNode].name[namePos] = lineBuf[namePos];
+	
+	
+	//determine what is being declared based on the decTag
+	if (matchStrWDelim(decTag_fn, '\0', lineBuf, ' ')) {
+		//find out how many parameters there are
+		int paramCount = 0;
+		fpos_t filePos;
+		fgetpos(fileStream, &filePos);
+		while (true) {
+			int  indent = 0;
+			while (fgetc(fileStream) == '\t')
+				indent++;
+			if (indent == 1)
+				paramCount++;
+			else {
+				paramCount--;
+				fsetpos(fileStream, &filePos);
+				break;
+			}
+			char fileChar;
+			while ( (fileChar = fgetc(fileStream)) != '\n') {
+				if (fileChar == EOF) {
+					reachedEOF = true;
+					putError(curLine, "incomplete definition\n");
+					break;
+				}
+			}
+		}
+		nodesInfo[curNode].arity = paramCount;
+		nodes[curNode].evaluate = paramCount ? eval_fnDef : eval_fnDefN;
+		//else replace that \0 with a \n and read the parameters into the name
+		for (int i = 0; i < paramCount; i++) {
+			nodesInfo[curNode].name[namePos] = '\n';
+			getLine();
+			int bufPos = 0;//would be -1 if we weren't ignoring the tabs
+			while (lineBuf[bufPos]) {
+				inc_namePos();
+				bufPos++;
+				nodesInfo[curNode].name[namePos] = lineBuf[bufPos];
+			}
+		}
+	}
+	else if (matchStrWDelim(decTag_var, '\0', lineBuf, ' '))
+		nodes[curNode].evaluate = eval_varDef;
+	else if (matchStrWDelim(decTag_state, '\0', lineBuf, ' '))
+		nodes[curNode].evaluate = eval_stateDef;
+	else if (matchStrWDelim(decTag_share, '\0', lineBuf, ' '))
+		nodes[curNode].evaluate = eval_shareDef;
+	else {
+		putError(curLine, "decTag is not recognized\n");
+		return;
+	}
+	
+	//the decTag is no longer needed
+	strRemoveUpToIncl(nodesInfo[curNode].name, ' ');
+	
+	//update the relevant node reference array
+	if (
+		nodes[curNode].evaluate == eval_stateDef ||
+		nodes[curNode].evaluate == eval_shareDef
+	) {
+		if (!inFrameform) {
+			putError(curLine, "state declared outside of frameform\n");
+			return;
+		}
+		inc_curStateNode();
+		frameforms[curFrameform].stateNodes[
+			frameforms[curFrameform].curStateNode
+		] = curNode;
+	}
+	else if (
+		nodes[curNode].evaluate == eval_varDef ||
+		nodes[curNode].evaluate == eval_fnDef  ||
+		nodes[curNode].evaluate == eval_fnDefN
+	) {
+		if (inFrameform) {
+			inc_curRootNode();
+			frameforms[curFrameform].rootNodes[
+				frameforms[curFrameform].curRootNode
+			] = curNode;
+		}
+		else {
+			inc_gCurRootNode();
+			gRootNodes[gCurRootNode] = curNode;
+		}
+	}
+	
+	//initialize the nodes in the body of the defNode
+	getBody();
+}
+
+void initOutput(void) {
+	//check for global output declaration
+	if (matchStrWDelim(frameRateName, ' ', lineBuf, '\0'))
+		frameRateRoot = curNode+1;
+	else if (matchStrWDelim(windowWidthName, ' ', lineBuf, '\0')) {
+		windowWidthRoot = curNode+1;
+		videoEnabled = true;
+	}
+	else if (matchStrWDelim(windowHeightName, ' ', lineBuf, '\0')) {
+		windowHeightRoot = curNode+1;
+		videoEnabled = true;
+	}
+	//check for frameform output declaration
+	else if (matchStrWDelim(nextFrameformName, ' ', lineBuf, '\0')) {
+		if (!inFrameform) {
+			putError(curLine, "cannot declare '");
+			printf("%s' outside of frameform\n", nextFrameformName);
+			return;
+		}
+		frameforms[curFrameform].nextFrameform = curNode+1;
+	}
+	else if (matchStrWDelim(videoOutName, ' ', lineBuf, '\0')) {
+		if (!inFrameform) {
+			putError(curLine, "cannot declare '");
+			printf("%s' outside of frameform\n", videoOutName);
+			return;
+		}
+		frameforms[curFrameform].videoOut = curNode+1;
+		videoEnabled = true;
+	}
+	else if (matchStrWDelim(audioOutName, ' ', lineBuf, '\0')) {
+		if (!inFrameform) {
+			putError(curLine, "cannot declare '");
+			printf("%s' outside of frameform\n", audioOutName);
+			return;
+		}
+		frameforms[curFrameform].audioOut = curNode+1;
+		audioEnabled = true;
+	}
+	getBody();
+}
+
 bool isDefNode(nodeIndex n) {
 	if (
 		nodes[n].evaluate == eval_varDef   ||
 		nodes[n].evaluate == eval_fnDef    ||
 		nodes[n].evaluate == eval_fnDefN   ||
 		nodes[n].evaluate == eval_stateDef ||
-		nodes[n].evaluate == eval_shareDef ||
-		nodes[n].evaluate == eval_outDef
+		nodes[n].evaluate == eval_shareDef
 	) {
 		return true;
 	}
@@ -721,6 +719,9 @@ void  parse(void) {
 			else
 				initFrameform();
 		}
+		//check for output, which should contain no spaces
+		else if (!(strchr(&lineBuf[0], ' ')))
+			initOutput();
 		//we must have a defNode
 		else
 			initNodes();

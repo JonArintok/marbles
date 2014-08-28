@@ -99,10 +99,6 @@ char *frameRateName    = "frameRate num";
 char *windowWidthName  = "windowWidth num";
 char *windowHeightName = "windowHeight num";
 
-void eval_outDef(nodeIndex self) {
-	nodes[self].output = nodes[self+1].output;
-}
-
 
 
 #define _evaluateNode_(toBeEvaluated)\

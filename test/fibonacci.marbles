@@ -28,6 +28,6 @@ state fibCounterBout num
 var exitAt num
 	12
 
-nextFrameform
+next
 	? (> curFrame exitAt) exit enter
 

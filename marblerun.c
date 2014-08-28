@@ -28,6 +28,85 @@ int  exitFrameform;
 #include "parse.h"
 
 
+void initialize(void) {
+	//assign all global literal variables
+	for (int i = 0; i <= gCurRootNode; i++) {
+		nodeIndex n = gRootNodes[i];
+		if (
+			nodes[n].evaluate == eval_varDef &&
+			nodes[n+1].evaluate == eval_numLit
+		) {
+			_evaluateNode_(n)
+		}
+	}
+	//assign all literal variables in every frameform
+	for (int ffi = 0; ffi <= curFrameform; ffi++) {
+		for (int rni = 0; rni <= frameforms[ffi].curRootNode; rni++) {
+			nodeIndex n = frameforms[ffi].rootNodes[rni];
+			if (
+				nodes[n].evaluate == eval_varDef &&
+				nodes[n+1].evaluate == eval_numLit
+			) {
+				_evaluateNode_(n)
+			}
+		}
+	}
+	
+	//global outputs
+	if (frameRateRoot > -1) {
+		_evaluateNode_(frameRateRoot)
+		frameRate = nodes[frameRateRoot].output.n;
+	}
+	
+	
+	//evaluate nonliteral global variables
+	for (int i = 0; i <= gCurRootNode; i++) {
+		nodeIndex n = gRootNodes[i];
+		if (
+			nodes[n].evaluate == eval_varDef &&
+			nodes[n+1].evaluate != eval_numLit
+		) {
+			_evaluateNode_(n+1)
+		}
+	}
+	//evaluate nonliteral variables in every frameform
+	for (int ffi = 0; ffi <= curFrameform; ffi++) {
+		for (int rni = 0; rni <= frameforms[ffi].curRootNode; rni++) {
+			nodeIndex n = frameforms[ffi].rootNodes[rni];
+			if (
+				nodes[n].evaluate == eval_varDef &&
+				nodes[n+1].evaluate != eval_numLit
+			) {
+				_evaluateNode_(n+1)
+			}
+		}
+	}
+	//assign nonliteral global variables
+	for (int i = 0; i <= gCurRootNode; i++) {
+		nodeIndex n = gRootNodes[i];
+		if (
+			nodes[n].evaluate == eval_varDef &&
+			nodes[n+1].evaluate != eval_numLit
+		) {
+			_evaluateNode_(n)
+		}
+	}
+	//assign nonliteral variables in every frameform
+	for (int ffi = 0; ffi <= curFrameform; ffi++) {
+		for (int rni = 0; rni <= frameforms[ffi].curRootNode; rni++) {
+			nodeIndex n = frameforms[ffi].rootNodes[rni];
+			if (
+				nodes[n].evaluate == eval_varDef &&
+				nodes[n+1].evaluate != eval_numLit
+			) {
+				_evaluateNode_(n)
+			}
+		}
+	}
+}
+
+
+
 int main(int argc, char **argv) {
 	fileName = argv[1];
 	if (fileName == NULL) {
@@ -40,103 +119,12 @@ int main(int argc, char **argv) {
 		return 2;
 	}
 	
-	
 	init_Allocation();
 	parse();
 	fclose(fileStream);
 	
-	
-	
-	
-	
 	if (!errorCount) {
-		//assign all global literal variables
-		for (int i = 0; i <= gCurRootNode; i++) {
-			nodeIndex n = gRootNodes[i];
-			if (
-				(
-					nodes[n].evaluate == eval_varDef || 
-					nodes[n].evaluate == eval_outDef
-				) &&
-				nodes[n+1].evaluate == eval_numLit
-			) {
-				_evaluateNode_(n)
-			}
-		}
-		//assign all literal variables in every frameform
-		for (int ffi = 0; ffi <= curFrameform; ffi++) {
-			for (int rni = 0; rni <= frameforms[ffi].curRootNode; rni++) {
-				nodeIndex n = frameforms[ffi].rootNodes[rni];
-				if (
-					(
-						nodes[n].evaluate == eval_varDef || 
-						nodes[n].evaluate == eval_outDef
-					) &&
-					nodes[n+1].evaluate == eval_numLit
-				) {
-					_evaluateNode_(n)
-				}
-			}
-		}
-		//evaluate nonliteral global variables
-		for (int i = 0; i <= gCurRootNode; i++) {
-			nodeIndex n = gRootNodes[i];
-			if (
-				(
-					nodes[n].evaluate == eval_varDef || 
-					nodes[n].evaluate == eval_outDef
-				) &&
-				nodes[n+1].evaluate != eval_numLit
-			) {
-				_evaluateNode_(n+1)
-			}
-		}
-		//evaluate nonliteral variables in every frameform
-		for (int ffi = 0; ffi <= curFrameform; ffi++) {
-			for (int rni = 0; rni <= frameforms[ffi].curRootNode; rni++) {
-				nodeIndex n = frameforms[ffi].rootNodes[rni];
-				if (
-					(
-						nodes[n].evaluate == eval_varDef || 
-						nodes[n].evaluate == eval_outDef
-					) &&
-					nodes[n+1].evaluate != eval_numLit
-				) {
-					_evaluateNode_(n+1)
-				}
-			}
-		}
-		//assign nonliteral global variables
-		for (int i = 0; i <= gCurRootNode; i++) {
-			nodeIndex n = gRootNodes[i];
-			if (
-				(
-					nodes[n].evaluate == eval_varDef || 
-					nodes[n].evaluate == eval_outDef
-				) &&
-				nodes[n+1].evaluate != eval_numLit
-			) {
-				_evaluateNode_(n)
-			}
-		}
-		//assign nonliteral variables in every frameform
-		for (int ffi = 0; ffi <= curFrameform; ffi++) {
-			for (int rni = 0; rni <= frameforms[ffi].curRootNode; rni++) {
-				nodeIndex n = frameforms[ffi].rootNodes[rni];
-				if (
-					(
-						nodes[n].evaluate == eval_varDef || 
-						nodes[n].evaluate == eval_outDef
-					) &&
-					nodes[n+1].evaluate != eval_numLit
-				) {
-					_evaluateNode_(n)
-				}
-			}
-		}
-		
-		if (frameRateRoot > -1)
-			frameRate = nodes[frameRateRoot].output.n;
+		initialize();
 		
 		long frameTimeStamp = getMicroseconds();
 		//the loop
@@ -160,8 +148,8 @@ int main(int argc, char **argv) {
 			
 			//next frameform is determined between frames
 			if (nextRoot > -1) {
-				_evaluateNode_(nextRoot+1)
-				activeFrameform = nodes[nextRoot+1].output.n;
+				_evaluateNode_(nextRoot)
+				activeFrameform = nodes[nextRoot].output.n;
 			}
 			
 			if (activeFrameform == exitFrameform)
