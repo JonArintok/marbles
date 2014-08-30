@@ -7,11 +7,11 @@ typedef struct {
 } stdNode;
 
 #define _biop_(eval_name, node_name, title, op, type) \
-outType eval_name(nodeIndex self) {\
+outType eval_name(nodeIndex self, outType fnCallArgs[maxChildren]) {\
 	nodeIndex arg0 = nodes[self].children[0];\
 	nodeIndex arg1 = nodes[self].children[1];\
-	outType a = _output_(arg0)\
-	outType b = _output_(arg1)\
+	outType a = _output_(arg0, fnCallArgs)\
+	outType b = _output_(arg1, fnCallArgs)\
 	outType toBeReturned;\
 	toBeReturned.type = a.type op b.type;\
 	return toBeReturned;\
@@ -33,15 +33,15 @@ _biop_(eval_notEqual,       node_notEqual,       "!=", !=, n)
 _biop_(eval_notLessThan,    node_notLessThan,    "!<", >=, n)
 _biop_(eval_notGreaterThan, node_notGreaterThan, "!>", <=, n)
 
-outType eval_if(nodeIndex self) {
+outType eval_if(nodeIndex self, outType fnCallArgs[maxChildren]) {
 	nodeIndex cond = nodes[self].children[0];
-	outType condOut = _output_(cond)
+	outType condOut = _output_(cond, fnCallArgs)
 	nodeIndex selection;
 	if (condOut.n)
 		selection = nodes[self].children[1];
 	else
 		selection = nodes[self].children[2];
-	return _output_(selection)
+	return _output_(selection, fnCallArgs)
 }
 const stdNode node_if = {
 	.name = "? num\ncondition num\nifTrue num\nelse num",
@@ -49,9 +49,9 @@ const stdNode node_if = {
 	.evaluate = eval_if,
 };
 
-outType eval_not(nodeIndex self) {
+outType eval_not(nodeIndex self, outType fnCallArgs[maxChildren]) {
 	nodeIndex arg = nodes[self].children[0];
-	outType argOut = _output_(arg)
+	outType argOut = _output_(arg, fnCallArgs)
 	outType toBeReturned;
 	if (argOut.n)
 		toBeReturned.n = 0;
@@ -65,7 +65,7 @@ const stdNode node_not = {
 	.evaluate = eval_not,
 };
 
-outType eval_currentFrame(nodeIndex self) {
+outType eval_currentFrame(nodeIndex self, outType fnCallArgs[maxChildren]) {
 	outType toBeReturned;
 	toBeReturned.n = curFrame;
 	return toBeReturned;

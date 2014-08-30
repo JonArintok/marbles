@@ -1,24 +1,24 @@
 
-fn fibonacci num    |0
+fn fibonacci num
 	n num
-	?                 |1
-		= n 0           |2 3 4
-		0               |5
-		?               |6
-			= n 1         |7 8 9
-			1             |10
-			+             |11
-				fibonacci   |12
-					- n 1     |13 14 15
-				fibonacci   |16
-					- n 2     |17 18 19
+	?
+		= n 0
+		0
+		?
+			= n 1
+			1
+			+
+				fibonacci
+					- n 1
+				fibonacci
+					- n 2
 
 @enter
 
-state fibCounter num     |20
-	fibonacci 3            |21 22
+state fibCounter num
+	fibonacci currentFrame
 
 next
-	? (> currentFrame 12) exit enter
+	? (> fibCounter 1000) exit enter
 
 

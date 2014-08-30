@@ -27,6 +27,7 @@ int  exitFrameform;
 #include "timeKeeping.h"
 #include "parse.h"
 
+outType nullFnCallArgs[maxChildren] = {};
 
 void initialize(void) {
 	//assign all global literal variables
@@ -36,7 +37,7 @@ void initialize(void) {
 			nodes[n].evaluate == eval_varDef &&
 			nodes[n+1].evaluate == eval_numLit
 		) {
-			_output_(n)
+			_output_(n, nullFnCallArgs)
 		}
 	}
 	//assign all literal variables in every frameform
@@ -47,14 +48,14 @@ void initialize(void) {
 				nodes[n].evaluate == eval_varDef &&
 				nodes[n+1].evaluate == eval_numLit
 			) {
-				_output_(n)
+				_output_(n, nullFnCallArgs)
 			}
 		}
 	}
 	
 	//global outputs
 	if (frameRateRoot > -1) {
-		outType frro = _output_(frameRateRoot)
+		outType frro = _output_(frameRateRoot, nullFnCallArgs)
 		frameRate = frro.n;
 	}
 	
@@ -66,7 +67,7 @@ void initialize(void) {
 			nodes[n].evaluate == eval_varDef &&
 			nodes[n+1].evaluate != eval_numLit
 		) {
-			nodes[n+1].output = _output_(n+1)
+			nodes[n+1].output = _output_(n+1, nullFnCallArgs)
 		}
 	}
 	//evaluate nonliteral variables in every frameform
@@ -77,7 +78,7 @@ void initialize(void) {
 				nodes[n].evaluate == eval_varDef &&
 				nodes[n+1].evaluate != eval_numLit
 			) {
-				nodes[n+1].output = _output_(n+1)
+				nodes[n+1].output = _output_(n+1, nullFnCallArgs)
 			}
 		}
 	}
@@ -88,7 +89,7 @@ void initialize(void) {
 			nodes[n].evaluate == eval_varDef &&
 			nodes[n+1].evaluate != eval_numLit
 		) {
-			_output_(n)
+			_output_(n, nullFnCallArgs)
 		}
 	}
 	//assign nonliteral variables in every frameform
@@ -99,7 +100,7 @@ void initialize(void) {
 				nodes[n].evaluate == eval_varDef &&
 				nodes[n+1].evaluate != eval_numLit
 			) {
-				_output_(n)
+				_output_(n, nullFnCallArgs)
 			}
 		}
 	}
@@ -141,19 +142,19 @@ int main(int argc, char **argv) {
 			//evaluate the bodies
 			for (int i = 0; i <= csn; i++) {
 				nodeIndex n = frameforms[activeFrameform].stateNodes[i] + 1;
-				nodes[n].output = _output_(n)
+				nodes[n].output = _output_(n, nullFnCallArgs)
 			}
 			
 			//update the state and print it (for now)
 			for (int i = 0; i <= csn; i++) {
 				nodeIndex n = frameforms[activeFrameform].stateNodes[i];
-				_output_(n)
+				_output_(n, nullFnCallArgs)
 				printf("%d:\t%f\n", i, nodes[n].output.n);
 			}
 			
 			//next frameform is determined between frames
 			if (nextRoot > -1) {
-				outType nextRootOut = _output_(nextRoot)
+				outType nextRootOut = _output_(nextRoot, nullFnCallArgs)
 				activeFrameform = nextRootOut.n;
 				if (activeFrameform == exitFrameform)
 					break;

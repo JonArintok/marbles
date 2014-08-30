@@ -1,8 +1,6 @@
 
 
 #define maxChildren      8
-#define stackSize    10000
-
 
 typedef int16_t nodeIndex;
 #define  maxNodeIndex  32767
@@ -38,9 +36,12 @@ typedef union {
 	nodeIndex  f;
 	nodeArray *F;
 } outType;
-typedef outType (*evaluator)(nodeIndex toBeEvaluated);
+typedef outType (*evaluator)(
+	nodeIndex toBeEvaluated,
+	outType fnCallArgs[maxChildren]
+);
 typedef struct {
-	nodeIndex  definition;//for argument and variable calls
+	nodeIndex  definition;//for variable calls
 	int8_t     argRefIndex;//for argument calls
 	int8_t     childCount;//the number of "subnodes", defNodes have 1
 	nodeIndex  children[maxChildren];//if negative then already evaluated
@@ -101,94 +102,69 @@ char *windowHeightName = "windowHeight num";
 
 
 
-outType stack[stackSize][maxChildren];
-int32_t stackPos = -1;
+#define _output_(toBeEvaluated, fnCallArgs)\
+	nodes[toBeEvaluated].evaluate(toBeEvaluated, fnCallArgs);
 
-
-
-#define _output_(toBeEvaluated)\
-	nodes[toBeEvaluated].evaluate(toBeEvaluated);
-
-outType eval_varDef(nodeIndex self) {
+outType eval_varDef(nodeIndex self, outType fnCallArgs[maxChildren]) {
 	nodes[self].output = nodes[self+1].output;
 	return nodes[self].output;
 }
-outType eval_varCall(nodeIndex self) {
+outType eval_varCall(nodeIndex self, outType fnCallArgs[maxChildren]) {
 	return nodes[ nodes[self].definition ].output;
 }
 
-outType eval_fnDef(nodeIndex self) {
-	return _output_(self+1)
+outType eval_fnDef(nodeIndex self, outType fnCallArgs[maxChildren]) {
+	return _output_(self+1, fnCallArgs)
 }
-outType eval_fnDefN(nodeIndex self) {
-	return _output_(self+1)
+outType eval_fnDefN(nodeIndex self, outType fnCallArgs[maxChildren]) {
+	return _output_(self+1, fnCallArgs)
 }
 
-outType eval_fnCall(nodeIndex self) {
+outType eval_fnCall(nodeIndex self, outType fnCallArgs[maxChildren]) {
 	
-	stackPos++;
+	outType newFnCallArgs[maxChildren];
 	
 	for (int i = 0; i < nodes[self].childCount; i++) {
 		nodeIndex arg = nodes[self].children[i];
-		stack[stackPos][i] = _output_(arg)
+		newFnCallArgs[i] = nodes[arg].evaluate(arg, fnCallArgs);
 	}
 	
 	nodeIndex fnBody = nodes[self].definition + 1;
-	return _output_(fnBody)
-	
-	stackPos--;
+	return nodes[fnBody].evaluate(fnBody, newFnCallArgs);
 }
-outType eval_fnCallN(nodeIndex self) {
+outType eval_fnCallN(nodeIndex self, outType fnCallArgs[maxChildren]) {
 	nodeIndex fnBody = nodes[self].definition + 1;
-	return _output_(fnBody)
+	return _output_(fnBody, fnCallArgs)
 }
 
-outType eval_argCall(nodeIndex self) {
-	
-	//stackTarget should eventually be cached somewhere,
-	//but until then...
-	int stackTarget = stackPos;
-	int peekNode = self-1;
-	while (nodes[peekNode].evaluate != eval_fnDef)
-		peekNode--;
-	nodeIndex callDef = peekNode;
-	peekNode++;
-	for (; peekNode < self; peekNode++) {
-		if (
-			nodes[peekNode].definition == callDef &&
-			nodesInfo[peekNode].level < nodesInfo[self].level
-		) {
-			stackTarget--;
-		}
-	}
-	
-	return stack[stackTarget][ nodes[self].argRefIndex ];
+outType eval_argCall(nodeIndex self, outType fnCallArgs[maxChildren]) {
+	return fnCallArgs[ nodes[self].argRefIndex ];
 }
 
 
-outType eval_stateDef(nodeIndex self) {
+outType eval_stateDef(nodeIndex self, outType fnCallArgs[maxChildren]) {
 	nodes[self].output = nodes[self+1].output;
 	return nodes[self].output;
 }
-outType eval_shareDef(nodeIndex self) {
+outType eval_shareDef(nodeIndex self, outType fnCallArgs[maxChildren]) {
 	nodes[self].output = nodes[self+1].output;
 	return nodes[self].output;
 }
-outType eval_stateCall(nodeIndex self) {
+outType eval_stateCall(nodeIndex self, outType fnCallArgs[maxChildren]) {
 	return nodes[ nodes[self].definition ].output;
 }
-outType eval_shareCall(nodeIndex self) {
+outType eval_shareCall(nodeIndex self, outType fnCallArgs[maxChildren]) {
 	return nodes[ nodes[self].definition ].output;
 }
 
 
 char *name_frameformRef = "frameformRef num";
-outType eval_frameformRef(nodeIndex self) {
+outType eval_frameformRef(nodeIndex self, outType fnCallArgs[maxChildren]) {
 	return nodes[self].output;
 }
 
 char *name_numLit = "numLit num";
-outType eval_numLit(nodeIndex self) {
+outType eval_numLit(nodeIndex self, outType fnCallArgs[maxChildren]) {
 	return nodes[self].output;
 }
 

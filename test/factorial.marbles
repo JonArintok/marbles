@@ -1,16 +1,16 @@
 
-fn factorial num             |0
+fn factorial num
 	n num
-	?                          |1
-		n                        |2
-		* n (factorial (- n 1))  |3 4 (5 (6 7 8))
-		1                        |9
+	?
+		n
+		* n (factorial (- n 1))
+		1
 
 
 @enter
 
-state factorialCounter num   |10
-	factorial currentFrame     |11 12
+state factorialCounter num
+	factorial currentFrame
 
 next
 	? (> factorialCounter 1000) exit enter
