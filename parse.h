@@ -638,7 +638,7 @@ void resolveNode(nodeIndex nodePos) {
 					while (bnNodeName[bnNamePos] && bnNodeName[bnNamePos-1] != '\n')
 						bnNamePos++;
 					if (matchStrWDelim(nodeName, '\0', &bnNodeName[bnNamePos], ' ')) {
-						nodes[nodePos].definition  = backNode;
+						//nodes[nodePos].definition  = backNode;
 						nodes[nodePos].argRefIndex = paramPos;
 						nodes[nodePos].evaluate    = eval_argCall;
 						nodesInfo[nodePos].name    = &bnNodeName[bnNamePos];

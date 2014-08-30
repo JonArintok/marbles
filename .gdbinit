@@ -1,13 +1,43 @@
 
 
 define test
-	echo running test/frameformTransfer.marbles...
+	echo running test/fibonacci.marbles...
 	echo \n
-	run test/frameformTransfer.marbles
+	run test/fibonacci.marbles
 end
 
-break initNodes
-break parse.h:723
+#break foundation.h:135
+#break foundation.h:138
+break foundation.h:139
+
+define pstack
+	set $i = 0
+	while $i <= stackPos
+		echo \n
+		output $i
+		echo \n
+		output stack[$i].n
+		echo \n
+		set $i = $i + 1
+	end
+end
+
+define cnp
+	c
+	echo \n
+	echo self.......
+	output self
+	echo \n
+	echo line.......
+	output nodesInfo[self].line
+	echo \n
+	echo stackPos...
+	output stackPos
+	echo \n
+	echo stackOut...
+	output stack[stackPos].n
+	echo \n
+end
 
 define pnode
 	echo node:

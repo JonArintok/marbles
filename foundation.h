@@ -1,7 +1,7 @@
 
 
 #define maxChildren      8
-#define stackSize     1000
+#define stackSize    10000
 
 
 typedef int16_t nodeIndex;
@@ -38,7 +38,7 @@ typedef union {
 	nodeIndex  f;
 	nodeArray *F;
 } outType;
-typedef void (*evaluator)(nodeIndex toBeEvaluated);
+typedef outType (*evaluator)(nodeIndex toBeEvaluated);
 typedef struct {
 	nodeIndex  definition;//for argument and variable calls
 	int8_t     argRefIndex;//for argument calls
@@ -101,85 +101,94 @@ char *windowHeightName = "windowHeight num";
 
 
 
-#define _evaluateNode_(toBeEvaluated)\
+outType stack[stackSize][maxChildren];
+int32_t stackPos = -1;
+
+
+
+#define _output_(toBeEvaluated)\
 	nodes[toBeEvaluated].evaluate(toBeEvaluated);
 
-
-nodeIndex stack[stackSize];//holds the call sources
-uint32_t stackPos;
-
-void eval_varDef(nodeIndex self) {
+outType eval_varDef(nodeIndex self) {
 	nodes[self].output = nodes[self+1].output;
+	return nodes[self].output;
 }
-void eval_varCall(nodeIndex self) {
-	nodes[self].output = nodes[ nodes[self].definition ].output;
-}
-
-void eval_fnDef(nodeIndex self) {
-	nodes[self].output = nodes[self+1].output;
-}
-void eval_fnDefN(nodeIndex self) {
-	nodes[self].output = nodes[self+1].output;
+outType eval_varCall(nodeIndex self) {
+	return nodes[ nodes[self].definition ].output;
 }
 
-void eval_fnCall(nodeIndex self) {
+outType eval_fnDef(nodeIndex self) {
+	return _output_(self+1)
+}
+outType eval_fnDefN(nodeIndex self) {
+	return _output_(self+1)
+}
+
+outType eval_fnCall(nodeIndex self) {
+	
 	stackPos++;
-	stack[stackPos] = self;
 	
-	nodeIndex fnDef = nodes[self].definition;
-	nodeIndex fnBody = fnDef + 1;
-	//evaluate nodes[self.definition] and get the output
-	_evaluateNode_(fnBody)
-	nodes[self].output = nodes[fnBody].output;
+	for (int i = 0; i < nodes[self].childCount; i++) {
+		nodeIndex arg = nodes[self].children[i];
+		stack[stackPos][i] = _output_(arg)
+	}
 	
-	//reset argument values to positive
-	for (int i = 0; i < nodes[self].childCount; i++)
-		if (nodes[self].children[i] < 0)
-			nodes[self].children[i] *= -1;
+	nodeIndex fnBody = nodes[self].definition + 1;
+	return _output_(fnBody)
 	
 	stackPos--;
 }
-void eval_fnCallN(nodeIndex self) {
+outType eval_fnCallN(nodeIndex self) {
 	nodeIndex fnBody = nodes[self].definition + 1;
-	_evaluateNode_(fnBody)
-	nodes[self].output = nodes[fnBody].output;
+	return _output_(fnBody)
 }
 
-void eval_argCall(nodeIndex self) {
-	//get the nodeIndex of the argument which will have the value we want
-	nodeIndex argNodeIndex = 
-		nodes[ stack[stackPos] ].children[ nodes[self].argRefIndex ];
+outType eval_argCall(nodeIndex self) {
 	
-	//if argNodeIndex is positive, then we need to evaluate
-	if (argNodeIndex >= 0) {
-		_evaluateNode_(argNodeIndex)
-		nodes[self].output = nodes[argNodeIndex].output;
-		
-		//set nodeIndex from the callsource's argument list negative
-		nodes[ stack[stackPos] ].children[ nodes[self].argRefIndex ] *= -1;
+	//stackTarget should eventually be cached somewhere,
+	//but until then...
+	int stackTarget = stackPos;
+	int peekNode = self-1;
+	while (nodes[peekNode].evaluate != eval_fnDef)
+		peekNode--;
+	nodeIndex callDef = peekNode;
+	peekNode++;
+	for (; peekNode < self; peekNode++) {
+		if (
+			nodes[peekNode].definition == callDef &&
+			nodesInfo[peekNode].level < nodesInfo[self].level
+		) {
+			stackTarget--;
+		}
 	}
-	else
-		nodes[self].output = nodes[ argNodeIndex * -1 ].output;
+	
+	return stack[stackTarget][ nodes[self].argRefIndex ];
 }
 
 
-void eval_stateDef(nodeIndex self) {
+outType eval_stateDef(nodeIndex self) {
 	nodes[self].output = nodes[self+1].output;
+	return nodes[self].output;
 }
-void eval_shareDef(nodeIndex self) {
+outType eval_shareDef(nodeIndex self) {
 	nodes[self].output = nodes[self+1].output;
+	return nodes[self].output;
 }
-void eval_stateCall(nodeIndex self) {
-	nodes[self].output = nodes[ nodes[self].definition ].output;
+outType eval_stateCall(nodeIndex self) {
+	return nodes[ nodes[self].definition ].output;
 }
-void eval_shareCall(nodeIndex self) {
-	nodes[self].output = nodes[ nodes[self].definition ].output;
+outType eval_shareCall(nodeIndex self) {
+	return nodes[ nodes[self].definition ].output;
 }
 
 
 char *name_frameformRef = "frameformRef num";
-void eval_frameformRef(nodeIndex self) {}
+outType eval_frameformRef(nodeIndex self) {
+	return nodes[self].output;
+}
 
 char *name_numLit = "numLit num";
-void eval_numLit(nodeIndex self) {}
+outType eval_numLit(nodeIndex self) {
+	return nodes[self].output;
+}
 

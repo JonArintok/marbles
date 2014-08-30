@@ -7,8 +7,8 @@ next                          |next frameform
 
 state result num              |state
 	addmul                      |body
-		tenPerFrame
 		/ nihyaku hyaku
+		tenPerFrame
 
 @.
 

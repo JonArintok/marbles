@@ -7,13 +7,14 @@ typedef struct {
 } stdNode;
 
 #define _biop_(eval_name, node_name, title, op, type) \
-void eval_name(nodeIndex self) {\
+outType eval_name(nodeIndex self) {\
 	nodeIndex arg0 = nodes[self].children[0];\
 	nodeIndex arg1 = nodes[self].children[1];\
-	_evaluateNode_(arg0)\
-	_evaluateNode_(arg1)\
-	nodes[self].output.type = \
-		nodes[arg0].output.type op nodes[arg1].output.type;\
+	outType a = _output_(arg0)\
+	outType b = _output_(arg1)\
+	outType toBeReturned;\
+	toBeReturned.type = a.type op b.type;\
+	return toBeReturned;\
 }\
 const stdNode node_name = {\
 	.name = title " num\na num\nb num",\
@@ -32,16 +33,15 @@ _biop_(eval_notEqual,       node_notEqual,       "!=", !=, n)
 _biop_(eval_notLessThan,    node_notLessThan,    "!<", >=, n)
 _biop_(eval_notGreaterThan, node_notGreaterThan, "!>", <=, n)
 
-void eval_if(nodeIndex self) {
+outType eval_if(nodeIndex self) {
 	nodeIndex cond = nodes[self].children[0];
+	outType condOut = _output_(cond)
 	nodeIndex selection;
-	_evaluateNode_(cond)
-	if (nodes[cond].output.n)
+	if (condOut.n)
 		selection = nodes[self].children[1];
 	else
 		selection = nodes[self].children[2];
-	_evaluateNode_(selection)
-	nodes[self].output = nodes[selection].output;
+	return _output_(selection)
 }
 const stdNode node_if = {
 	.name = "? num\ncondition num\nifTrue num\nelse num",
@@ -49,10 +49,15 @@ const stdNode node_if = {
 	.evaluate = eval_if,
 };
 
-void eval_not(nodeIndex self) {
+outType eval_not(nodeIndex self) {
 	nodeIndex arg = nodes[self].children[0];
-	_evaluateNode_(arg)
-	nodes[self].output.n = nodes[arg].output.n ? 0 : 1;
+	outType argOut = _output_(arg)
+	outType toBeReturned;
+	if (argOut.n)
+		toBeReturned.n = 0;
+	else
+		toBeReturned.n = 1;
+	return toBeReturned;
 }
 const stdNode node_not = {
 	.name = "! num\na num",
@@ -60,8 +65,10 @@ const stdNode node_not = {
 	.evaluate = eval_not,
 };
 
-void eval_currentFrame(nodeIndex self) {
-	nodes[self].output.n = curFrame;
+outType eval_currentFrame(nodeIndex self) {
+	outType toBeReturned;
+	toBeReturned.n = curFrame;
+	return toBeReturned;
 }
 const stdNode node_curFrame = {
 	.name = "currentFrame num",

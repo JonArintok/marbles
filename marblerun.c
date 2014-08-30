@@ -36,7 +36,7 @@ void initialize(void) {
 			nodes[n].evaluate == eval_varDef &&
 			nodes[n+1].evaluate == eval_numLit
 		) {
-			_evaluateNode_(n)
+			_output_(n)
 		}
 	}
 	//assign all literal variables in every frameform
@@ -47,15 +47,15 @@ void initialize(void) {
 				nodes[n].evaluate == eval_varDef &&
 				nodes[n+1].evaluate == eval_numLit
 			) {
-				_evaluateNode_(n)
+				_output_(n)
 			}
 		}
 	}
 	
 	//global outputs
 	if (frameRateRoot > -1) {
-		_evaluateNode_(frameRateRoot)
-		frameRate = nodes[frameRateRoot].output.n;
+		outType frro = _output_(frameRateRoot)
+		frameRate = frro.n;
 	}
 	
 	
@@ -66,7 +66,7 @@ void initialize(void) {
 			nodes[n].evaluate == eval_varDef &&
 			nodes[n+1].evaluate != eval_numLit
 		) {
-			_evaluateNode_(n+1)
+			nodes[n+1].output = _output_(n+1)
 		}
 	}
 	//evaluate nonliteral variables in every frameform
@@ -77,7 +77,7 @@ void initialize(void) {
 				nodes[n].evaluate == eval_varDef &&
 				nodes[n+1].evaluate != eval_numLit
 			) {
-				_evaluateNode_(n+1)
+				nodes[n+1].output = _output_(n+1)
 			}
 		}
 	}
@@ -88,7 +88,7 @@ void initialize(void) {
 			nodes[n].evaluate == eval_varDef &&
 			nodes[n+1].evaluate != eval_numLit
 		) {
-			_evaluateNode_(n)
+			_output_(n)
 		}
 	}
 	//assign nonliteral variables in every frameform
@@ -99,7 +99,7 @@ void initialize(void) {
 				nodes[n].evaluate == eval_varDef &&
 				nodes[n+1].evaluate != eval_numLit
 			) {
-				_evaluateNode_(n)
+				_output_(n)
 			}
 		}
 	}
@@ -119,12 +119,17 @@ int main(int argc, char **argv) {
 		return 2;
 	}
 	
+	puts("reading...");
+	
 	init_Allocation();
 	parse();
 	fclose(fileStream);
 	
 	if (!errorCount) {
 		initialize();
+		
+		puts("running...");
+		printf("frameRate: %f\n", frameRate);//uncomment this when using valgrind
 		
 		long frameTimeStamp = getMicroseconds();
 		//the loop
@@ -136,26 +141,25 @@ int main(int argc, char **argv) {
 			//evaluate the bodies
 			for (int i = 0; i <= csn; i++) {
 				nodeIndex n = frameforms[activeFrameform].stateNodes[i] + 1;
-				_evaluateNode_(n)
+				nodes[n].output = _output_(n)
 			}
 			
 			//update the state and print it (for now)
 			for (int i = 0; i <= csn; i++) {
 				nodeIndex n = frameforms[activeFrameform].stateNodes[i];
-				_evaluateNode_(n)
+				_output_(n)
 				printf("%d:\t%f\n", i, nodes[n].output.n);
 			}
 			
 			//next frameform is determined between frames
 			if (nextRoot > -1) {
-				_evaluateNode_(nextRoot)
-				activeFrameform = nodes[nextRoot].output.n;
+				outType nextRootOut = _output_(nextRoot)
+				activeFrameform = nextRootOut.n;
+				if (activeFrameform == exitFrameform)
+					break;
 			}
 			
-			if (activeFrameform == exitFrameform)
-				break;
-			else
-				frameWait(&frameTimeStamp);
+			frameWait(&frameTimeStamp);
 		}
 	}
 	
