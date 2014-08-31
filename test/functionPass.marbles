@@ -1,50 +1,46 @@
 
-var juu num
-	10
 
-fn addN_mulN num
+fn addmul num
 	input  num
 	factor num
 	* factor (+ factor input)
-	
-fn mulN_addN num
-	input  num
-	factor num
-	+ factor (- factor input)
 
+fn applyBiop num
+	biop num & num num
+	a num
+	b num
+	biop a b
 
-fn maxDoer num & num num
-	doerA num & num num
-	doerB num & num num
-	x     num
-	y     num
-	? (> (doerA x y) (doerB x y)) doerA doerB
-
-fn minDoer num & num num
-	doerA num & num num
-	doerB num & num num
-	x     num
-	y     num
-	? (< (doerA x y) (doerB x y)) doerA doerB
-
-
-fn doerSelectorSelector (num & num num) & (num & num num) (num & num num)
-	doerSelectorA (num & num num) & (num & num num) (num & num num)
-	doerSelectorb (num & num num) & (num & num num) (num & num num)
-	? (% currentFrame 2) doerSelectorA doerSelectorb
+fn fnSelector num & num num
+	earlyFn num & num num
+	lateFn  num & num num
+	?
+		< currentFrame (/ frameLimit 2)
+		earlyFn
+		lateFn
 
 
 @enter
 
-state currentDoerSelector (num & num num) & (num & num num) (num & num num)
-	doerSelectorSelector maxDoer minDoer
+state A num
+	applyBiop
+		'-
+		frameLimit
+		currentFrame
 
-state currentDoer num & num num
-	currentDoerSelector addN_mulN mulN_addN juu 2
+state B num
+	applyBiop
+		fnSelector 'addmul '*
+		currentFrame
+		12
 
-state outA num
-	currentDoer juu 2
+next
+	?
+		< currentFrame frameLimit
+		enter
+		exit
 
-state outB num
-	currentDoer 2 juu
+@.
 
+var frameLimit num
+	20

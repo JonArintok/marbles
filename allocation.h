@@ -4,7 +4,6 @@
 #define    namePage 16 //for arrays of chars
 
 int        nodeSpace     =  0;
-nodeIndex  curNode       = -1;
 int        nodeNameSpace =  0;
 int        namePos       = -1;
 
@@ -12,11 +11,9 @@ int        namePos       = -1;
 #define    nodeIndexPage 16 //for arrays of nodeIndex and refs to nodeIndex
 
 int        gRootNodeSpace =  0;
-int        gCurRootNode   = -1;
 
 #define    frameformPage 16
 int        frameformSpace =  0;
-int        curFrameform   = -1;
 
 char *unnamed = "!!  unnamed  !!";
 

@@ -4,6 +4,7 @@
 #define charTag_frameform '@'
 #define charTag_paramType '&'
 #define charTag_shareRead ':'
+#define charTag_fnPass    '\''
 #define decTag_var   "var"
 #define decTag_fn    "fn"
 #define decTag_state "state"
@@ -468,8 +469,54 @@ void resolveNode(nodeIndex nodePos) {
 		return;
 	}
 	
+	//check for fn pass
+	if (nodeName[0] == charTag_fnPass) {
+		nodes[nodePos].evaluate = eval_fnPass;
+		//check for passing of a std fn
+		for (int sntPos = 0; sntPos < stdNodeTableLength; sntPos++) {
+			if (matchStrWDelim(
+				&nodeName[1], '\0', stdNodeTable[sntPos]->name, ' '
+			)) {
+				nodes[nodePos].output.f = sntPos + curNode + 1;
+				nodesInfo[nodePos].name = stdNodeTable[sntPos]->name;
+				free(nodeName);
+				return;
+			}
+		}
+		//check for passing of global user-defined fn
+		for (int grnPos = 0; grnPos <= gCurRootNode; grnPos++) {
+			if (matchStrWDelim(
+				&nodeName[1], '\0', nodesInfo[ gRootNodes[grnPos] ].name, ' '
+			)) {
+				nodes[nodePos].output.f = gRootNodes[grnPos];
+				nodesInfo[nodePos].name = nodesInfo[ gRootNodes[grnPos] ].name;
+				free(nodeName);
+				return;
+			}
+		}
+		if (nodeFf > -1) {
+		//check for local fnCall or varCall
+			for (int rnPos = 0; rnPos <= frameforms[nodeFf].curRootNode; rnPos++) {
+				if (matchStrWDelim(
+					&nodeName[1], '\0',
+					nodesInfo[ frameforms[nodeFf].rootNodes[rnPos] ].name, ' '
+				)) {
+					nodes[nodePos].output.f = frameforms[nodeFf].rootNodes[rnPos];
+					nodesInfo[nodePos].name = nodesInfo[
+						frameforms[nodeFf].rootNodes[rnPos]
+					].name;
+					free(nodeName);
+					return;
+				}
+			}
+		}
+		putError(nodeLine, "did not recognize ");
+		printf("'%s'\n", &nodeName[1]);
+		free(nodeName);
+		return;
+	}
 	
-	//check for reference to stdNode
+	//check for reference to std fn
 	for (int sntPos = 0; sntPos < stdNodeTableLength; sntPos++) {
 		if (matchStrWDelim(nodeName, '\0', stdNodeTable[sntPos]->name, ' ')) {
 			if (nodes[nodePos].childCount != stdNodeTable[sntPos]->arity) {
@@ -640,9 +687,23 @@ void resolveNode(nodeIndex nodePos) {
 					if (matchStrWDelim(nodeName, '\0', &bnNodeName[bnNamePos], ' ')) {
 						//nodes[nodePos].definition  = backNode;
 						nodes[nodePos].argRefIndex = paramPos;
-						nodes[nodePos].evaluate    = eval_argCall;
 						nodesInfo[nodePos].name    = &bnNodeName[bnNamePos];
 						free(nodeName);
+						nodes[nodePos].evaluate = eval_argCall;
+						for (//problem
+							int paramNamePos = 0;
+							nodesInfo[nodePos].name[paramNamePos] &&
+							nodesInfo[nodePos].name[paramNamePos] != '\n';
+							paramNamePos++
+						) {
+							if (//problem
+								nodesInfo[nodePos].name[paramNamePos] == charTag_paramType &&
+								nodes[nodePos].childCount
+							) {
+								nodes[nodePos].evaluate = eval_fnArgCall;
+								break;
+							}
+						}
 						return;
 					}
 					bnNamePos++;

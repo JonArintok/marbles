@@ -1,14 +1,12 @@
 
 
 define test
-	echo running test/fibonacci.marbles...
+	echo running test/functionPass.marbles...
 	echo \n
-	run test/fibonacci.marbles
+	run test/functionPass.marbles
 end
 
-#break foundation.h:135
-#break foundation.h:138
-break foundation.h:139
+break eval_fnArgCall
 
 define pstack
 	set $i = 0

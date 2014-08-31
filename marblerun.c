@@ -151,6 +151,7 @@ int main(int argc, char **argv) {
 				_output_(n, nullFnCallArgs)
 				printf("%d:\t%f\n", i, nodes[n].output.n);
 			}
+			puts("");
 			
 			//next frameform is determined between frames
 			if (nextRoot > -1) {

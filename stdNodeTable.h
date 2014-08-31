@@ -1,11 +1,5 @@
 
 
-typedef struct {
-	char     *name;
-	uint8_t   arity;
-	evaluator evaluate;
-} stdNode;
-
 #define _biop_(eval_name, node_name, title, op, type) \
 outType eval_name(nodeIndex self, outType fnCallArgs[maxChildren]) {\
 	nodeIndex arg0 = nodes[self].children[0];\
@@ -78,7 +72,6 @@ const stdNode node_curFrame = {
 
 
 
-#define stdNodeTableLength  13
 const stdNode *stdNodeTable[stdNodeTableLength] = {
 	&node_add,
 	&node_sub,

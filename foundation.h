@@ -1,6 +1,6 @@
 
 
-#define maxChildren      8
+#define maxChildren 8
 
 typedef int16_t nodeIndex;
 #define  maxNodeIndex  32767
@@ -85,7 +85,19 @@ char *audioOutName      = "audioOut num.";
 node      *nodes;
 nodeIndex *gRootNodes;
 frameform *frameforms;
+nodeIndex  curNode      = -1;
+int        gCurRootNode = -1;
+int        curFrameform = -1;
 
+
+typedef struct {
+	char     *name;
+	uint8_t   arity;
+	evaluator evaluate;
+} stdNode;
+
+#define stdNodeTableLength  13
+const stdNode *stdNodeTable[stdNodeTableLength];
 
 
 
@@ -121,16 +133,13 @@ outType eval_fnDefN(nodeIndex self, outType fnCallArgs[maxChildren]) {
 }
 
 outType eval_fnCall(nodeIndex self, outType fnCallArgs[maxChildren]) {
-	
 	outType newFnCallArgs[maxChildren];
-	
 	for (int i = 0; i < nodes[self].childCount; i++) {
 		nodeIndex arg = nodes[self].children[i];
 		newFnCallArgs[i] = nodes[arg].evaluate(arg, fnCallArgs);
 	}
-	
 	nodeIndex fnBody = nodes[self].definition + 1;
-	return nodes[fnBody].evaluate(fnBody, newFnCallArgs);
+	return _output_(fnBody, newFnCallArgs)
 }
 outType eval_fnCallN(nodeIndex self, outType fnCallArgs[maxChildren]) {
 	nodeIndex fnBody = nodes[self].definition + 1;
@@ -139,6 +148,23 @@ outType eval_fnCallN(nodeIndex self, outType fnCallArgs[maxChildren]) {
 
 outType eval_argCall(nodeIndex self, outType fnCallArgs[maxChildren]) {
 	return fnCallArgs[ nodes[self].argRefIndex ];
+}
+outType eval_fnArgCall(nodeIndex self, outType fnCallArgs[maxChildren]) {
+	//std fn
+	nodeIndex nodePassed = fnCallArgs[ nodes[self].argRefIndex ].f;
+	if (nodePassed > curNode)
+		return stdNodeTable[nodePassed-curNode-1]->evaluate(self, fnCallArgs);
+	
+	//user-defined fn
+	outType newFnCallArgs[maxChildren];
+	for (int i = 0; i < nodes[self].childCount; i++) {
+		nodeIndex arg = nodes[self].children[i];
+		newFnCallArgs[i] = nodes[arg].evaluate(arg, fnCallArgs);
+	}
+	return _output_(nodePassed+1, newFnCallArgs)
+}
+outType eval_fnPass(nodeIndex self, outType fnCallArgs[maxChildren]) {
+	return nodes[self].output;
 }
 
 
