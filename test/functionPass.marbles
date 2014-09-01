@@ -24,13 +24,13 @@ fn fnSelector num & num num
 
 state A num
 	applyBiop
-		'-
+		-
 		frameLimit
 		currentFrame
 
 state B num
 	applyBiop
-		fnSelector 'addmul '*
+		fnSelector addmul *
 		currentFrame
 		12
 

@@ -36,7 +36,7 @@ typedef union {
 	nodeIndex  f;
 	nodeArray *F;
 } outType;
-typedef outType (*evaluator)(
+typedef outType (*evaluator) (
 	nodeIndex toBeEvaluated,
 	outType fnCallArgs[maxChildren]
 );
@@ -44,7 +44,7 @@ typedef struct {
 	nodeIndex  definition;//for variable calls
 	int8_t     argRefIndex;//for argument calls
 	int8_t     childCount;//the number of "subnodes", defNodes have 1
-	nodeIndex  children[maxChildren];//if negative then already evaluated
+	nodeIndex  children[maxChildren];
 	evaluator  evaluate;
 	outType    output;
 } node;
