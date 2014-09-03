@@ -146,7 +146,7 @@ int strRemoveUpToIncl(char *s, char d) {
 	for (int rpos = 0;; rpos++) {
 		if (s[rpos] == d) {
 			int wpos = 0;
-			for (; s[rpos]; wpos++)//"uninitialised value" from valgrind sometimes?
+			for (; s[wpos]; wpos++)//"uninitialised value" from valgrind sometimes?
 				s[wpos] = s[++rpos];
 			return wpos;
 		}
@@ -399,19 +399,6 @@ void initOutput(void) {
 	getBody();
 }
 
-bool isDefNode(nodeIndex n) {
-	if (
-		nodes[n].evaluate == eval_varDef   ||
-		nodes[n].evaluate == eval_fnDef    ||
-		nodes[n].evaluate == eval_fnDefN   ||
-		nodes[n].evaluate == eval_stateDef ||
-		nodes[n].evaluate == eval_shareDef
-	) {
-		return true;
-	}
-	return false;
-}
-
 void attachFnOrVarCall(nodeIndex def, nodeIndex call) {
 	nodesInfo[call].name = nodesInfo[def].name;
 	nodes[call].definition = def;
@@ -448,7 +435,7 @@ void attachFnOrVarCall(nodeIndex def, nodeIndex call) {
 
 void resolveNode(nodeIndex nodePos) {
 	//skip defNodes
-	if (isDefNode(nodePos))
+	if (!nodesInfo[nodePos].level)
 		return;
 	
 	char *nodeName = nodesInfo[nodePos].name;
@@ -470,6 +457,49 @@ void resolveNode(nodeIndex nodePos) {
 		nodesInfo[nodePos].name = name_numLit;
 		free(nodeName);
 		return;
+	}
+	
+	//check for argCall
+	for (int backNode = nodePos;; backNode--) {
+		if (nodesInfo[backNode].level == 0) {
+			if (nodes[backNode].evaluate == eval_fnDef) {
+				int   bnNamePos  = 1;
+				int   paramPos   = 0;
+				char *bnNodeName = nodesInfo[backNode].name;
+				for (; 
+					bnNodeName[bnNamePos] && paramPos < nodesInfo[backNode].arity;
+					paramPos++
+				) {
+					while (bnNodeName[bnNamePos] && bnNodeName[bnNamePos-1] != '\n')
+						bnNamePos++;
+					if (matchStrWDelim(nodeName, '\0', &bnNodeName[bnNamePos], ' ')) {
+						//nodes[nodePos].definition  = backNode;
+						nodes[nodePos].argRefIndex = paramPos;
+						nodesInfo[nodePos].name    = &bnNodeName[bnNamePos];
+						free(nodeName);
+						nodes[nodePos].evaluate = eval_argCall;
+						for (//problem
+							int paramNamePos = 0;
+							nodesInfo[nodePos].name[paramNamePos] &&
+							nodesInfo[nodePos].name[paramNamePos] != '\n';
+							paramNamePos++
+						) {
+							if (//problem
+								nodesInfo[nodePos].name[paramNamePos] == charTag_paramType &&
+								nodes[nodePos].childCount
+							) {
+								nodes[nodePos].evaluate = eval_fnArgCall;
+								break;
+							}
+						}
+						return;
+					}
+					bnNamePos++;
+				}
+				break;
+			}
+			else break;
+		}
 	}
 	
 	//check for reference to std fn
@@ -630,49 +660,6 @@ void resolveNode(nodeIndex nodePos) {
 			attachFnOrVarCall(gRootNodes[grnPos], nodePos);
 			free(nodeName);
 			return;
-		}
-	}
-	
-	//check for argCall
-	for (int backNode = nodePos;; backNode--) {
-		if (nodesInfo[backNode].level == 0) {
-			if (nodes[backNode].evaluate == eval_fnDef) {
-				int   bnNamePos  = 1;
-				int   paramPos   = 0;
-				char *bnNodeName = nodesInfo[backNode].name;
-				for (; 
-					bnNodeName[bnNamePos] && paramPos < nodesInfo[backNode].arity;
-					paramPos++
-				) {
-					while (bnNodeName[bnNamePos] && bnNodeName[bnNamePos-1] != '\n')
-						bnNamePos++;
-					if (matchStrWDelim(nodeName, '\0', &bnNodeName[bnNamePos], ' ')) {
-						//nodes[nodePos].definition  = backNode;
-						nodes[nodePos].argRefIndex = paramPos;
-						nodesInfo[nodePos].name    = &bnNodeName[bnNamePos];
-						free(nodeName);
-						nodes[nodePos].evaluate = eval_argCall;
-						for (//problem
-							int paramNamePos = 0;
-							nodesInfo[nodePos].name[paramNamePos] &&
-							nodesInfo[nodePos].name[paramNamePos] != '\n';
-							paramNamePos++
-						) {
-							if (//problem
-								nodesInfo[nodePos].name[paramNamePos] == charTag_paramType &&
-								nodes[nodePos].childCount
-							) {
-								nodes[nodePos].evaluate = eval_fnArgCall;
-								break;
-							}
-						}
-						return;
-					}
-					bnNamePos++;
-				}
-				break;
-			}
-			else break;
 		}
 	}
 	

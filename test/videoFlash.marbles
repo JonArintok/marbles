@@ -1,0 +1,29 @@
+
+
+fn triWave num
+	phase num
+	?
+		!> phase 0.5
+		* 2 phase
+		* 2 (- 1 phase)
+
+
+@enter
+
+var phaseIncrem num
+	0.01
+
+state lightPhase num
+	?
+		!< lightPhase 1
+		0
+		+ lightPhase phaseIncrem
+
+
+video                     |type: byte4**
+	setAll
+		video                 |source
+		byte4AllN             |new value
+			triWave lightPhase
+
+

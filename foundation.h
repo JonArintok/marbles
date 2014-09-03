@@ -41,7 +41,7 @@ typedef outType (*evaluator) (
 	outType fnCallArgs[maxChildren]
 );
 typedef struct {
-	nodeIndex  definition;//for variable calls
+	nodeIndex  definition;//for variable/state/fn calls
 	int8_t     argRefIndex;//for argument calls
 	int8_t     childCount;//the number of "subnodes", defNodes have 1
 	nodeIndex  children[maxChildren];
