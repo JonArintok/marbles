@@ -45,7 +45,7 @@ void inc_curNode(void) {
 	nodes[curNode].argRefIndex = 0;
 	nodes[curNode].childCount  = 0;
 	nodes[curNode].evaluate    = NULL;
-	nodes[curNode].output.n    = 0;
+	nodes[curNode].cache.n     = 0;
 	for (int i = 0; i < maxChildren; i++)
 		nodes[curNode].children[i] = 0;
 	

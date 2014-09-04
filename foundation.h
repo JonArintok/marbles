@@ -46,7 +46,7 @@ typedef struct {
 	int8_t     childCount;//the number of "subnodes", defNodes have 1
 	nodeIndex  children[maxChildren];
 	evaluator  evaluate;
-	outType    output;
+	outType    cache;
 } node;
 
 //for non-performance critical info not needed beyond parsing
@@ -96,7 +96,7 @@ typedef struct {
 	evaluator evaluate;
 } stdNode;
 
-#define stdNodeTableLength  13
+#define stdNodeTableLength  15
 const stdNode *stdNodeTable[stdNodeTableLength];
 
 
@@ -118,11 +118,11 @@ char *windowHeightName = "windowHeight num";
 	nodes[toBeEvaluated].evaluate(toBeEvaluated, fnCallArgs);
 
 outType eval_varDef(nodeIndex self, outType fnCallArgs[maxChildren]) {
-	nodes[self].output = nodes[self+1].output;
-	return nodes[self].output;
+	nodes[self].cache = nodes[self+1].cache;
+	return nodes[self].cache;
 }
 outType eval_varCall(nodeIndex self, outType fnCallArgs[maxChildren]) {
-	return nodes[ nodes[self].definition ].output;
+	return nodes[ nodes[self].definition ].cache;
 }
 
 outType eval_fnDef(nodeIndex self, outType fnCallArgs[maxChildren]) {
@@ -164,33 +164,33 @@ outType eval_fnArgCall(nodeIndex self, outType fnCallArgs[maxChildren]) {
 	return _output_(nodePassed+1, newFnCallArgs)
 }
 outType eval_fnPass(nodeIndex self, outType fnCallArgs[maxChildren]) {
-	return nodes[self].output;
+	return nodes[self].cache;
 }
 
 
 outType eval_stateDef(nodeIndex self, outType fnCallArgs[maxChildren]) {
-	nodes[self].output = nodes[self+1].output;
-	return nodes[self].output;
+	nodes[self].cache = nodes[self+1].cache;
+	return nodes[self].cache;
 }
 outType eval_shareDef(nodeIndex self, outType fnCallArgs[maxChildren]) {
-	nodes[self].output = nodes[self+1].output;
-	return nodes[self].output;
+	nodes[self].cache = nodes[self+1].cache;
+	return nodes[self].cache;
 }
 outType eval_stateCall(nodeIndex self, outType fnCallArgs[maxChildren]) {
-	return nodes[ nodes[self].definition ].output;
+	return nodes[ nodes[self].definition ].cache;
 }
 outType eval_shareCall(nodeIndex self, outType fnCallArgs[maxChildren]) {
-	return nodes[ nodes[self].definition ].output;
+	return nodes[ nodes[self].definition ].cache;
 }
 
 
 char *name_frameformRef = "frameformRef num";
 outType eval_frameformRef(nodeIndex self, outType fnCallArgs[maxChildren]) {
-	return nodes[self].output;
+	return nodes[self].cache;
 }
 
 char *name_numLit = "numLit num";
 outType eval_numLit(nodeIndex self, outType fnCallArgs[maxChildren]) {
-	return nodes[self].output;
+	return nodes[self].cache;
 }
 

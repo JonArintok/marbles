@@ -20,7 +20,7 @@ state lightPhase num
 		+ lightPhase phaseIncrem
 
 
-video                     |type: byte4**
+video                     |of type byte4**
 	setAll
 		video                 |source
 		byte4AllN             |new value

@@ -67,7 +67,7 @@ void initialize(void) {
 			nodes[n].evaluate == eval_varDef &&
 			nodes[n+1].evaluate != eval_numLit
 		) {
-			nodes[n+1].output = _output_(n+1, nullFnCallArgs)
+			nodes[n+1].cache = _output_(n+1, nullFnCallArgs)
 		}
 	}
 	//evaluate nonliteral variables in every frameform
@@ -78,7 +78,7 @@ void initialize(void) {
 				nodes[n].evaluate == eval_varDef &&
 				nodes[n+1].evaluate != eval_numLit
 			) {
-				nodes[n+1].output = _output_(n+1, nullFnCallArgs)
+				nodes[n+1].cache = _output_(n+1, nullFnCallArgs)
 			}
 		}
 	}
@@ -142,14 +142,14 @@ int main(int argc, char **argv) {
 			//evaluate the bodies
 			for (int i = 0; i <= csn; i++) {
 				nodeIndex n = frameforms[activeFrameform].stateNodes[i] + 1;
-				nodes[n].output = _output_(n, nullFnCallArgs)
+				nodes[n].cache = _output_(n, nullFnCallArgs)
 			}
 			
 			//update the state and print it (for now)
 			for (int i = 0; i <= csn; i++) {
 				nodeIndex n = frameforms[activeFrameform].stateNodes[i];
 				_output_(n, nullFnCallArgs)
-				printf("%d:\t%f\n", i, nodes[n].output.n);
+				printf("%d:\t%f\n", i, nodes[n].cache.n);
 			}
 			puts("");
 			

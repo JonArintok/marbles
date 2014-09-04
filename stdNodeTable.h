@@ -26,6 +26,9 @@ _biop_(eval_greaterThan,    node_greaterThan,     ">",  >, n)
 _biop_(eval_notEqual,       node_notEqual,       "!=", !=, n)
 _biop_(eval_notLessThan,    node_notLessThan,    "!<", >=, n)
 _biop_(eval_notGreaterThan, node_notGreaterThan, "!>", <=, n)
+_biop_(eval_both,           node_both,       "both",   &&, n)
+_biop_(eval_either,         node_either,     "either", ||, n)
+
 
 outType eval_if(nodeIndex self, outType fnCallArgs[maxChildren]) {
 	nodeIndex cond = nodes[self].children[0];
@@ -38,7 +41,7 @@ outType eval_if(nodeIndex self, outType fnCallArgs[maxChildren]) {
 	return _output_(selection, fnCallArgs)
 }
 const stdNode node_if = {
-	.name = "? num\ncondition num\nifTrue num\nelse num",
+	.name = "? any\ncondition num\nifTrue any\nelse any",
 	.arity = 3,
 	.evaluate = eval_if,
 };
@@ -72,6 +75,8 @@ const stdNode node_curFrame = {
 
 
 
+
+
 const stdNode *stdNodeTable[stdNodeTableLength] = {
 	&node_add,
 	&node_sub,
@@ -83,6 +88,8 @@ const stdNode *stdNodeTable[stdNodeTableLength] = {
 	&node_notEqual,
 	&node_notLessThan,
 	&node_notGreaterThan,
+	&node_both,
+	&node_either,
 	&node_if,
 	&node_not,
 	&node_curFrame

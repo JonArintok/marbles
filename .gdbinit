@@ -69,7 +69,7 @@ define pnode
 	output nodes[$arg0].evaluate
 	echo \n
 	echo output.n....
-	output nodes[$arg0].output.n
+	output nodes[$arg0].cache.n
 	echo \n
 end
 	

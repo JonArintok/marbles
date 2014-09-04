@@ -406,7 +406,7 @@ void attachFnOrVarCall(nodeIndex def, nodeIndex call) {
 	if (nodes[def].evaluate == eval_fnDef) {
 		if (!nodes[call].childCount) {
 			nodes[call].evaluate = eval_fnPass;
-			nodes[call].output.f = def;
+			nodes[call].cache.f = def;
 		}
 		else if (nodes[call].childCount == nodesInfo[def].arity) {
 			nodes[call].evaluate = eval_fnCall;
@@ -453,7 +453,7 @@ void resolveNode(nodeIndex nodePos) {
 			}
 		}
 		nodes[nodePos].evaluate = eval_numLit;
-		sscanf(nodeName, "%lf", &nodes[nodePos].output.n);
+		sscanf(nodeName, "%lf", &nodes[nodePos].cache.n);
 		nodesInfo[nodePos].name = name_numLit;
 		free(nodeName);
 		return;
@@ -478,13 +478,13 @@ void resolveNode(nodeIndex nodePos) {
 						nodesInfo[nodePos].name    = &bnNodeName[bnNamePos];
 						free(nodeName);
 						nodes[nodePos].evaluate = eval_argCall;
-						for (//problem
+						for (
 							int paramNamePos = 0;
 							nodesInfo[nodePos].name[paramNamePos] &&
 							nodesInfo[nodePos].name[paramNamePos] != '\n';
 							paramNamePos++
 						) {
-							if (//problem
+							if (
 								nodesInfo[nodePos].name[paramNamePos] == charTag_paramType &&
 								nodes[nodePos].childCount
 							) {
@@ -507,7 +507,7 @@ void resolveNode(nodeIndex nodePos) {
 		if (matchStrWDelim(nodeName, '\0', stdNodeTable[sntPos]->name, ' ')) {
 			if (!nodes[nodePos].childCount && stdNodeTable[sntPos]->arity) {
 				nodes[nodePos].evaluate = eval_fnPass;
-				nodes[nodePos].output.f = sntPos + curNode + 1;
+				nodes[nodePos].cache.f = sntPos + curNode + 1;
 			}
 			else if (nodes[nodePos].childCount == stdNodeTable[sntPos]->arity) {
 				nodes[nodePos].evaluate = stdNodeTable[sntPos]->evaluate;
@@ -531,7 +531,7 @@ void resolveNode(nodeIndex nodePos) {
 	//check for frameform index
 	for (int ffPos = 0; ffPos <= curFrameform; ffPos++) {
 		if (!(strcmp(nodeName, frameforms[ffPos].name))) {
-			nodes[nodePos].output.n = ffPos;
+			nodes[nodePos].cache.n = ffPos;
 			nodes[nodePos].evaluate = eval_frameformRef;
 			nodesInfo[nodePos].name = name_frameformRef;
 			free(nodeName);
@@ -540,7 +540,7 @@ void resolveNode(nodeIndex nodePos) {
 	}
 	//check for reference to exit
 	if (!(strcmp(nodeName, exitPointName))) {
-		nodes[nodePos].output.n = exitFrameform;
+		nodes[nodePos].cache.n = exitFrameform;
 		nodes[nodePos].evaluate = eval_frameformRef;
 		nodesInfo[nodePos].name = name_frameformRef;
 		free(nodeName);
