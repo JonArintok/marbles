@@ -20,10 +20,13 @@ state lightPhase num
 		+ lightPhase phaseIncrem
 
 
-video                     |of type byte4**
-	setAll
-		video                 |source
-		byte4AllN             |new value
-			triWave lightPhase
+videoOut                  |of type byte4**
+	fill~Byte4**
+		build~Byte4**
+			windowWidth
+			sindowHeight
+		fill~byte4            |new value
+			ByteFromNorm        |from num 0-1 to byte 0-255
+				triWave lightPhase
 
 

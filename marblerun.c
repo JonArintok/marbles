@@ -54,7 +54,7 @@ void initialize(void) {
 	}
 	
 	//global outputs
-	if (frameRateRoot > -1) {
+	if (frameRateRoot != maxNodeIndex) {
 		outType frro = _output_(frameRateRoot, nullFnCallArgs)
 		frameRate = frro.n;
 	}

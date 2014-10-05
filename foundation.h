@@ -2,8 +2,8 @@
 
 #define maxChildren 8
 
-typedef int16_t nodeIndex;
-#define  maxNodeIndex  32767
+typedef uint16_t nodeIndex;
+#define  maxNodeIndex  65535
 
 typedef double  number;
 typedef uint8_t byte;
@@ -30,7 +30,6 @@ typedef union {
 	numArray  *N;
 	byte       b;
 	byte       b2[2];
-	byte       b3[3];
 	byte       b4[4];
 	byteArray *B;
 	nodeIndex  f;
@@ -78,7 +77,7 @@ typedef struct {
 	nodeIndex audioOut;
 } frameform;
 char *nextFrameformName = "next num";
-char *videoOutName      = "videoOut quobyte..";//type name pending
+char *videoOutName      = "videoOut byte4**";//type name pending
 char *audioOutName      = "audioOut num.";
 
 

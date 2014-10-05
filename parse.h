@@ -103,16 +103,10 @@ void getLine(void) {
 		
 		//ignore comments
 		if (fileChar == charTag_comment) {
-			//end of the line
-			//if (bufPos && lineBuf[bufPos-1] == ' ')
-			//	lineBuf[bufPos-1] = '\0';
-			//else
-			//	lineBuf[bufPos] = '\0';
 			//read through to the newline character
 			while ( (fileChar = fgetc(fileStream)) != '\n' )
 				if (fileChar == EOF) 
 					reachedEOF = true;
-			//break;
 		}
 		
 		//check for newline character
@@ -428,7 +422,7 @@ void attachFnOrVarCall(nodeIndex def, nodeIndex call) {
 	else if (nodes[def].evaluate == eval_varDef) {
 		nodes[call].evaluate = eval_varCall;
 		//if (nodes[call].childCount != 0)
-			//calling a function held by a variable?
+		//	calling a function held by a variable?
 	}
 	else _shouldNotBeHere_
 }
@@ -473,7 +467,6 @@ void resolveNode(nodeIndex nodePos) {
 					while (bnNodeName[bnNamePos] && bnNodeName[bnNamePos-1] != '\n')
 						bnNamePos++;
 					if (matchStrWDelim(nodeName, '\0', &bnNodeName[bnNamePos], ' ')) {
-						//nodes[nodePos].definition  = backNode;
 						nodes[nodePos].argRefIndex = paramPos;
 						nodesInfo[nodePos].name    = &bnNodeName[bnNamePos];
 						free(nodeName);
