@@ -8,11 +8,12 @@
 #include <stdint.h>
 
 
-#define screenWidth   640
-#define screenHeight  480
-#define pixelCount 307200
+#define screenWidth       640
+#define screenHeight      480
+#define pixelCount     307200
+#define subPixelCount 1228800
 
-uint32_t pixelData[pixelCount];
+uint8_t pixelData[subPixelCount];
 
 int main(int argc, char* argv[]) {
 	
@@ -49,18 +50,17 @@ int main(int argc, char* argv[]) {
 	);
 	
 	
-	memset(pixelData, 0, pixelCount*4);
+	memset(pixelData, 0, subPixelCount);
 	int i;
-	for (i = 0; i < pixelCount; i++) {
-		char *subPixels = (char*) pixelData;
-		if (i < pixelCount/4)
-			subPixels[i*4] = 255;
-		else if (i < pixelCount/2)
-			subPixels[i*4 + 1] = 255;
-		else if (i < 3*(pixelCount/4))
-			subPixels[i*4 + 2] = 255;
+	for (i = 0; i < subPixelCount; i+=4) {
+		if (i < subPixelCount/4)
+			pixelData[i] = 255;
+		else if (i < subPixelCount/2)
+			pixelData[i+1] = 255;
+		else if (i < 3*(subPixelCount/4))
+			pixelData[i+2] = 255;
 		else
-			subPixels[i*4 + 3] = 255;
+			pixelData[i+3] = 255;
 	}
 	
 	
@@ -75,7 +75,7 @@ int main(int argc, char* argv[]) {
 		
 		SDL_UpdateTexture(
 			texture, NULL, 
-			pixelData, screenWidth * sizeof(uint32_t)
+			(uint32_t*)pixelData, screenWidth * sizeof(uint32_t)
 		);
 		SDL_RenderClear(renderer);
 		SDL_RenderCopy(renderer, texture, NULL, NULL);
