@@ -22,7 +22,7 @@ uint32_t   curLine = 0;//line numbers start at 1, not 0
 
 void init_Allocation(void) {
 	nodeSpace = nodePage;
-	nodes     = malloc(sizeof(  node  ) * nodeSpace);
+	nodes     = malloc(sizeof(node    ) * nodeSpace);
 	nodesInfo = malloc(sizeof(nodeInfo) * nodeSpace);
 	
 	frameformSpace = frameformPage;
@@ -36,18 +36,18 @@ void inc_curNode(void) {
 	curNode++;
 	if (curNode == nodeSpace) {
 		nodeSpace += nodePage;
-		nodes      = realloc(nodes,     sizeof(  node  ) * nodeSpace);
+		nodes      = realloc(nodes,     sizeof(node    ) * nodeSpace);
 		nodesInfo  = realloc(nodesInfo, sizeof(nodeInfo) * nodeSpace);
 	}
 	
 	//initialize fields
-	nodes[curNode].definition  = -1;
+	nodes[curNode].definition  = maxNodeIndex;
 	nodes[curNode].argRefIndex = 0;
 	nodes[curNode].childCount  = 0;
 	nodes[curNode].evaluate    = NULL;
 	nodes[curNode].cache.n     = 0;
 	for (int i = 0; i < maxChildren; i++)
-		nodes[curNode].children[i] = 0;
+		nodes[curNode].children[i] = maxNodeIndex;
 	
 	nodesInfo[curNode].name  = unnamed;
 	nodesInfo[curNode].line  = 0;
@@ -88,20 +88,20 @@ void inc_curFrameform(void) {
 		);
 	}
 	
-	frameforms[curFrameform].curStateNode   = -1;
+	frameforms[curFrameform].curStateNode   = maxNodeIndex;
 	frameforms[curFrameform].stateNodeSpace = nodeIndexPage;
 	frameforms[curFrameform].stateNodes = malloc(
 		sizeof(nodeIndex) * frameforms[curFrameform].stateNodeSpace
 	);
-	frameforms[curFrameform].curRootNode   = -1;
+	frameforms[curFrameform].curRootNode   = maxNodeIndex;
 	frameforms[curFrameform].rootNodeSpace = nodeIndexPage;
 	frameforms[curFrameform].rootNodes = malloc(
 		sizeof(nodeIndex) * frameforms[curFrameform].rootNodeSpace
 	);
 	
-	frameforms[curFrameform].nextFrameform = -1;
-	frameforms[curFrameform].videoOut      = -1;
-	frameforms[curFrameform].audioOut      = -1;
+	frameforms[curFrameform].nextFrameform = maxNodeIndex;
+	frameforms[curFrameform].videoOut      = maxNodeIndex;
+	frameforms[curFrameform].audioOut      = maxNodeIndex;
 }
 
 void inc_curStateNode(void) {

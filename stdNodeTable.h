@@ -41,7 +41,7 @@ outType eval_if(nodeIndex self, outType fnCallArgs[maxChildren]) {
 	return _output_(selection, fnCallArgs)
 }
 const stdNode node_if = {
-	.name = "? match\ncondition num\nifTrue match\nelse match",
+	.name = "? any\ncondition num\nifTrue any\nelse any",
 	.arity = 3,
 	.evaluate = eval_if,
 };
@@ -72,6 +72,99 @@ const stdNode node_curFrame = {
 	.arity = 0,
 	.evaluate = eval_currentFrame,
 };
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+outType eval_build_byte4array2(
+	nodeIndex self, outType fnCallArgs[maxChildren]
+) {
+	//get width and height from arguments
+	
+	//on first call since program entry or GC, malloc space for array
+	//else if width*height have outgrown allocated space, realloc
+	//else no need to do anything
+	
+	//return array
+}
+const stdNode node_build_byte4array2 = {
+	.name = "build~byte4**\nwidth num\nheight num",
+	.arity = 2,
+	.evaluate = eval_build_byte4array2,
+};
+
+outType eval_fill_byte4array2(
+	nodeIndex self, outType fnCallArgs[maxChildren]
+) {
+	//get the source array
+	//get the value to assign
+	
+	//set the value of each element in the array
+	
+	//return array
+}
+const stdNode node_fill_byte4array2 = {
+	.name = "fill~byte4**\nsource byte4**\nvalue byte4",
+	.arity = 2,
+	.evaluate = eval_fill_byte4array2,
+};
+
+
+outType eval_fill_byte4(nodeIndex self, outType fnCallArgs[maxChildren]) {
+	//get the input
+	//set each element of the output to the input value
+	//return the output
+}
+const stdNode node_fill_byte4 = {
+	.name = "fill~byte4**\nvalue byte",
+	.arity = 1,
+	.evaluate = eval_fill_byte4,
+};
+
+
+
+
+outType eval_normalTo_byte(nodeIndex self, outType fnCallArgs[maxChildren]) {
+	//get the input num
+	//set the output's value to input * 255
+	//return the output
+}
+const stdNode node_normalTo_byte = {
+	.name = "normalTo~byte\ninput num",
+	.arity = 1,
+	.evaluate = eval_normalTo_byte,
+};
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 

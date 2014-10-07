@@ -26,7 +26,7 @@ videoOut                  |of type byte4**
 			windowWidth
 			sindowHeight
 		fill~byte4            |new value
-			ByteFromNorm        |from num 0-1 to byte 0-255
+			normalTo~byte       |from num 0-1 to byte 0-255
 				triWave lightPhase
 
 
