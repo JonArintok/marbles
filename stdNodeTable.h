@@ -93,11 +93,12 @@ outType eval_build_byte4array2(
 ) {
 	//get width and height from arguments
 	
-	//on first call since program entry or GC, malloc space for array
+	outType toBeReturned;
+	//on first call since program entry or GC(?), malloc space for array
 	//else if width*height have outgrown allocated space, realloc
 	//else no need to do anything
 	
-	//return array
+	return toBeReturned;
 }
 const stdNode node_build_byte4array2 = {
 	.name = "build~byte4**\nwidth num\nheight num",
@@ -111,9 +112,10 @@ outType eval_fill_byte4array2(
 	//get the source array
 	//get the value to assign
 	
+	outType toBeReturned;
 	//set the value of each element in the array
 	
-	//return array
+	return toBeReturned;
 }
 const stdNode node_fill_byte4array2 = {
 	.name = "fill~byte4**\nsource byte4**\nvalue byte4",
@@ -122,10 +124,17 @@ const stdNode node_fill_byte4array2 = {
 };
 
 
+
+
 outType eval_fill_byte4(nodeIndex self, outType fnCallArgs[maxChildren]) {
-	//get the input
-	//set each element of the output to the input value
-	//return the output
+	nodeIndex arg = nodes[self].children[0];
+	outType argOut = _output_(arg, fnCallArgs)
+	outType toBeReturned;
+	toBeReturned.b4[0] = argOut.b;
+	toBeReturned.b4[1] = argOut.b;
+	toBeReturned.b4[2] = argOut.b;
+	toBeReturned.b4[3] = argOut.b;
+	return toBeReturned;
 }
 const stdNode node_fill_byte4 = {
 	.name = "fill~byte4**\nvalue byte",
@@ -137,9 +146,11 @@ const stdNode node_fill_byte4 = {
 
 
 outType eval_normalTo_byte(nodeIndex self, outType fnCallArgs[maxChildren]) {
-	//get the input num
-	//set the output's value to input * 255
-	//return the output
+	nodeIndex arg = nodes[self].children[0];
+	outType argOut = _output_(arg, fnCallArgs)
+	outType toBeReturned;
+	toBeReturned.b = argOut.n * 255;
+	return toBeReturned;
 }
 const stdNode node_normalTo_byte = {
 	.name = "normalTo~byte\ninput num",
