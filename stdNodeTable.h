@@ -85,18 +85,40 @@ const stdNode node_curFrame = {
 
 
 
-
+void addArray(void *toBeAdded) {
+	
+}
 
 
 outType eval_build_byte4array2(
 	nodeIndex self, outType fnCallArgs[maxChildren]
 ) {
-	//get width and height from arguments
+	nodeIndex arg0 = nodes[self].children[0];
+	nodeIndex arg1 = nodes[self].children[1];
+	outType widthSource  = _output_(arg0, fnCallArgs)
+	outType heightSource = _output_(arg1, fnCallArgs)
+	int width  = widthSource.n;
+	int height = heightSource.n;
+	int newDataSpace = width * height * 4;
+	
+	static byte *staticData;
+	static int   staticDataSpace;
+	
+	if (!staticData) {
+		staticData = malloc(sizeof(byte) * newDataSpace);
+		staticDataSpace = newDataSpace;
+		addArray(staticData);
+	}
+	else if (staticDataSpace < newDataSpace) {
+		staticData = realloc(staticData, newDataSpace);
+		staticDataSpace = newDataSpace;
+	}
 	
 	outType toBeReturned;
-	//on first call since program entry or GC(?), malloc space for array
-	//else if width*height have outgrown allocated space, realloc
-	//else no need to do anything
+	toBeReturned.B->data       = staticData;
+	toBeReturned.B->dataSpace  = staticDataSpace;
+	toBeReturned.B->dimensionX = width;
+	toBeReturned.B->dimensionY = height;
 	
 	return toBeReturned;
 }
@@ -109,11 +131,46 @@ const stdNode node_build_byte4array2 = {
 outType eval_fill_byte4array2(
 	nodeIndex self, outType fnCallArgs[maxChildren]
 ) {
-	//get the source array
-	//get the value to assign
+	nodeIndex arg0 = nodes[self].children[0];
+	nodeIndex arg1 = nodes[self].children[1];
+	outType source = _output_(arg0, fnCallArgs);
+	outType value  = _output_(arg1, fnCallArgs);
 	
-	outType toBeReturned;
-	//set the value of each element in the array
+	nodeIndex sourceDef = nodes[ nodes[self].children[0] ].definition;
+	
+	static byte *staticData;
+	static int   staticDataSpace;
+	
+	outType toBeReturned = source;
+	
+	//check to see if the source is a variable or state/share
+	if (
+		sourceDef < curNode && (
+			nodes[sourceDef].evaluate == eval_varDef   ||
+			nodes[sourceDef].evaluate == eval_stateDef ||
+			nodes[sourceDef].evaluate == eval_shareDef
+		)
+	) {
+		int newDataSpace = source.B->dataSpace;
+		if (!staticData) {
+			staticData = malloc(sizeof(byte) * newDataSpace);
+			staticDataSpace = newDataSpace;
+			addArray(staticData);
+		}
+		else if (staticDataSpace < newDataSpace) {
+			staticData = realloc(staticData, newDataSpace);
+			staticDataSpace = newDataSpace;
+		}
+		toBeReturned.B->data = staticData;
+	}
+	
+	byte *dataToBeReturned = toBeReturned.B->data;
+	for (int i = 0; i < toBeReturned.B->dataSpace; i += 4) {
+		dataToBeReturned[i  ] = value.b4[0];
+		dataToBeReturned[i+1] = value.b4[1];
+		dataToBeReturned[i+2] = value.b4[2];
+		dataToBeReturned[i+3] = value.b4[3];
+	}
 	
 	return toBeReturned;
 }
