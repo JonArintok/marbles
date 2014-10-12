@@ -83,13 +83,6 @@ const stdNode node_curFrame = {
 
 
 
-
-
-void addArray(void *toBeAdded) {
-	
-}
-
-
 outType eval_build_byte4array2(
 	nodeIndex self, outType fnCallArgs[maxChildren]
 ) {
@@ -101,22 +94,20 @@ outType eval_build_byte4array2(
 	int height = heightSource.n;
 	int newDataSpace = width * height * 4;
 	
-	static byte *staticData;
-	static int   staticDataSpace;
 	
-	if (!staticData) {
-		staticData = malloc(sizeof(byte) * newDataSpace);
-		staticDataSpace = newDataSpace;
-		addArray(staticData);
+	if (!nodes[self].cache.B->data) {
+		nodes[self].cache.B->data = malloc(sizeof(byte) * newDataSpace);
+		//mark for cleanup
 	}
-	else if (staticDataSpace < newDataSpace) {
-		staticData = realloc(staticData, newDataSpace);
-		staticDataSpace = newDataSpace;
+	else if (nodes[self].cache.B->dataSpace < newDataSpace) {
+		nodes[self].cache.B->data = 
+			realloc(nodes[self].cache.B->data, newDataSpace);
 	}
+	nodes[self].cache.B->dataSpace = newDataSpace;
 	
 	outType toBeReturned;
-	toBeReturned.B->data       = staticData;
-	toBeReturned.B->dataSpace  = staticDataSpace;
+	toBeReturned.B->data       = nodes[self].cache.B->data;
+	toBeReturned.B->dataSpace  = newDataSpace;
 	toBeReturned.B->dimensionX = width;
 	toBeReturned.B->dimensionY = height;
 	
@@ -128,6 +119,7 @@ const stdNode node_build_byte4array2 = {
 	.evaluate = eval_build_byte4array2,
 };
 
+
 outType eval_fill_byte4array2(
 	nodeIndex self, outType fnCallArgs[maxChildren]
 ) {
@@ -136,14 +128,11 @@ outType eval_fill_byte4array2(
 	outType source = _output_(arg0, fnCallArgs);
 	outType value  = _output_(arg1, fnCallArgs);
 	
-	nodeIndex sourceDef = nodes[ nodes[self].children[0] ].definition;
-	
-	static byte *staticData;
-	static int   staticDataSpace;
-	
 	outType toBeReturned = source;
+	int newDataSpace = toBeReturned.B->dataSpace;
 	
 	//check to see if the source is a variable or state/share
+	nodeIndex sourceDef = nodes[arg0].definition;
 	if (
 		sourceDef < curNode && (
 			nodes[sourceDef].evaluate == eval_varDef   ||
@@ -151,21 +140,20 @@ outType eval_fill_byte4array2(
 			nodes[sourceDef].evaluate == eval_shareDef
 		)
 	) {
-		int newDataSpace = source.B->dataSpace;
-		if (!staticData) {
-			staticData = malloc(sizeof(byte) * newDataSpace);
-			staticDataSpace = newDataSpace;
-			addArray(staticData);
+		if (!nodes[self].cache.B->data) {
+			nodes[self].cache.B->data = malloc(sizeof(byte) * newDataSpace);
+			//mark for cleanup
 		}
-		else if (staticDataSpace < newDataSpace) {
-			staticData = realloc(staticData, newDataSpace);
-			staticDataSpace = newDataSpace;
+		else if (nodes[self].cache.B->dataSpace < newDataSpace) {
+			nodes[self].cache.B->data = 
+				realloc(nodes[self].cache.B->data, newDataSpace);
 		}
-		toBeReturned.B->data = staticData;
+		nodes[self].cache.B->dataSpace = newDataSpace;
+		toBeReturned.B->data = nodes[self].cache.B->data;
 	}
 	
 	byte *dataToBeReturned = toBeReturned.B->data;
-	for (int i = 0; i < toBeReturned.B->dataSpace; i += 4) {
+	for (int i = 0; i < newDataSpace; i += 4) {
 		dataToBeReturned[i  ] = value.b4[0];
 		dataToBeReturned[i+1] = value.b4[1];
 		dataToBeReturned[i+2] = value.b4[2];
