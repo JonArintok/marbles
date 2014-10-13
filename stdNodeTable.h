@@ -95,21 +95,21 @@ outType eval_build_byte4array2(
 	int newDataSpace = width * height * 4;
 	
 	
-	if (!nodes[self].cache.B->data) {
-		nodes[self].cache.B->data = malloc(sizeof(byte) * newDataSpace);
-		//mark for cleanup
+	if (!nodes[self].cache.B.data) {
+		nodes[self].cache.B.data = malloc(sizeof(byte) * newDataSpace);
+		addLoadedNode(self);
 	}
-	else if (nodes[self].cache.B->dataSpace < newDataSpace) {
-		nodes[self].cache.B->data = 
-			realloc(nodes[self].cache.B->data, newDataSpace);
+	else if (nodes[self].cache.B.dataSpace < newDataSpace) {
+		nodes[self].cache.B.data = 
+			realloc(nodes[self].cache.B.data, newDataSpace);
 	}
-	nodes[self].cache.B->dataSpace = newDataSpace;
+	nodes[self].cache.B.dataSpace = newDataSpace;
 	
 	outType toBeReturned;
-	toBeReturned.B->data       = nodes[self].cache.B->data;
-	toBeReturned.B->dataSpace  = newDataSpace;
-	toBeReturned.B->dimensionX = width;
-	toBeReturned.B->dimensionY = height;
+	toBeReturned.B.data       = nodes[self].cache.B.data;
+	toBeReturned.B.dataSpace  = newDataSpace;
+	toBeReturned.B.dimensionX = width;
+	toBeReturned.B.dimensionY = height;
 	
 	return toBeReturned;
 }
@@ -129,7 +129,7 @@ outType eval_fill_byte4array2(
 	outType value  = _output_(arg1, fnCallArgs);
 	
 	outType toBeReturned = source;
-	int newDataSpace = toBeReturned.B->dataSpace;
+	int newDataSpace = toBeReturned.B.dataSpace;
 	
 	//check to see if the source is a variable or state/share
 	nodeIndex sourceDef = nodes[arg0].definition;
@@ -140,19 +140,19 @@ outType eval_fill_byte4array2(
 			nodes[sourceDef].evaluate == eval_shareDef
 		)
 	) {
-		if (!nodes[self].cache.B->data) {
-			nodes[self].cache.B->data = malloc(sizeof(byte) * newDataSpace);
-			//mark for cleanup
+		if (!nodes[self].cache.B.data) {
+			nodes[self].cache.B.data = malloc(sizeof(byte) * newDataSpace);
+			addLoadedNode(self);
 		}
-		else if (nodes[self].cache.B->dataSpace < newDataSpace) {
-			nodes[self].cache.B->data = 
-				realloc(nodes[self].cache.B->data, newDataSpace);
+		else if (nodes[self].cache.B.dataSpace < newDataSpace) {
+			nodes[self].cache.B.data = 
+				realloc(nodes[self].cache.B.data, newDataSpace);
 		}
-		nodes[self].cache.B->dataSpace = newDataSpace;
-		toBeReturned.B->data = nodes[self].cache.B->data;
+		nodes[self].cache.B.dataSpace = newDataSpace;
+		toBeReturned.B.data = nodes[self].cache.B.data;
 	}
 	
-	byte *dataToBeReturned = toBeReturned.B->data;
+	byte *dataToBeReturned = toBeReturned.B.data;
 	for (int i = 0; i < newDataSpace; i += 4) {
 		dataToBeReturned[i  ] = value.b4[0];
 		dataToBeReturned[i+1] = value.b4[1];

@@ -13,8 +13,8 @@ typedef struct {\
 	elemType  *data;\
 	uint64_t   dataSpace;\
 	uint64_t   dimensionX;\
-	uint64_t   dimensionY;\
-	uint64_t   dimensionZ;\
+	uint32_t   dimensionY;\
+	uint32_t   dimensionZ;\
 } name;
 _arrayType_(numArray,  number)
 _arrayType_(byteArray, byte)
@@ -24,14 +24,15 @@ typedef union {
 	number      n2[2];
 	number      n3[3];
 	number      n4[4];
-	numArray   *N;
+	numArray    N;
 	byte        b;
 	byte        b2[2];
 	byte        b4[4];
 	byte        b8[8];
-	byteArray  *B;
+	byte        b16[16];
+	byteArray   B;
 	nodeIndex   f;
-	nodeArray  *F;
+	nodeArray   F;
 } outType;
 typedef outType (*evaluator) (
 	nodeIndex toBeEvaluated,
@@ -82,7 +83,7 @@ char *audioOutName      = "audioOut num.";
 node      *nodes;
 nodeIndex *gRootNodes;
 frameform *frameforms;
-nodeIndex  curNode      = -1;
+int        curNode      = -1;
 int        gCurRootNode = -1;
 int        curFrameform = -1;
 

@@ -22,8 +22,8 @@ int  exitFrameform;
 #define defaultWindowHeight 480
 
 #include "foundation.h"
-#include "stdNodeTable.h"
 #include "allocation.h"
+#include "stdNodeTable.h"
 #include "timeKeeping.h"
 #include "parse.h"
 

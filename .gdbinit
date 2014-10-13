@@ -6,7 +6,7 @@ define test
 	run test/functionPass.marbles
 end
 
-break eval_fnArgCall
+break cleanUp
 
 define pstack
 	set $i = 0

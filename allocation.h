@@ -15,6 +15,13 @@ int        gRootNodeSpace =  0;
 #define    frameformPage 16
 int        frameformSpace =  0;
 
+
+#define    loadedNodePage 16
+int        loadedNodeSpace = 0;
+int        curLoadedNode = -1;
+nodeIndex *loadedNodes;
+
+
 char *unnamed = "!!  unnamed  !!";
 
 uint32_t   curLine = 0;//line numbers start at 1, not 0
@@ -30,6 +37,9 @@ void init_Allocation(void) {
 	
 	gRootNodeSpace = nodeIndexPage;
 	gRootNodes = malloc(sizeof(nodeIndex) * gRootNodeSpace);
+	
+	loadedNodeSpace = loadedNodeSpace;
+	loadedNodes = malloc(sizeof(nodeIndex) * loadedNodeSpace);
 }
 
 void inc_curNode(void) {
@@ -131,8 +141,21 @@ void inc_curRootNode(void) {
 	}
 }
 
+void addLoadedNode(nodeIndex n) {
+	curLoadedNode++;
+	if (curLoadedNode == loadedNodeSpace) {
+		loadedNodeSpace += loadedNodePage;
+		loadedNodes = realloc(loadedNodes, sizeof(nodeIndex) * loadedNodeSpace);
+	}
+	loadedNodes[curLoadedNode] = n;
+}
+
+
 
 void cleanUp(void) {
+	
+	for (int lnPos = 0; lnPos <= curLoadedNode; lnPos++)
+		free( (void*) nodes[ loadedNodes[lnPos] ].cache.B.data );
 	
 	for (int ffPos = 0; ffPos <= curFrameform; ffPos++) {
 		for (int snPos = 0; snPos <= frameforms[ffPos].curStateNode; snPos++)
