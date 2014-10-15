@@ -154,7 +154,7 @@ int main(int argc, char **argv) {
 			puts("");
 			
 			//next frameform is determined between frames
-			if (nextRoot > -1) {
+			if (nextRoot < curNode) {
 				outType nextRootOut = _output_(nextRoot, nullFnCallArgs)
 				activeFrameform = nextRootOut.n;
 				if (activeFrameform == exitFrameform)

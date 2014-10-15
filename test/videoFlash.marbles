@@ -1,6 +1,6 @@
 
 
-fn triWave num
+fn triwave num
 	phase num
 	?
 		!> phase 0.5
@@ -19,14 +19,17 @@ state lightPhase num
 		0
 		+ lightPhase phaseIncrem
 
+state triwaveOut num
+	triwave lightPhase
 
-videoOut                  |of type byte4**
-	fill~Byte4**
-		build~Byte4**
-			windowWidth
-			sindowHeight
-		fill~byte4            |new value
-			normalTo~byte       |from num 0-1 to byte 0-255
-				triWave lightPhase
+
+|videoOut                  |of type byte4**
+|	fill~Byte4**
+|		build~Byte4**
+|			windowWidth
+|			sindowHeight
+|		fill~byte4            |new value
+|			normalTo~byte       |from num 0-1 to byte 0-255
+|				triwave lightPhase
 
 
