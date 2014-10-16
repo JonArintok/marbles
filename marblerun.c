@@ -133,11 +133,14 @@ int main(int argc, char **argv) {
 		printf("frameRate: %f\n", frameRate);//uncomment this when using valgrind
 		
 		long frameTimeStamp = getMicroseconds();
-		//the loop
-		while (true) {
+		int csn = frameforms[activeFrameform].curStateNode;
+		nodeIndex nextRoot = frameforms[activeFrameform].nextFrameform;
+		nodeIndex videoRoot = frameforms[activeFrameform].videoOut;
+		nodeIndex audioRoot = frameforms[activeFrameform].audioOut;
+		
+		//   T H E   L O O P
+		while (!errorCount) {
 			curFrame++;
-			int csn = frameforms[activeFrameform].curStateNode;
-			nodeIndex nextRoot = frameforms[activeFrameform].nextFrameform;
 			
 			//evaluate the bodies
 			for (int i = 0; i <= csn; i++) {
@@ -153,12 +156,23 @@ int main(int argc, char **argv) {
 			}
 			puts("");
 			
+			if (videoRoot < curNode) {
+				
+			}
+			if (audioRoot < curNode) {
+				
+			}
+			
 			//next frameform is determined between frames
 			if (nextRoot < curNode) {
 				outType nextRootOut = _output_(nextRoot, nullFnCallArgs)
 				activeFrameform = nextRootOut.n;
-				if (activeFrameform == exitFrameform)
+				if (activeFrameform > curFrameform)
 					break;
+				csn = frameforms[activeFrameform].curStateNode;
+				nextRoot = frameforms[activeFrameform].nextFrameform;
+				videoRoot = frameforms[activeFrameform].videoOut;
+				audioRoot = frameforms[activeFrameform].audioOut;
 			}
 			
 			frameWait(&frameTimeStamp);

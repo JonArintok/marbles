@@ -90,9 +90,7 @@ outType eval_build_byte4array2(
 	nodeIndex arg1 = nodes[self].children[1];
 	outType widthSource  = _output_(arg0, fnCallArgs)
 	outType heightSource = _output_(arg1, fnCallArgs)
-	int width  = widthSource.n;
-	int height = heightSource.n;
-	int newDataSpace = width * height * 4;
+	int newDataSpace = widthSource.n * heightSource.n * 4;
 	
 	
 	if (!nodes[self].cache.B.data) {
@@ -104,14 +102,10 @@ outType eval_build_byte4array2(
 			realloc(nodes[self].cache.B.data, newDataSpace);
 	}
 	nodes[self].cache.B.dataSpace = newDataSpace;
+	nodes[self].cache.B.dimensionX = widthSource.n;
+	nodes[self].cache.B.dimensionY = heightSource.n;
 	
-	outType toBeReturned;
-	toBeReturned.B.data       = nodes[self].cache.B.data;
-	toBeReturned.B.dataSpace  = newDataSpace;
-	toBeReturned.B.dimensionX = width;
-	toBeReturned.B.dimensionY = height;
-	
-	return toBeReturned;
+	return nodes[self].cache;
 }
 const stdNode node_build_byte4array2 = {
 	.name = "build~byte4**\nwidth num\nheight num",
