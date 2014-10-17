@@ -32,4 +32,3 @@ state triwaveOut num
 |			normalTo~byte       |from num 0-1 to byte 0-255
 |				triwave lightPhase
 
-

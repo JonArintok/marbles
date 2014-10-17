@@ -74,9 +74,8 @@ void inc_namePos(void) {
 	namePos++;
 	if (namePos == nodeNameSpace) {
 		nodeNameSpace += namePage;
-		nodesInfo[curNode].name = realloc(
-			nodesInfo[curNode].name, sizeof(char) * nodeNameSpace
-		);
+		nodesInfo[curNode].name = 
+			realloc(nodesInfo[curNode].name, sizeof(char) * nodeNameSpace);
 	}
 }
 
@@ -92,22 +91,20 @@ void inc_curFrameform(void) {
 	curFrameform++;
 	if (curFrameform == frameformSpace) {
 		frameformSpace += frameformPage;
-		frameforms = realloc(
-			frameforms, 
-			sizeof(frameform) * frameformSpace
-		);
+		frameforms = realloc(frameforms, sizeof(frameform) * frameformSpace);
 	}
 	
 	frameforms[curFrameform].curStateNode   = maxNodeIndex;
 	frameforms[curFrameform].stateNodeSpace = nodeIndexPage;
-	frameforms[curFrameform].stateNodes = malloc(
-		sizeof(nodeIndex) * frameforms[curFrameform].stateNodeSpace
-	);
+	frameforms[curFrameform].stateNodes = 
+		malloc(sizeof(nodeIndex) * frameforms[curFrameform].stateNodeSpace);
+	frameforms[curFrameform].hotState = 
+		malloc(sizeof(outType) * frameforms[curFrameform].stateNodeSpace);
+	
 	frameforms[curFrameform].curRootNode   = maxNodeIndex;
 	frameforms[curFrameform].rootNodeSpace = nodeIndexPage;
-	frameforms[curFrameform].rootNodes = malloc(
-		sizeof(nodeIndex) * frameforms[curFrameform].rootNodeSpace
-	);
+	frameforms[curFrameform].rootNodes = 
+		malloc(sizeof(nodeIndex) * frameforms[curFrameform].rootNodeSpace);
 	
 	frameforms[curFrameform].nextFrameform = maxNodeIndex;
 	frameforms[curFrameform].videoOut      = maxNodeIndex;
@@ -124,6 +121,10 @@ void inc_curStateNode(void) {
 		frameforms[curFrameform].stateNodes = realloc(
 			frameforms[curFrameform].stateNodes,
 			sizeof(nodeIndex) * frameforms[curFrameform].stateNodeSpace
+		);
+		frameforms[curFrameform].hotState = realloc(
+			frameforms[curFrameform].hotState,
+			sizeof(outType) * frameforms[curFrameform].stateNodeSpace
 		);
 	}
 }
@@ -158,6 +159,7 @@ void cleanUp(void) {
 		free( (void*) nodes[ loadedNodes[lnPos] ].cache.B.data );
 	
 	for (int ffPos = 0; ffPos <= curFrameform; ffPos++) {
+		free(frameforms[ffPos].hotState);
 		for (int snPos = 0; snPos <= frameforms[ffPos].curStateNode; snPos++)
 			free( nodesInfo[ frameforms[ffPos].stateNodes[snPos] ].name );
 		free(frameforms[ffPos].stateNodes);

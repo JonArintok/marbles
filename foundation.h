@@ -67,6 +67,7 @@ typedef struct {
 	int16_t    curStateNode;
 	int16_t    stateNodeSpace;
 	nodeIndex *stateNodes;
+	outType   *hotState;
 	int16_t    curRootNode;
 	int16_t    rootNodeSpace;
 	nodeIndex *rootNodes;
@@ -76,7 +77,7 @@ typedef struct {
 	nodeIndex audioOut;
 } frameform;
 char *nextFrameformName = "next num";
-char *videoOutName      = "videoOut byte4**";//type name pending
+char *videoOutName      = "videoOut byte4**";
 char *audioOutName      = "audioOut num.";
 
 
@@ -167,11 +168,9 @@ outType eval_fnPass(nodeIndex self, outType fnCallArgs[maxChildren]) {
 
 
 outType eval_stateDef(nodeIndex self, outType fnCallArgs[maxChildren]) {
-	nodes[self].cache = nodes[self+1].cache;
 	return nodes[self].cache;
 }
 outType eval_shareDef(nodeIndex self, outType fnCallArgs[maxChildren]) {
-	nodes[self].cache = nodes[self+1].cache;
 	return nodes[self].cache;
 }
 outType eval_stateCall(nodeIndex self, outType fnCallArgs[maxChildren]) {

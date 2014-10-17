@@ -142,16 +142,16 @@ int main(int argc, char **argv) {
 		while (!errorCount) {
 			curFrame++;
 			
-			//evaluate the bodies
+			//evaluate the bodies, results written to .hotState
 			for (int i = 0; i <= csn; i++) {
 				nodeIndex n = frameforms[activeFrameform].stateNodes[i] + 1;
-				nodes[n].cache = _output_(n, nullFnCallArgs)
+				frameforms[activeFrameform].hotState[i] = _output_(n, nullFnCallArgs)
 			}
 			
-			//update the state and print it (for now)
+			//copy the hotState to the nodeCache
 			for (int i = 0; i <= csn; i++) {
 				nodeIndex n = frameforms[activeFrameform].stateNodes[i];
-				_output_(n, nullFnCallArgs)
+				nodes[n].cache = frameforms[activeFrameform].hotState[i];
 				printf("%d:\t%f\n", i, nodes[n].cache.n);
 			}
 			puts("");

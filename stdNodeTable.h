@@ -92,7 +92,6 @@ outType eval_build_byte4array2(
 	outType heightSource = _output_(arg1, fnCallArgs)
 	int newDataSpace = widthSource.n * heightSource.n * 4;
 	
-	
 	if (!nodes[self].cache.B.data) {
 		nodes[self].cache.B.data = malloc(sizeof(byte) * newDataSpace);
 		addLoadedNode(self);
@@ -125,7 +124,7 @@ outType eval_fill_byte4array2(
 	outType toBeReturned = source;
 	int newDataSpace = toBeReturned.B.dataSpace;
 	
-	//check to see if the source is a variable or state/share
+	//this won't work, need to have flag in array data somewhere...
 	nodeIndex sourceDef = nodes[arg0].definition;
 	if (
 		sourceDef < curNode && (
