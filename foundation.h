@@ -12,9 +12,9 @@ typedef uint8_t byte;
 typedef struct {\
 	elemType  *data;\
 	uint64_t   dataSpace;\
-	uint64_t   dimensionX;\
-	uint32_t   dimensionY;\
-	uint32_t   dimensionZ;\
+	uint64_t   dimenX;\
+	uint32_t   dimenY;\
+	uint32_t   dimenZ;\
 } name;
 _arrayType_(numArray,  number)
 _arrayType_(byteArray, byte)
@@ -190,4 +190,37 @@ char *name_numLit = "numLit num";
 outType eval_numLit(nodeIndex self, outType fnCallArgs[maxChildren]) {
 	return nodes[self].cache;
 }
+
+
+
+
+
+
+
+#define readOnlyFlag 0x80000000
+
+void setToReadOnly(outType *a) {
+	a->B.dimenZ |= readOnlyFlag;
+}
+
+void setToWriteable(outType *a) {
+	a->B.dimenZ &= ~readOnlyFlag;
+}
+
+bool isReadOnly(outType a) {
+	return a.B.dimenZ & readOnlyFlag;
+}
+
+uint32_t dimenZ(outType a) {
+	return a.B.dimenZ & ~readOnlyFlag;
+}
+
+
+
+
+
+
+
+
+
 

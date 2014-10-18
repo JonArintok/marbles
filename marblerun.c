@@ -148,7 +148,7 @@ int main(int argc, char **argv) {
 				frameforms[activeFrameform].hotState[i] = _output_(n, nullFnCallArgs)
 			}
 			
-			//copy the hotState to the nodeCache
+			//copy the hotState to the stateNodes cache
 			for (int i = 0; i <= csn; i++) {
 				nodeIndex n = frameforms[activeFrameform].stateNodes[i];
 				nodes[n].cache = frameforms[activeFrameform].hotState[i];

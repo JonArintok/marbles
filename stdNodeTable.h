@@ -101,8 +101,8 @@ outType eval_build_byte4array2(
 			realloc(nodes[self].cache.B.data, newDataSpace);
 	}
 	nodes[self].cache.B.dataSpace = newDataSpace;
-	nodes[self].cache.B.dimensionX = widthSource.n;
-	nodes[self].cache.B.dimensionY = heightSource.n;
+	nodes[self].cache.B.dimenX = widthSource.n;
+	nodes[self].cache.B.dimenY = heightSource.n;
 	
 	return nodes[self].cache;
 }
@@ -124,15 +124,7 @@ outType eval_fill_byte4array2(
 	outType toBeReturned = source;
 	int newDataSpace = toBeReturned.B.dataSpace;
 	
-	//this won't work, need to have flag in array data somewhere...
-	nodeIndex sourceDef = nodes[arg0].definition;
-	if (
-		sourceDef < curNode && (
-			nodes[sourceDef].evaluate == eval_varDef   ||
-			nodes[sourceDef].evaluate == eval_stateDef ||
-			nodes[sourceDef].evaluate == eval_shareDef
-		)
-	) {
+	if (isReadOnly(source)) {
 		if (!nodes[self].cache.B.data) {
 			nodes[self].cache.B.data = malloc(sizeof(byte) * newDataSpace);
 			addLoadedNode(self);
@@ -143,6 +135,7 @@ outType eval_fill_byte4array2(
 		}
 		nodes[self].cache.B.dataSpace = newDataSpace;
 		toBeReturned.B.data = nodes[self].cache.B.data;
+		setToWriteable(&toBeReturned);
 	}
 	
 	byte *dataToBeReturned = toBeReturned.B.data;
