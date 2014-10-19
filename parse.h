@@ -722,7 +722,7 @@ void  parse(void) {
 			else
 				initFrameform();
 		}
-		//check for output, which should contain no spaces
+		//check for output, which should contain no spaces or tildes
 		else if (!(strchr(&lineBuf[0], ' ')))
 			initOutput();
 		//we must have a defNode

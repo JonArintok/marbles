@@ -6,6 +6,7 @@
 #include <stdint.h>
 #include <stdbool.h>
 #include <unistd.h>
+#include <SDL2/SDL.h>
 
 
 #define _shouldNotBeHere_ \
@@ -29,7 +30,7 @@ int  exitFrameform;
 
 outType nullFnCallArgs[maxChildren] = {};
 
-void initialize(void) {
+void initializeNodes(void) {
 	//assign all global literal variables
 	for (int i = 0; i <= gCurRootNode; i++) {
 		nodeIndex n = gRootNodes[i];
@@ -53,10 +54,19 @@ void initialize(void) {
 		}
 	}
 	
+	
 	//global outputs
-	if (frameRateRoot != maxNodeIndex) {
-		outType frro = _output_(frameRateRoot, nullFnCallArgs)
-		frameRate = frro.n;
+	if (frameRateRoot < curNode) {
+		outType o = _output_(frameRateRoot, nullFnCallArgs)
+		frameRate = o.n;
+	}
+	if (windowWidthRoot < curNode) {
+		outType o = _output_(windowWidthRoot, nullFnCallArgs)
+		windowWidth = o.n;
+	}
+	if (windowHeightRoot < curNode) {
+		outType o = _output_(windowHeightRoot, nullFnCallArgs)
+		windowHeight = o.n;
 	}
 	
 	
@@ -108,6 +118,39 @@ void initialize(void) {
 
 
 
+SDL_Window   *window    = NULL;
+SDL_Renderer *renderer  = NULL;
+SDL_Texture  *texture   = NULL;
+
+void initializeVideo() {
+	SDL_Init(SDL_INIT_VIDEO);
+	
+	window = SDL_CreateWindow(
+		"marbles",                 // window title
+		SDL_WINDOWPOS_UNDEFINED,   // initial x position
+		SDL_WINDOWPOS_UNDEFINED,   // initial y position
+		windowWidth,               // width, in pixels
+		windowHeight,              // height, in pixels
+		SDL_WINDOW_OPENGL          // flags
+	);
+	
+	if (window == NULL) {
+		errorCount++;
+		printf("Could not create window: %s\n", SDL_GetError());
+	}
+	
+	renderer = SDL_CreateRenderer(window, -1, SDL_RENDERER_ACCELERATED);
+	
+	texture = SDL_CreateTexture(
+		renderer,
+		SDL_PIXELFORMAT_RGBA8888,
+		SDL_TEXTUREACCESS_STREAMING,
+		windowWidth, windowHeight
+	);
+}
+
+
+
 int main(int argc, char **argv) {
 	fileName = argv[1];
 	if (fileName == NULL) {
@@ -127,7 +170,9 @@ int main(int argc, char **argv) {
 	fclose(fileStream);
 	
 	if (!errorCount) {
-		initialize();
+		initializeNodes();
+		if (videoEnabled)
+			initializeVideo();
 		
 		puts("running...");
 		printf("frameRate: %f\n", frameRate);//uncomment this when using valgrind
@@ -136,11 +181,21 @@ int main(int argc, char **argv) {
 		int csn = frameforms[activeFrameform].curStateNode;
 		nodeIndex nextRoot = frameforms[activeFrameform].nextFrameform;
 		nodeIndex videoRoot = frameforms[activeFrameform].videoOut;
-		nodeIndex audioRoot = frameforms[activeFrameform].audioOut;
+		//nodeIndex audioRoot = frameforms[activeFrameform].audioOut;
+		bool running = true;
 		
 		//   T H E   L O O P
-		while (!errorCount) {
+		while (running) {
 			curFrame++;
+			
+			//check events
+			if (videoEnabled) {
+				SDL_Event event;
+				while (SDL_PollEvent(&event) != 0) {
+					if (event.type == SDL_QUIT)
+						running = false;
+				}
+			}
 			
 			//evaluate the bodies, results written to .hotState
 			for (int i = 0; i <= csn; i++) {
@@ -152,16 +207,29 @@ int main(int argc, char **argv) {
 			for (int i = 0; i <= csn; i++) {
 				nodeIndex n = frameforms[activeFrameform].stateNodes[i];
 				nodes[n].cache = frameforms[activeFrameform].hotState[i];
-				printf("%d:\t%f\n", i, nodes[n].cache.n);
+				if (!videoEnabled)
+					printf("%d:\t%f\n", i, nodes[n].cache.n);
 			}
-			puts("");
+			if (!videoEnabled)
+				puts("");
 			
-			if (videoRoot < curNode) {
-				
+			
+			//present video data
+			if (
+				videoRoot < curNode &&
+				nodes[videoRoot].cache.B.dataSpace/4 >= windowWidth * windowHeight
+			) {
+				SDL_UpdateTexture(
+					texture,
+					NULL, 
+					(uint32_t*)nodes[videoRoot].cache.B.data,
+					windowWidth * sizeof(uint32_t)
+				);
+				SDL_RenderClear(renderer);
+				SDL_RenderCopy(renderer, texture, NULL, NULL);
+				SDL_RenderPresent(renderer);
 			}
-			if (audioRoot < curNode) {
-				
-			}
+			
 			
 			//next frameform is determined between frames
 			if (nextRoot < curNode) {
@@ -172,13 +240,19 @@ int main(int argc, char **argv) {
 				csn = frameforms[activeFrameform].curStateNode;
 				nextRoot = frameforms[activeFrameform].nextFrameform;
 				videoRoot = frameforms[activeFrameform].videoOut;
-				audioRoot = frameforms[activeFrameform].audioOut;
+				//audioRoot = frameforms[activeFrameform].audioOut;
 			}
 			
 			frameWait(&frameTimeStamp);
 		}
 	}
 	
+	if (videoEnabled) {
+		SDL_DestroyTexture(texture);
+		SDL_DestroyRenderer(renderer);
+		SDL_DestroyWindow(window);
+		SDL_Quit();
+	}
 	cleanUp();
 	return 0;
 }

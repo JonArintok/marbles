@@ -77,13 +77,34 @@ const stdNode node_curFrame = {
 
 
 
+outType eval_windowWidth(nodeIndex self, outType fnCallArgs[maxChildren]) {
+	outType toBeReturned;
+	toBeReturned.n = windowWidth;
+	return toBeReturned;
+}
+const stdNode node_windowWidth = {
+	.name = "windowWidth num",
+	.arity = 0,
+	.evaluate = eval_windowWidth,
+};
+
+outType eval_windowHeight(nodeIndex self, outType fnCallArgs[maxChildren]) {
+	outType toBeReturned;
+	toBeReturned.n = windowHeight;
+	return toBeReturned;
+}
+const stdNode node_windowHeight = {
+	.name = "windowHeight num",
+	.arity = 0,
+	.evaluate = eval_windowHeight,
+};
 
 
 
 
 
 
-outType eval_build_byte4array2(
+outType eval_buildByte4array2(
 	nodeIndex self, outType fnCallArgs[maxChildren]
 ) {
 	nodeIndex arg0 = nodes[self].children[0];
@@ -106,14 +127,14 @@ outType eval_build_byte4array2(
 	
 	return nodes[self].cache;
 }
-const stdNode node_build_byte4array2 = {
-	.name = "build~byte4**\nwidth num\nheight num",
+const stdNode node_buildByte4array2 = {
+	.name = "buildByte4** byte4**\nwidth num\nheight num",
 	.arity = 2,
-	.evaluate = eval_build_byte4array2,
+	.evaluate = eval_buildByte4array2,
 };
 
 
-outType eval_fill_byte4array2(
+outType eval_fillByte4array2(
 	nodeIndex self, outType fnCallArgs[maxChildren]
 ) {
 	nodeIndex arg0 = nodes[self].children[0];
@@ -148,16 +169,16 @@ outType eval_fill_byte4array2(
 	
 	return toBeReturned;
 }
-const stdNode node_fill_byte4array2 = {
-	.name = "fill~byte4**\nsource byte4**\nvalue byte4",
+const stdNode node_fillByte4array2 = {
+	.name = "fillByte4** byte4**\nsource byte4**\nvalue byte4",
 	.arity = 2,
-	.evaluate = eval_fill_byte4array2,
+	.evaluate = eval_fillByte4array2,
 };
 
 
 
 
-outType eval_fill_byte4(nodeIndex self, outType fnCallArgs[maxChildren]) {
+outType eval_fillByte4(nodeIndex self, outType fnCallArgs[maxChildren]) {
 	nodeIndex arg = nodes[self].children[0];
 	outType argOut = _output_(arg, fnCallArgs)
 	outType toBeReturned;
@@ -167,33 +188,27 @@ outType eval_fill_byte4(nodeIndex self, outType fnCallArgs[maxChildren]) {
 	toBeReturned.b4[3] = argOut.b;
 	return toBeReturned;
 }
-const stdNode node_fill_byte4 = {
-	.name = "fill~byte4**\nvalue byte",
+const stdNode node_fillByte4 = {
+	.name = "fillByte4 byte4\nvalue byte",
 	.arity = 1,
-	.evaluate = eval_fill_byte4,
+	.evaluate = eval_fillByte4,
 };
 
 
 
 
-outType eval_normalTo_byte(nodeIndex self, outType fnCallArgs[maxChildren]) {
+outType eval_byteFromNorm(nodeIndex self, outType fnCallArgs[maxChildren]) {
 	nodeIndex arg = nodes[self].children[0];
 	outType argOut = _output_(arg, fnCallArgs)
 	outType toBeReturned;
 	toBeReturned.b = argOut.n * 255;
 	return toBeReturned;
 }
-const stdNode node_normalTo_byte = {
-	.name = "normalTo~byte\ninput num",
+const stdNode node_byteFromNorm = {
+	.name = "byteFromNorm byte\ninput num",
 	.arity = 1,
-	.evaluate = eval_normalTo_byte,
+	.evaluate = eval_byteFromNorm,
 };
-
-
-
-
-
-
 
 
 
@@ -227,6 +242,12 @@ const stdNode *stdNodeTable[stdNodeTableLength] = {
 	&node_either,
 	&node_if,
 	&node_not,
-	&node_curFrame
+	&node_curFrame,
+	&node_windowWidth,
+	&node_windowHeight,
+	&node_buildByte4array2,
+	&node_fillByte4array2,
+	&node_fillByte4,
+	&node_byteFromNorm
 };
 

@@ -3,7 +3,7 @@
 #define maxChildren 8
 
 typedef uint16_t nodeIndex;
-#define  maxNodeIndex  65535
+#define  maxNodeIndex  0xFFFF
 
 typedef double  number;
 typedef uint8_t byte;
@@ -95,18 +95,18 @@ typedef struct {
 	evaluator evaluate;
 } stdNode;
 
-#define stdNodeTableLength  15
+#define stdNodeTableLength  21
 const stdNode *stdNodeTable[stdNodeTableLength];
 
 
 
 //global outputs
 double frameRate    = defaultFrameRate;
-double windowWidth  = defaultWindowWidth;
-double windowHeight = defaultWindowHeight;
-nodeIndex frameRateRoot    = -1;
-nodeIndex windowWidthRoot  = -1;
-nodeIndex windowHeightRoot = -1;
+int    windowWidth  = defaultWindowWidth;
+int    windowHeight = defaultWindowHeight;
+nodeIndex frameRateRoot    = maxNodeIndex;
+nodeIndex windowWidthRoot  = maxNodeIndex;
+nodeIndex windowHeightRoot = maxNodeIndex;
 char *frameRateName    = "frameRate num";
 char *windowWidthName  = "windowWidth num";
 char *windowHeightName = "windowHeight num";

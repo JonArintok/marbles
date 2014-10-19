@@ -20,7 +20,6 @@ int main(int argc, char* argv[]) {
 	SDL_Window   *window   = NULL;
 	SDL_Renderer *renderer = NULL;
 	SDL_Texture  *texture  = NULL;
-	SDL_Event event;
 	
 	SDL_Init(SDL_INIT_VIDEO);              // Initialize SDL2
 	
@@ -68,6 +67,7 @@ int main(int argc, char* argv[]) {
 	
 	// The window is open: enter program loop (see SDL_PollEvent)
 	while (running) {
+		SDL_Event event;
 		while (SDL_PollEvent(&event) != 0) {
 			if (event.type == SDL_QUIT)
 				running = false;

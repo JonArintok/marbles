@@ -6,7 +6,7 @@ define test
 	run test/functionPass.marbles
 end
 
-break cleanUp
+break resolveNode
 
 define pstack
 	set $i = 0
