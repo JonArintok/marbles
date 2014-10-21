@@ -118,9 +118,10 @@ void initializeNodes(void) {
 
 
 
-SDL_Window   *window    = NULL;
-SDL_Renderer *renderer  = NULL;
-SDL_Texture  *texture   = NULL;
+SDL_Window   *window   = NULL;
+SDL_Renderer *renderer = NULL;
+SDL_Texture  *texture  = NULL;
+outType       videoOut;
 
 void initializeVideo() {
 	SDL_Init(SDL_INIT_VIDEO);
@@ -215,14 +216,19 @@ int main(int argc, char **argv) {
 			
 			
 			//present video data
-			if (
-				videoRoot < curNode &&
-				nodes[videoRoot].cache.B.dataSpace/4 >= windowWidth * windowHeight
-			) {
+			if (videoRoot < curNode) {
+				videoOut = _output_(videoRoot, nullFnCallArgs)
+				if (
+					videoOut.B.dimenX < windowWidth ||
+					videoOut.B.dimenY < windowHeight
+				) {
+					//??... for now:
+					_shouldNotBeHere_
+				}
 				SDL_UpdateTexture(
 					texture,
 					NULL, 
-					(uint32_t*)nodes[videoRoot].cache.B.data,
+					(uint32_t*)videoOut.B.data,
 					windowWidth * sizeof(uint32_t)
 				);
 				SDL_RenderClear(renderer);
