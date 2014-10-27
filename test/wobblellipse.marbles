@@ -1,0 +1,107 @@
+
+
+|frameRate
+|	10
+windowWidth
+	300
+windowHeight
+	300
+
+var fillColor byte4
+	byte4FromNorms 0 1 0 1
+var backColor byte4
+	byte4FromNorms 0 0 1 1
+
+
+
+
+
+fn ellipseFiller byte4
+	xPos num
+	yPos num
+	sourceWidth  num
+	sourceHeight num
+	?
+		!<
+			1
+			+
+				/
+					sqr (- xPos (/ sourceWidth 2))
+					sqr (/ sourceWidth 2)
+				/
+					sqr (- yPos (/ sourceHeight 2))
+					sqr (/ sourceHeight 2)
+		fillColor
+		backColor
+
+
+@enter
+
+var phaseIncrem num
+	0.01
+
+state pulsePhase num
+	?
+		!< pulsePhase 1
+		0
+		+ pulsePhase phaseIncrem
+
+fn triwave num
+	?
+		!> pulsePhase 0.5
+		* 2 pulsePhase
+		* 2 (- 1 pulsePhase)
+
+
+fn ellipseBoundary num4
+	num4
+		* triwave (/ windowWidth 3)
+		* (- 1 triwave) (/ windowHeight 3)
+		-
+			windowWidth
+			* 2 (* triwave (/ windowWidth 3))
+		-
+			windowHeight
+			* 2 (* (- 1 triwave) (/ windowHeight 3))
+
+videoOut
+	limitedDynamicFillByte4''
+		ellipseFiller
+		ellipseBoundary
+		fillByte4''
+			backColor
+			buildByte4''
+				windowWidth
+				windowHeight
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
