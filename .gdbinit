@@ -1,12 +1,12 @@
 
 
 define test
-	echo running test/videoFlash.marbles...
+	echo running test/mappingColors.marbles...
 	echo \n
-	run test/videoFlash.marbles
+	run test/mappingColors.marbles
 end
 
-break marblerun.c:177
+break marblerun.c:174
 
 
 define pnode

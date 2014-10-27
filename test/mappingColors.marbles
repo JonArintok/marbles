@@ -1,0 +1,44 @@
+
+
+fn redFiller byte4
+	xPos num
+	yPos num
+	sourceWidth  num
+	sourceHeight num
+	byte4FromNorms
+		/
+			+
+				/ xPos sourceWidth
+				/ yPos sourceHeight
+			3
+		0
+		0
+		1
+
+fn cyanFiller byte4
+	xPos num
+	yPos num
+	sourceWidth  num
+	sourceHeight num
+	byte4FromNorms
+		0
+		/ xPos sourceWidth
+		/ yPos sourceHeight
+		1
+
+var image byte4''
+	limitedDynamicFillByte4''
+		redFiller
+		num4 40 40 80 80
+		dynamicFillByte4''
+			cyanFiller
+			buildByte4''
+				windowWidth
+				windowHeight
+
+
+@enter
+
+videoOut
+	image
+

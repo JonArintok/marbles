@@ -56,15 +56,15 @@ void initializeNodes(void) {
 	
 	
 	//global outputs
-	if (frameRateRoot < curNode) {
+	if (frameRateRoot <= curNode) {
 		outType o = _output_(frameRateRoot, nullFnCallArgs)
 		frameRate = o.n;
 	}
-	if (windowWidthRoot < curNode) {
+	if (windowWidthRoot <= curNode) {
 		outType o = _output_(windowWidthRoot, nullFnCallArgs)
 		windowWidth = o.n;
 	}
-	if (windowHeightRoot < curNode) {
+	if (windowHeightRoot <= curNode) {
 		outType o = _output_(windowHeightRoot, nullFnCallArgs)
 		windowHeight = o.n;
 	}
@@ -144,7 +144,7 @@ void initializeVideo() {
 	
 	texture = SDL_CreateTexture(
 		renderer,
-		SDL_PIXELFORMAT_RGBA8888,
+		SDL_PIXELFORMAT_ABGR8888,
 		SDL_TEXTUREACCESS_STREAMING,
 		windowWidth, windowHeight
 	);
@@ -216,7 +216,7 @@ int main(int argc, char **argv) {
 			
 			
 			//present video data
-			if (videoRoot < curNode) {
+			if (videoRoot <= curNode) {
 				videoOut = _output_(videoRoot, nullFnCallArgs)
 				if (
 					videoOut.B.dimenX < windowWidth ||
@@ -238,7 +238,7 @@ int main(int argc, char **argv) {
 			
 			
 			//next frameform is determined between frames
-			if (nextRoot < curNode) {
+			if (nextRoot <= curNode) {
 				outType nextRootOut = _output_(nextRoot, nullFnCallArgs)
 				activeFrameform = nextRootOut.n;
 				if (activeFrameform > curFrameform)

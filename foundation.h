@@ -95,7 +95,7 @@ typedef struct {
 	evaluator evaluate;
 } stdNode;
 
-#define stdNodeTableLength  21
+#define stdNodeTableLength  28
 const stdNode *stdNodeTable[stdNodeTableLength];
 
 
@@ -149,8 +149,9 @@ outType eval_argCall(nodeIndex self, outType fnCallArgs[maxChildren]) {
 	return fnCallArgs[ nodes[self].argRefIndex ];
 }
 outType eval_fnArgCall(nodeIndex self, outType fnCallArgs[maxChildren]) {
-	//std fn
 	nodeIndex nodePassed = fnCallArgs[ nodes[self].argRefIndex ].f;
+	
+	//std fn
 	if (nodePassed > curNode)
 		return stdNodeTable[nodePassed-curNode-1]->evaluate(self, fnCallArgs);
 	

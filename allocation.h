@@ -38,7 +38,7 @@ void init_Allocation(void) {
 	gRootNodeSpace = nodeIndexPage;
 	gRootNodes = malloc(sizeof(nodeIndex) * gRootNodeSpace);
 	
-	loadedNodeSpace = loadedNodeSpace;
+	loadedNodeSpace = loadedNodePage;
 	loadedNodes = malloc(sizeof(nodeIndex) * loadedNodeSpace);
 }
 
