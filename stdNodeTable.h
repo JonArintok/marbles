@@ -383,10 +383,10 @@ outType eval_limitedDynamicFillByte4array2(
 		//copy source to toBeReturned
 	}
 	
-	int rectX = rect.n4[0];
-	int rectY = rect.n4[1];
-	int rectW = rect.n4[2];
-	int rectH = rect.n4[3];
+	double rectX = rect.n4[0];
+	double rectY = rect.n4[1];
+	double rectW = rect.n4[2];
+	double rectH = rect.n4[3];
 	
 	//clip the rectangle to prevent out-of-bounds access
 	if (
@@ -459,6 +459,38 @@ const stdNode node_sqr = {
 
 
 
+
+
+outType eval_sin(nodeIndex self, outType fnCallArgs[maxChildren]) {
+	nodeIndex arg = nodes[self].children[0];
+	outType argOut = _output_(arg, fnCallArgs)
+	outType toBeReturned;
+	toBeReturned.n = sin(tao * argOut.n);
+	return toBeReturned;
+}
+const stdNode node_sin = {
+	.name = "sin num\ninput num",
+	.arity = 1,
+	.evaluate = eval_sin
+};
+
+
+outType eval_frameRate(nodeIndex self, outType fnCallArgs[maxChildren]) {
+	outType toBeReturned;
+	toBeReturned.n = frameRate;
+	return toBeReturned;
+}
+const stdNode node_frameRate = {
+	.name = "frameRate num",
+	.arity = 0,
+	.evaluate = eval_frameRate
+};
+
+
+
+
+
+
 const stdNode *stdNodeTable[stdNodeTableLength] = {
 	&node_add,
 	&node_sub,
@@ -487,6 +519,8 @@ const stdNode *stdNodeTable[stdNodeTableLength] = {
 	&node_heightOf,
 	&node_dynamicFillByte4array2,
 	&node_limitedDynamicFillByte4array2,
-	&node_sqr
+	&node_sqr,
+	&node_sin,
+	&node_frameRate
 };
 

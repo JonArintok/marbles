@@ -6,6 +6,7 @@
 #include <stdint.h>
 #include <stdbool.h>
 #include <unistd.h>
+#include <math.h>
 #include <SDL2/SDL.h>
 
 
@@ -21,6 +22,7 @@ int  exitFrameform;
 #define defaultFrameRate    30
 #define defaultWindowWidth  640
 #define defaultWindowHeight 480
+#define tao 6.283185307179586476925286766559005768394338798750
 
 #include "foundation.h"
 #include "allocation.h"
@@ -171,12 +173,13 @@ int main(int argc, char **argv) {
 	fclose(fileStream);
 	
 	if (!errorCount) {
+		puts("initializing...");
 		initializeNodes();
 		if (videoEnabled)
 			initializeVideo();
 		
 		puts("running...");
-		printf("frameRate: %f\n", frameRate);//uncomment this when using valgrind
+		//printf("frameRate: %f\n", frameRate);//uncomment this when using valgrind
 		
 		long frameTimeStamp = getMicroseconds();
 		int csn = frameforms[activeFrameform].curStateNode;
@@ -253,6 +256,7 @@ int main(int argc, char **argv) {
 		}
 	}
 	
+	puts("cleaning...");
 	if (videoEnabled) {
 		SDL_DestroyTexture(texture);
 		SDL_DestroyRenderer(renderer);
@@ -260,6 +264,7 @@ int main(int argc, char **argv) {
 		SDL_Quit();
 	}
 	cleanUp();
+	puts("finished.");
 	return 0;
 }
 

@@ -95,7 +95,7 @@ typedef struct {
 	evaluator evaluate;
 } stdNode;
 
-#define stdNodeTableLength  28
+#define stdNodeTableLength  30
 const stdNode *stdNodeTable[stdNodeTableLength];
 
 
