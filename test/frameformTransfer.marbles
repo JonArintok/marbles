@@ -8,7 +8,7 @@ state dnCounter num
 	- dnCounter increm
 
 next
-	? (!> dnCounter -10) exit other
+	? (<= dnCounter -10) exit other
 
 
 @enter
@@ -17,7 +17,7 @@ share upCounter num
 	+ upCounter increm
 
 next
-	? (!< upCounter 10) other enter
+	? (>= upCounter 10) other enter
 
 @.
 

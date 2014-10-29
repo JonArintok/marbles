@@ -20,16 +20,16 @@ state g num
 state h num
 	? (!= 2 4) 0 1
 state i num
-	? (!< 2 4) 0 1
+	? (>= 2 4) 0 1
 state j num
-	? (!< 4 2) 0 1
+	? (>= 4 2) 0 1
 state k num
-	? (!> 4 2) 0 1
+	? (<= 4 2) 0 1
 state l num
-	? (!> 2 4) 0 1
+	? (<= 2 4) 0 1
 
 state m num
-	? (!(!> 2 4)) 0 1
+	? (!(<= 2 4)) 0 1
 
 next
 	exit

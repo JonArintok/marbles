@@ -3,7 +3,7 @@
 fn triwave num
 	phase num
 	?
-		!> phase 0.5
+		<= phase 0.5
 		* 2 phase
 		* 2 (- 1 phase)
 
@@ -15,7 +15,7 @@ var phaseIncrem num
 
 state lightPhase num
 	?
-		!< lightPhase 1
+		>= lightPhase 1
 		0
 		+ lightPhase phaseIncrem
 

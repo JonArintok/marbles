@@ -19,7 +19,7 @@ fn ellipseFiller byte4
 	sourceWidth  num
 	sourceHeight num
 	?
-		!<
+		>=
 			1
 			+
 				/

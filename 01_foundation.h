@@ -34,10 +34,8 @@ typedef union {
 	nodeIndex   f;
 	nodeArray   F;
 } outType;
-typedef outType (*evaluator) (
-	nodeIndex toBeEvaluated,
-	outType fnCallArgs[maxChildren]
-);
+#define _evalargs_ nodeIndex self, outType fnCallArgs[maxChildren]
+typedef outType (*evaluator) (_evalargs_);
 typedef struct {
 	nodeIndex  definition;//for variable/state/fn calls
 	int8_t     argRefIndex;//for argument calls
@@ -116,22 +114,22 @@ char *windowHeightName = "windowHeight num";
 #define _output_(toBeEvaluated, fnCallArgs)\
 	nodes[toBeEvaluated].evaluate(toBeEvaluated, fnCallArgs);
 
-outType eval_varDef(nodeIndex self, outType fnCallArgs[maxChildren]) {
+outType eval_varDef(_evalargs_) {
 	nodes[self].cache = nodes[self+1].cache;
 	return nodes[self].cache;
 }
-outType eval_varCall(nodeIndex self, outType fnCallArgs[maxChildren]) {
+outType eval_varCall(_evalargs_) {
 	return nodes[ nodes[self].definition ].cache;
 }
 
-outType eval_fnDef(nodeIndex self, outType fnCallArgs[maxChildren]) {
+outType eval_fnDef(_evalargs_) {
 	return _output_(self+1, fnCallArgs)
 }
-outType eval_fnDefN(nodeIndex self, outType fnCallArgs[maxChildren]) {
+outType eval_fnDefN(_evalargs_) {
 	return _output_(self+1, fnCallArgs)
 }
 
-outType eval_fnCall(nodeIndex self, outType fnCallArgs[maxChildren]) {
+outType eval_fnCall(_evalargs_) {
 	outType newFnCallArgs[maxChildren];
 	for (int i = 0; i < nodes[self].childCount; i++) {
 		nodeIndex arg = nodes[self].children[i];
@@ -140,15 +138,15 @@ outType eval_fnCall(nodeIndex self, outType fnCallArgs[maxChildren]) {
 	nodeIndex fnBody = nodes[self].definition + 1;
 	return _output_(fnBody, newFnCallArgs)
 }
-outType eval_fnCallN(nodeIndex self, outType fnCallArgs[maxChildren]) {
+outType eval_fnCallN(_evalargs_) {
 	nodeIndex fnBody = nodes[self].definition + 1;
 	return _output_(fnBody, fnCallArgs)
 }
 
-outType eval_argCall(nodeIndex self, outType fnCallArgs[maxChildren]) {
+outType eval_argCall(_evalargs_) {
 	return fnCallArgs[ nodes[self].argRefIndex ];
 }
-outType eval_fnArgCall(nodeIndex self, outType fnCallArgs[maxChildren]) {
+outType eval_fnArgCall(_evalargs_) {
 	nodeIndex nodePassed = fnCallArgs[ nodes[self].argRefIndex ].f;
 	
 	//std fn
@@ -163,32 +161,32 @@ outType eval_fnArgCall(nodeIndex self, outType fnCallArgs[maxChildren]) {
 	}
 	return _output_(nodePassed+1, newFnCallArgs)
 }
-outType eval_fnPass(nodeIndex self, outType fnCallArgs[maxChildren]) {
+outType eval_fnPass(_evalargs_) {
 	return nodes[self].cache;
 }
 
 
-outType eval_stateDef(nodeIndex self, outType fnCallArgs[maxChildren]) {
+outType eval_stateDef(_evalargs_) {
 	return nodes[self].cache;
 }
-outType eval_shareDef(nodeIndex self, outType fnCallArgs[maxChildren]) {
+outType eval_shareDef(_evalargs_) {
 	return nodes[self].cache;
 }
-outType eval_stateCall(nodeIndex self, outType fnCallArgs[maxChildren]) {
+outType eval_stateCall(_evalargs_) {
 	return nodes[ nodes[self].definition ].cache;
 }
-outType eval_shareCall(nodeIndex self, outType fnCallArgs[maxChildren]) {
+outType eval_shareCall(_evalargs_) {
 	return nodes[ nodes[self].definition ].cache;
 }
 
 
 char *name_frameformRef = "frameformRef num";
-outType eval_frameformRef(nodeIndex self, outType fnCallArgs[maxChildren]) {
+outType eval_frameformRef(_evalargs_) {
 	return nodes[self].cache;
 }
 
 char *name_numLit = "numLit num";
-outType eval_numLit(nodeIndex self, outType fnCallArgs[maxChildren]) {
+outType eval_numLit(_evalargs_) {
 	return nodes[self].cache;
 }
 

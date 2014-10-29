@@ -1,7 +1,7 @@
 
 
 #define _biop_(eval_name, node_name, title, op, type) \
-outType eval_name(nodeIndex self, outType fnCallArgs[maxChildren]) {\
+outType eval_name(_evalargs_) {\
 	nodeIndex arg0 = nodes[self].children[0];\
 	nodeIndex arg1 = nodes[self].children[1];\
 	outType a = _output_(arg0, fnCallArgs)\
@@ -24,13 +24,13 @@ _biop_(eval_equal,          node_equal,           "=", ==, n)
 _biop_(eval_lessThan,       node_lessThan,        "<",  <, n)
 _biop_(eval_greaterThan,    node_greaterThan,     ">",  >, n)
 _biop_(eval_notEqual,       node_notEqual,       "!=", !=, n)
-_biop_(eval_notLessThan,    node_notLessThan,    "!<", >=, n)
-_biop_(eval_notGreaterThan, node_notGreaterThan, "!>", <=, n)
+_biop_(eval_notLessThan,    node_notLessThan,    ">=", >=, n)
+_biop_(eval_notGreaterThan, node_notGreaterThan, "<=", <=, n)
 _biop_(eval_both,           node_both,       "both",   &&, n)
 _biop_(eval_either,         node_either,     "either", ||, n)
 
 
-outType eval_if(nodeIndex self, outType fnCallArgs[maxChildren]) {
+outType eval_if(_evalargs_) {
 	nodeIndex cond = nodes[self].children[0];
 	outType condOut = _output_(cond, fnCallArgs)
 	nodeIndex selection;
@@ -46,7 +46,7 @@ const stdNode node_if = {
 	.evaluate = eval_if
 };
 
-outType eval_not(nodeIndex self, outType fnCallArgs[maxChildren]) {
+outType eval_not(_evalargs_) {
 	nodeIndex arg = nodes[self].children[0];
 	outType argOut = _output_(arg, fnCallArgs)
 	outType toBeReturned;
@@ -62,7 +62,7 @@ const stdNode node_not = {
 	.evaluate = eval_not
 };
 
-outType eval_currentFrame(nodeIndex self, outType fnCallArgs[maxChildren]) {
+outType eval_currentFrame(_evalargs_) {
 	outType toBeReturned;
 	toBeReturned.n = curFrame;
 	return toBeReturned;
@@ -77,7 +77,7 @@ const stdNode node_curFrame = {
 
 
 
-outType eval_windowWidth(nodeIndex self, outType fnCallArgs[maxChildren]) {
+outType eval_windowWidth(_evalargs_) {
 	outType toBeReturned;
 	toBeReturned.n = windowWidth;
 	return toBeReturned;
@@ -88,7 +88,7 @@ const stdNode node_windowWidth = {
 	.evaluate = eval_windowWidth
 };
 
-outType eval_windowHeight(nodeIndex self, outType fnCallArgs[maxChildren]) {
+outType eval_windowHeight(_evalargs_) {
 	outType toBeReturned;
 	toBeReturned.n = windowHeight;
 	return toBeReturned;
@@ -104,9 +104,7 @@ const stdNode node_windowHeight = {
 
 
 
-outType eval_buildByte4array2(
-	nodeIndex self, outType fnCallArgs[maxChildren]
-) {
+outType eval_buildByte4array2(_evalargs_) {
 	nodeIndex arg0 = nodes[self].children[0];
 	nodeIndex arg1 = nodes[self].children[1];
 	outType widthSource  = _output_(arg0, fnCallArgs)
@@ -134,9 +132,7 @@ const stdNode node_buildByte4array2 = {
 };
 
 
-outType eval_fillByte4array2(
-	nodeIndex self, outType fnCallArgs[maxChildren]
-) {
+outType eval_fillByte4array2(_evalargs_) {
 	nodeIndex arg0 = nodes[self].children[0];
 	nodeIndex arg1 = nodes[self].children[1];
 	outType value  = _output_(arg0, fnCallArgs);
@@ -178,7 +174,7 @@ const stdNode node_fillByte4array2 = {
 
 
 
-outType eval_fillByte4(nodeIndex self, outType fnCallArgs[maxChildren]) {
+outType eval_fillByte4(_evalargs_) {
 	nodeIndex arg = nodes[self].children[0];
 	outType argOut = _output_(arg, fnCallArgs)
 	outType toBeReturned;
@@ -197,7 +193,7 @@ const stdNode node_fillByte4 = {
 
 
 
-outType eval_byteFromNorm(nodeIndex self, outType fnCallArgs[maxChildren]) {
+outType eval_byteFromNorm(_evalargs_) {
 	nodeIndex arg = nodes[self].children[0];
 	outType argOut = _output_(arg, fnCallArgs)
 	outType toBeReturned;
@@ -217,7 +213,7 @@ const stdNode node_byteFromNorm = {
 
 
 
-outType eval_byte4FromNorms(nodeIndex self, outType fnCallArgs[maxChildren]) {
+outType eval_byte4FromNorms(_evalargs_) {
 	nodeIndex arg0 = nodes[self].children[0];
 	nodeIndex arg1 = nodes[self].children[1];
 	nodeIndex arg2 = nodes[self].children[2];
@@ -242,7 +238,7 @@ const stdNode node_byte4FromNorms = {
 
 
 
-outType eval_num4(nodeIndex self, outType fnCallArgs[maxChildren]) {
+outType eval_num4(_evalargs_) {
 	nodeIndex arg0 = nodes[self].children[0];
 	nodeIndex arg1 = nodes[self].children[1];
 	nodeIndex arg2 = nodes[self].children[2];
@@ -270,7 +266,7 @@ const stdNode node_num4 = {
 
 
 
-outType eval_widthOf(nodeIndex self, outType fnCallArgs[maxChildren]) {
+outType eval_widthOf(_evalargs_) {
 	nodeIndex arg = nodes[self].children[0];
 	outType argOut = _output_(arg, fnCallArgs)
 	outType toBeReturned;
@@ -283,7 +279,7 @@ const stdNode node_widthOf = {
 	.evaluate = eval_widthOf
 };
 
-outType eval_heightOf(nodeIndex self, outType fnCallArgs[maxChildren]) {
+outType eval_heightOf(_evalargs_) {
 	nodeIndex arg = nodes[self].children[0];
 	outType argOut = _output_(arg, fnCallArgs)
 	outType toBeReturned;
@@ -298,9 +294,7 @@ const stdNode node_heightOf = {
 
 
 
-outType eval_dynamicFillByte4array2(
-	nodeIndex self, outType fnCallArgs[maxChildren]
-) {
+outType eval_dynamicFillByte4array2(_evalargs_) {
 	nodeIndex arg0 = nodes[self].children[0];
 	nodeIndex arg1 = nodes[self].children[1];
 	outType filler = _output_(arg0, fnCallArgs);
@@ -355,9 +349,7 @@ const stdNode node_dynamicFillByte4array2 = {
 
 
 
-outType eval_limitedDynamicFillByte4array2(
-	nodeIndex self, outType fnCallArgs[maxChildren]
-) {
+outType eval_limitedDynamicFillByte4array2(_evalargs_) {
 	nodeIndex arg0 = nodes[self].children[0];
 	nodeIndex arg1 = nodes[self].children[1];
 	nodeIndex arg2 = nodes[self].children[2];
@@ -440,7 +432,7 @@ const stdNode node_limitedDynamicFillByte4array2 = {
 
 
 
-outType eval_sqr(nodeIndex self, outType fnCallArgs[maxChildren]) {
+outType eval_sqr(_evalargs_) {
 	nodeIndex arg = nodes[self].children[0];
 	outType argOut = _output_(arg, fnCallArgs)
 	outType toBeReturned;
@@ -461,7 +453,7 @@ const stdNode node_sqr = {
 
 
 
-outType eval_sin(nodeIndex self, outType fnCallArgs[maxChildren]) {
+outType eval_sin(_evalargs_) {
 	nodeIndex arg = nodes[self].children[0];
 	outType argOut = _output_(arg, fnCallArgs)
 	outType toBeReturned;
@@ -475,7 +467,7 @@ const stdNode node_sin = {
 };
 
 
-outType eval_frameRate(nodeIndex self, outType fnCallArgs[maxChildren]) {
+outType eval_frameRate(_evalargs_) {
 	outType toBeReturned;
 	toBeReturned.n = frameRate;
 	return toBeReturned;
