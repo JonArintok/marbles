@@ -134,7 +134,7 @@ int main(int argc, char **argv) {
 		}
 	}
 	
-	puts("cleaning...");
+	puts("exiting...");
 	if (videoEnabled) {
 		SDL_DestroyTexture(texture);
 		SDL_DestroyRenderer(renderer);

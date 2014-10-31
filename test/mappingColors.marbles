@@ -5,7 +5,7 @@ fn redFiller byte4
 	yPos num
 	sourceWidth  num
 	sourceHeight num
-	byte4FromNorms
+	byte4From01
 		/
 			+
 				/ xPos sourceWidth
@@ -20,7 +20,7 @@ fn cyanFiller byte4
 	yPos num
 	sourceWidth  num
 	sourceHeight num
-	byte4FromNorms
+	byte4From01
 		0
 		/ xPos sourceWidth
 		/ yPos sourceHeight

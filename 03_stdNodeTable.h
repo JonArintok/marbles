@@ -20,7 +20,7 @@ _biop_(eval_add, node_add, "+", +, n)
 _biop_(eval_sub, node_sub, "-", -, n)
 _biop_(eval_mul, node_mul, "*", *, n)
 _biop_(eval_div, node_div, "/", /, n)
-_biop_(eval_equal,          node_equal,           "=", ==, n)
+//_biop_(eval_equal,          node_equal,           "=", ==, n)
 _biop_(eval_lessThan,       node_lessThan,        "<",  <, n)
 _biop_(eval_greaterThan,    node_greaterThan,     ">",  >, n)
 _biop_(eval_notEqual,       node_notEqual,       "!=", !=, n)
@@ -193,17 +193,17 @@ const stdNode node_fillByte4 = {
 
 
 
-outType eval_byteFromNorm(_evalargs_) {
+outType eval_byteFrom01(_evalargs_) {
 	nodeIndex arg = nodes[self].children[0];
 	outType argOut = _output_(arg, fnCallArgs)
 	outType toBeReturned;
 	toBeReturned.b = argOut.n * 255;
 	return toBeReturned;
 }
-const stdNode node_byteFromNorm = {
-	.name = "byteFromNorm byte\ninput num",
+const stdNode node_byteFrom01 = {
+	.name = "byteFrom01 byte\ninput num",
 	.arity = 1,
-	.evaluate = eval_byteFromNorm
+	.evaluate = eval_byteFrom01
 };
 
 
@@ -213,7 +213,7 @@ const stdNode node_byteFromNorm = {
 
 
 
-outType eval_byte4FromNorms(_evalargs_) {
+outType eval_byte4From01(_evalargs_) {
 	nodeIndex arg0 = nodes[self].children[0];
 	nodeIndex arg1 = nodes[self].children[1];
 	nodeIndex arg2 = nodes[self].children[2];
@@ -229,10 +229,10 @@ outType eval_byte4FromNorms(_evalargs_) {
 	toBeReturned.b4[3] = argOut3.n * 255;
 	return toBeReturned;
 }
-const stdNode node_byte4FromNorms = {
-	.name = "byte4FromNorms byte4\nb0 num\nb1 num\nb2 num\nb3 num",
+const stdNode node_byte4From01 = {
+	.name = "byte4From01 byte4\nb0 num\nb1 num\nb2 num\nb3 num",
 	.arity = 4,
-	.evaluate = eval_byte4FromNorms
+	.evaluate = eval_byte4From01
 };
 
 
@@ -483,6 +483,36 @@ const stdNode node_frameRate = {
 
 
 
+outType eval_equal(_evalargs_) {
+	nodeIndex arg0 = nodes[self].children[0];
+	nodeIndex arg1 = nodes[self].children[1];
+	outType a = _output_(arg0, fnCallArgs)
+	outType b = _output_(arg1, fnCallArgs)
+	outType toBeReturned;
+	if (memcmp(&a, &b, sizeof(outType)))
+		toBeReturned.n = 0;
+	else
+		toBeReturned.n = 1;
+	return toBeReturned;
+}
+const stdNode node_equal = {
+	.name = "= num\na matchIn\nb matchIn",
+	.arity    = 2,
+	.evaluate = eval_equal
+};
+
+
+
+
+
+
+
+
+
+
+
+
+
 const stdNode *stdNodeTable[stdNodeTableLength] = {
 	&node_add,
 	&node_sub,
@@ -504,8 +534,8 @@ const stdNode *stdNodeTable[stdNodeTableLength] = {
 	&node_buildByte4array2,
 	&node_fillByte4array2,
 	&node_fillByte4,
-	&node_byteFromNorm,
-	&node_byte4FromNorms,
+	&node_byteFrom01,
+	&node_byte4From01,
 	&node_num4,
 	&node_widthOf,
 	&node_heightOf,

@@ -22,7 +22,7 @@ state lightPhase num
 
 videoOut                  |of type byte4''
 	fillByte4''
-		byte4FromNorms        |from num 0-1 to byte 0-255
+		byte4From01        |from num 0-1 to byte 0-255
 			0
 			triwave lightPhase
 			- 1 (triwave lightPhase)

@@ -8,9 +8,9 @@ windowHeight
 	300
 
 var fillColor byte4
-	byte4FromNorms  0.2  0.8  0.4  1.0
+	byte4From01  0.2  0.8  0.4  1.0
 var backColor byte4
-	byte4FromNorms  0.1  0.3  0.6  1.0
+	byte4From01  0.1  0.3  0.6  1.0
 
 
 fn ellipseFiller byte4
