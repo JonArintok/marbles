@@ -252,6 +252,7 @@ void initNodes(void) {
 	nodes[curNode].childCount = 1;
 	nodes[curNode].children[0] = curNode + 1;
 	nodesInfo[curNode].line = curLine;
+	nodesInfo[curNode].level = 0;
 	if (inFrameform)
 		nodesInfo[curNode].frameform = curFrameform;
 	
@@ -352,15 +353,29 @@ void initNodes(void) {
 }
 
 void initOutput(void) {
+	inc_curNode();
+	free(nodesInfo[curNode].name);
+	nodes[curNode].childCount = 1;
+	nodes[curNode].children[0] = curNode + 1;
+	nodesInfo[curNode].line = curLine;
+	nodesInfo[curNode].level = 0;
+	if (inFrameform)
+		nodesInfo[curNode].frameform = curFrameform;
+	nodes[curNode].evaluate = eval_outDef;
+	
 	//check for global output declaration
-	if (matchStrWDelim(frameRateName, ' ', lineBuf, '\0'))
-		frameRateRoot = curNode+1;
+	if (matchStrWDelim(frameRateName, ' ', lineBuf, '\0')) {
+		frameRateRoot = curNode;
+		nodesInfo[curNode].name = frameRateName;
+	}
 	else if (matchStrWDelim(windowWidthName, ' ', lineBuf, '\0')) {
-		windowWidthRoot = curNode+1;
+		windowWidthRoot = curNode;
+		nodesInfo[curNode].name = windowWidthName;
 		videoEnabled = true;
 	}
 	else if (matchStrWDelim(windowHeightName, ' ', lineBuf, '\0')) {
-		windowHeightRoot = curNode+1;
+		windowHeightRoot = curNode;
+		nodesInfo[curNode].name = windowHeightName;
 		videoEnabled = true;
 	}
 	//check for frameform output declaration
@@ -370,7 +385,8 @@ void initOutput(void) {
 			printf("%s' outside of frameform\n", nextFrameformName);
 			return;
 		}
-		frameforms[curFrameform].nextFrameform = curNode+1;
+		frameforms[curFrameform].nextFrameform = curNode;
+		nodesInfo[curNode].name = nextFrameformName;
 	}
 	else if (matchStrWDelim(videoOutName, ' ', lineBuf, '\0')) {
 		if (!inFrameform) {
@@ -378,7 +394,8 @@ void initOutput(void) {
 			printf("%s' outside of frameform\n", videoOutName);
 			return;
 		}
-		frameforms[curFrameform].videoOut = curNode+1;
+		frameforms[curFrameform].videoOut = curNode;
+		nodesInfo[curNode].name = videoOutName;
 		videoEnabled = true;
 	}
 	else if (matchStrWDelim(audioOutName, ' ', lineBuf, '\0')) {
@@ -387,7 +404,8 @@ void initOutput(void) {
 			printf("%s' outside of frameform\n", audioOutName);
 			return;
 		}
-		frameforms[curFrameform].audioOut = curNode+1;
+		frameforms[curFrameform].audioOut = curNode;
+		nodesInfo[curNode].name = audioOutName;
 		audioEnabled = true;
 	}
 	getBody();
@@ -740,14 +758,14 @@ void  parse(void) {
 		return;
 	
 	//check each frameform for errors
-	for (int ffPos = 0; ffPos <= curFrameform; ffPos++) {
-		if (frameforms[ffPos].nextFrameform < 0) {
-			putError(frameforms[ffPos].line, "frameform '");
-			printf("%s' needs a '", frameforms[ffPos].name);
-			printUpTo(nextFrameformName, ' ');
-			puts("' declaration");
-			return;
-		}
-	}
+// 	for (int ffPos = 0; ffPos <= curFrameform; ffPos++) {
+// 		if (frameforms[ffPos].nextFrameform < 0) {
+// 			putError(frameforms[ffPos].line, "frameform '");
+// 			printf("%s' needs a '", frameforms[ffPos].name);
+// 			printUpTo(nextFrameformName, ' ');
+// 			puts("' declaration");
+// 			return;
+// 		}
+// 	}
 	
 }

@@ -75,8 +75,8 @@ typedef struct {
 	nodeIndex audioOut;
 } frameform;
 char *nextFrameformName = "next num";
-char *videoOutName      = "videoOut byte4**";
-char *audioOutName      = "audioOut num.";
+char *videoOutName      = "videoOut byte4''";
+char *audioOutName      = "audioOut num'";
 
 
 node      *nodes;
@@ -115,7 +115,6 @@ char *windowHeightName = "windowHeight num";
 	nodes[toBeEvaluated].evaluate(toBeEvaluated, fnCallArgs);
 
 outType eval_varDef(_evalargs_) {
-	nodes[self].cache = nodes[self+1].cache;
 	return nodes[self].cache;
 }
 outType eval_varCall(_evalargs_) {
@@ -179,6 +178,10 @@ outType eval_shareCall(_evalargs_) {
 	return nodes[ nodes[self].definition ].cache;
 }
 
+
+outType eval_outDef(_evalargs_) {
+	return nodes[self].cache;
+}
 
 char *name_frameformRef = "frameformRef num";
 outType eval_frameformRef(_evalargs_) {

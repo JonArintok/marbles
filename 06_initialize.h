@@ -2,89 +2,55 @@
 outType nullFnCallArgs[maxChildren] = {};
 
 void initializeNodes(void) {
-	//assign all global literal variables
-	for (int i = 0; i <= gCurRootNode; i++) {
-		nodeIndex n = gRootNodes[i];
+	int initCount = 0;
+	//first assign anything defined literally while incrementing initCount
+	for (int i = 0; i <= curNode; i++) {
 		if (
-			nodes[n].evaluate == eval_varDef &&
-			nodes[n+1].evaluate == eval_numLit
+			!nodesInfo[i].level &&
+			nodes[i].evaluate != eval_fnDef
 		) {
-			_output_(n, nullFnCallArgs)
-		}
-	}
-	//assign all literal variables in every frameform
-	for (int ffi = 0; ffi <= curFrameform; ffi++) {
-		for (int rni = 0; rni <= frameforms[ffi].curRootNode; rni++) {
-			nodeIndex n = frameforms[ffi].rootNodes[rni];
-			if (
-				nodes[n].evaluate == eval_varDef &&
-				nodes[n+1].evaluate == eval_numLit
-			) {
-				_output_(n, nullFnCallArgs)
-			}
+			if (nodes[i+1].evaluate == eval_numLit)
+				nodes[i].cache = nodes[i+1].cache;
+			else
+				initCount++;
 		}
 	}
 	
-	
-	//global outputs
-	if (frameRateRoot <= curNode) {
-		outType o = _output_(frameRateRoot, nullFnCallArgs)
-		frameRate = o.n;
-	}
-	if (windowWidthRoot <= curNode) {
-		outType o = _output_(windowWidthRoot, nullFnCallArgs)
-		windowWidth = o.n;
-	}
-	if (windowHeightRoot <= curNode) {
-		outType o = _output_(windowHeightRoot, nullFnCallArgs)
-		windowHeight = o.n;
-	}
-	
-	
-	//evaluate nonliteral global variables
-	for (int i = 0; i <= gCurRootNode; i++) {
-		nodeIndex n = gRootNodes[i];
+	//then evaluate everything else
+	outType *hotDef = malloc(sizeof(outType) * initCount);
+	initCount = 0;
+	for (int i = 0; i <= curNode; i++) {
 		if (
-			nodes[n].evaluate == eval_varDef &&
-			nodes[n+1].evaluate != eval_numLit
+			!nodesInfo[i].level &&
+			nodes[i].evaluate != eval_fnDef &&
+			nodes[i+1].evaluate != eval_numLit
 		) {
-			nodes[n+1].cache = _output_(n+1, nullFnCallArgs)
+			hotDef[initCount] = _output_(i+1, nullFnCallArgs);
+			initCount++;
 		}
 	}
-	//evaluate nonliteral variables in every frameform
-	for (int ffi = 0; ffi <= curFrameform; ffi++) {
-		for (int rni = 0; rni <= frameforms[ffi].curRootNode; rni++) {
-			nodeIndex n = frameforms[ffi].rootNodes[rni];
-			if (
-				nodes[n].evaluate == eval_varDef &&
-				nodes[n+1].evaluate != eval_numLit
-			) {
-				nodes[n+1].cache = _output_(n+1, nullFnCallArgs)
-			}
-		}
-	}
-	//assign nonliteral global variables
-	for (int i = 0; i <= gCurRootNode; i++) {
-		nodeIndex n = gRootNodes[i];
+	//then assign everything else
+	initCount = 0;
+	for (int i = 0; i <= curNode; i++) {
 		if (
-			nodes[n].evaluate == eval_varDef &&
-			nodes[n+1].evaluate != eval_numLit
+			!nodesInfo[i].level &&
+			nodes[i].evaluate != eval_fnDef &&
+			nodes[i+1].evaluate != eval_numLit
 		) {
-			_output_(n, nullFnCallArgs)
+			nodes[i].cache = hotDef[initCount];
+			initCount++;
 		}
 	}
-	//assign nonliteral variables in every frameform
-	for (int ffi = 0; ffi <= curFrameform; ffi++) {
-		for (int rni = 0; rni <= frameforms[ffi].curRootNode; rni++) {
-			nodeIndex n = frameforms[ffi].rootNodes[rni];
-			if (
-				nodes[n].evaluate == eval_varDef &&
-				nodes[n+1].evaluate != eval_numLit
-			) {
-				_output_(n, nullFnCallArgs)
-			}
-		}
-	}
+	free(hotDef);
+	
+	//set global outputs
+	if (frameRateRoot <= curNode)
+		frameRate = nodes[frameRateRoot].cache.n;
+	if (windowWidthRoot <= curNode)
+		windowWidth = nodes[windowWidthRoot].cache.n;
+	if (windowHeightRoot <= curNode)
+		windowHeight = nodes[windowHeightRoot].cache.n;
+	
 }
 
 
@@ -92,7 +58,6 @@ void initializeNodes(void) {
 SDL_Window   *window   = NULL;
 SDL_Renderer *renderer = NULL;
 SDL_Texture  *texture  = NULL;
-outType       videoOut;
 
 void initializeVideo() {
 	SDL_Init(SDL_INIT_VIDEO);

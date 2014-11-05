@@ -57,12 +57,13 @@ int main(int argc, char **argv) {
 			initializeVideo();
 		
 		puts("running...");
-		//printf("frameRate: %f\n", frameRate);//uncomment this when using valgrind
+		printf("frameRate: %f\n", frameRate);//uncomment this when using valgrind
 		
 		long frameTimeStamp = getMicroseconds();
 		int csn = frameforms[activeFrameform].curStateNode;
 		nodeIndex nextRoot = frameforms[activeFrameform].nextFrameform;
 		nodeIndex videoRoot = frameforms[activeFrameform].videoOut;
+		outType   videoOut;
 		//nodeIndex audioRoot = frameforms[activeFrameform].audioOut;
 		bool running = true;
 		
@@ -98,7 +99,7 @@ int main(int argc, char **argv) {
 			
 			//present video data
 			if (videoRoot <= curNode) {
-				videoOut = _output_(videoRoot, nullFnCallArgs)
+				videoOut = _output_(videoRoot+1, nullFnCallArgs)
 				if (
 					videoOut.B.dimenX < windowWidth ||
 					videoOut.B.dimenY < windowHeight
@@ -120,7 +121,7 @@ int main(int argc, char **argv) {
 			
 			//next frameform is determined between frames
 			if (nextRoot <= curNode) {
-				outType nextRootOut = _output_(nextRoot, nullFnCallArgs)
+				outType nextRootOut = _output_(nextRoot+1, nullFnCallArgs)
 				activeFrameform = nextRootOut.n;
 				if (activeFrameform > curFrameform)
 					break;
