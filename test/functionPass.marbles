@@ -1,9 +1,9 @@
 
 
-fn addmul num
-	input  num
-	factor num
-	* factor (+ factor input)
+fn add num
+	addendA num
+	addendB num
+	+ addendA addendB
 
 fn applyBiop num
 	biop num & num num
@@ -30,7 +30,7 @@ state A num
 
 state B num
 	applyBiop
-		fnSelector addmul *
+		fnSelector add *
 		currentFrame
 		12
 
@@ -44,3 +44,41 @@ next
 
 var frameLimit num
 	20
+
+
+
+
+
+
+
+
+
+|fn everyNthFrame match
+|	n num
+|	onNthFrame  match
+|	offNthFrame match
+|	? (% currentFrame n) offNthFrame onNthFrame
+
+
+|fn timedSwitch match
+|	timeLimit num
+|	preTimeLimit  match
+|	postTimeLimit match
+|	?
+|		> frameTime timeLimit
+|		postTimeLimit
+|		preTimeLimit
+
+|fn randomMatchMaker match & n match match
+|	a match & n match match
+|	b match & n match match
+|	? random a b
+
+|state curMatchMaker match & n match match
+|	randomMatchMaker everyNthFrame timedSwitch
+
+|state foo num
+|	curMatchMaker 0 1
+
+
+

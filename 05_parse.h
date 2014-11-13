@@ -62,7 +62,7 @@ void getLine(void) {
 		//ignore spaces around charTag_paramType
 		//ignore spaces after charTag_frameform
 		if (fileChar == ' ') {
-			if (!bufPos) {
+			if (!bufPos || lineBuf[bufPos-1] == '\t') {
 				putError(curLine, "leading space\n");
 				return;
 			}
@@ -82,7 +82,7 @@ void getLine(void) {
 			fileChar == ')' ||
 			fileChar == charTag_paramType
 		) {
-			if (!bufPos) {
+			if (!bufPos || lineBuf[bufPos-1] == '\t') {
 				putError(curLine, "leading character '");
 				printf("%c' is not allowed\n", fileChar);
 				return;
@@ -411,6 +411,46 @@ void initOutput(void) {
 	getBody();
 }
 
+void initFrameform(void) {
+	//check for proper frameform name
+	if (lineBuf[1] == '\0') {
+		putError(curLine, "This frameform must have a name\n");
+		return;
+	}
+	else if ( isNumeric( lineBuf[1] ) ) {
+		putError(
+			curLine,
+			"frameform names may not begin with numeric characters\n"
+		);
+		return;
+	}
+	//allow no spaces in the frameform name
+	if ( strchr(&lineBuf[1], ' ') ) {
+		putError(curLine, "frameform names may not contain spaces\n");
+		return;
+	}
+	//allow no declarations of exitPointName
+	if (!(strcmp(&lineBuf[1], exitPointName))) {
+		putError(curLine, "cannot name a frameform '");
+		printf("%s'\n", exitPointName);
+		return;
+	}
+	
+	inc_curFrameform();
+	inFrameform = true;
+	frameforms[curFrameform].line = curLine;
+	
+	if (!(strcmp(&lineBuf[1], entryPointName)))
+		activeFrameform = curFrameform;
+	
+	//copy from lineBuf to frameforms[curFrameform].name
+	strncpy(
+		&frameforms[curFrameform].name[0],
+		&lineBuf[1],
+		maxTokenLength
+	);
+}
+
 void attachFnOrVarCall(nodeIndex def, nodeIndex call) {
 	nodesInfo[call].name = nodesInfo[def].name;
 	nodes[call].definition = def;
@@ -679,46 +719,94 @@ void resolveNode(nodeIndex nodePos) {
 	printf("'%s'\n", nodeName);
 	free(nodeName);
 }
-
-void initFrameform(void) {
-	//check for proper frameform name
-	if (lineBuf[1] == '\0') {
-		putError(curLine, "This frameform must have a name\n");
+/*
+void checkType(nodeIndex nodePos) {
+	if (!nodesInfo[nodePos].level)
 		return;
-	}
-	else if ( isNumeric( lineBuf[1] ) ) {
-		putError(
-			curLine,
-			"frameform names may not begin with numeric characters\n"
-		);
-		return;
-	}
-	//allow no spaces in the frameform name
-	if ( strchr(&lineBuf[1], ' ') ) {
-		putError(curLine, "frameform names may not contain spaces\n");
-		return;
-	}
-	//allow no declarations of exitPointName
-	if (!(strcmp(&lineBuf[1], exitPointName))) {
-		putError(curLine, "cannot name a frameform '");
-		printf("%s'\n", exitPointName);
-		return;
+	
+	//nodeOutType points to the first character of 
+	//the type string output by nodePos
+	char *nodeOutType;
+	for (int i = 0;; i++) {
+		if (nodesInfo[nodePos].name[i] == ' ') {
+			nodeOutType = &nodesInfo[nodePos].name[i+1];
+			break;
+		}
+		if (nodesInfo[nodePos].name[i] == '\0') {
+			_shouldNotBeHere_
+			return;
+		}
 	}
 	
-	inc_curFrameform();
-	inFrameform = true;
-	frameforms[curFrameform].line = curLine;
+	//parentsInType points to the first character of 
+	//the type string expected from nodePos
+	char *parentsInType;
+	int   parentsPos;
+	if (nodesInfo[nodePos].level == 1) {
+		//check that the body outputs what the rootNode claims to output
+		parentsPos = nodePos - 1;
+		for (int i = 0;; i++) {
+			if (nodesInfo[parentsPos].name[i] == ' ') {
+				parentsInType = &nodesInfo[parentsPos].name[i+1];
+				break;
+			}
+			if (nodesInfo[parentsPos].name[i] == '\0') {
+				_shouldNotBeHere_
+				return;
+			}
+		}
+	}
+	else {
+		//find parentsPos
+		for (int i = 1;; i++) {
+			if (nodesInfo[nodePos-i].level == nodesInfo[nodePos].level - 1)
+				parentsPos = nodePos - i;
+			if (i > maxChildren) {
+				_shouldNotBeHere_
+				return;
+			}
+		}
+		
+		//argLine points to the first character of the 
+		//(argRefIndex)th argument declaration in parent's name
+		char *argLine;
+		int newLineCounter = -1;
+		for (int i = 0;; i++) {
+			if (nodesInfo[parentsPos].name[i] == '\n') {
+				newLineCounter++;
+				if (newLineCounter == nodes[nodePos].argRefIndex)
+					argLine = &nodesInfo[parentsPos].name[i+1];
+			}
+			if (nodesInfo[parentsPos].name[i] == '\0') {
+				_shouldNotBeHere_
+				return;
+			}
+		}
+		
+		//find parentsInType in the line pointed to by argLine
+		for (int i = 0;; i++) {
+			if (argLine[i] == ' ') {
+				parentsInType = &argLine[i+1];
+				break;
+			}
+			if (argLine[i] == '\0') {
+				_shouldNotBeHere_
+				return;
+			}
+		}
+	}
 	
-	if (!(strcmp(&lineBuf[1], entryPointName)))
-		activeFrameform = curFrameform;
 	
-	//copy from lineBuf to frameforms[curFrameform].name
-	strncpy(
-		&frameforms[curFrameform].name[0],
-		&lineBuf[1],
-		maxTokenLength
-	);
+	//if parentsInType = "match":
+	//	reapeat with parent's parentsInType, 
+	//	until either parentsInType is not "match" or !parentsPos.level
+	//if parentsInType = "any":
+	//	Your're good.
+	//else nodeOutType needs to match parentsInType up to either '\n' or '\0'
 }
+
+*/
+
 
 void  parse(void) {
 	//go through the file(s) line by line
@@ -747,6 +835,8 @@ void  parse(void) {
 		else
 			initNodes();
 	}
+	if (errorCount)
+		return;
 	
 	//the exitFrameform is not actually a frameform, just a number
 	exitFrameform = curFrameform + 1;
@@ -757,15 +847,8 @@ void  parse(void) {
 	if (errorCount)
 		return;
 	
-	//check each frameform for errors
-// 	for (int ffPos = 0; ffPos <= curFrameform; ffPos++) {
-// 		if (frameforms[ffPos].nextFrameform < 0) {
-// 			putError(frameforms[ffPos].line, "frameform '");
-// 			printf("%s' needs a '", frameforms[ffPos].name);
-// 			printUpTo(nextFrameformName, ' ');
-// 			puts("' declaration");
-// 			return;
-// 		}
-// 	}
+	//check types of each node
+	//for (int nodePos = 0; nodePos <= curNode; nodePos++)
+	//	checkType(nodePos);
 	
 }

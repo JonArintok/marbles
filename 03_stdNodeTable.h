@@ -496,7 +496,7 @@ outType eval_equal(_evalargs_) {
 	return toBeReturned;
 }
 const stdNode node_equal = {
-	.name = "= num\na matchIn\nb matchIn",
+	.name = "= num\na any\nb any",
 	.arity    = 2,
 	.evaluate = eval_equal
 };
