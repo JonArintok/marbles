@@ -69,12 +69,12 @@ var frameLimit num
 |		postTimeLimit
 |		preTimeLimit
 
-|fn randomMatchMaker match & n match match
-|	a match & n match match
-|	b match & n match match
+|fn randomMatchMaker match & num match match
+|	a match & num match match
+|	b match & num match match
 |	? random a b
 
-|state curMatchMaker match & n match match
+|state curMatchMaker match & num match match
 |	randomMatchMaker everyNthFrame timedSwitch
 
 |state foo num

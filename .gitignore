@@ -1,6 +1,8 @@
 *.[oa]
 *~
-*.kate-swp
+*.cbp
+*.layout
+
 .gdb_history
 marblerun
 thoughts.txt
