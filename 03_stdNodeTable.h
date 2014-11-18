@@ -41,7 +41,7 @@ outType eval_if(_evalargs_) {
 	return _output_(selection, fnCallArgs)
 }
 const stdNode node_if = {
-	.name = "? any\ncondition num\nifTrue any\nelse any",
+	.name = "? match\ncondition num\nifTrue match\nelse match",
 	.arity = 3,
 	.evaluate = eval_if
 };

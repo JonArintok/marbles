@@ -739,7 +739,7 @@ void resolveNode(nodeIndex nodePos) {
 
 char *getParentsInType(nodeIndex nodePos) {
 	char *parentsInType;
-	int parentsPos;
+	int parentsPos = -1;
 	if (nodesInfo[nodePos].level == 1) {
 		parentsPos = nodePos - 1;
 		//parentsInType is right after the title in the rootNode's name
@@ -755,9 +755,11 @@ char *getParentsInType(nodeIndex nodePos) {
 	}
 	else {
 		//find parentsPos
-		for (int i = 1;; i++) {
-			if (nodesInfo[nodePos-i].level == nodesInfo[nodePos].level - 1)
+		for (int i = 1; parentsPos < 0; i++) {
+			if (nodesInfo[nodePos-i].level == nodesInfo[nodePos].level-1) {
 				parentsPos = nodePos - i;
+				break;
+			}
 		}
 
 		//argLine points to the first character of the
@@ -767,8 +769,10 @@ char *getParentsInType(nodeIndex nodePos) {
 		for (int i = 0;; i++) {
 			if (nodesInfo[parentsPos].name[i] == '\n') {
 				newLineCounter++;
-				if (newLineCounter == nodes[nodePos].argRefIndex)
+				if (newLineCounter == nodes[nodePos].argRefIndex) {
 					argLine = &nodesInfo[parentsPos].name[i+1];
+					break;
+				}
 			}
 			if (nodesInfo[parentsPos].name[i] == '\0') {
 				_shouldNotBeHere_
@@ -818,9 +822,14 @@ void checkType(nodeIndex nodePos) {
 	//the type string expected from nodePos
 	char *parentsInType = getParentsInType(nodePos);
 
-	//some nodes like "=" will accept any type
-	if (matchStrUpToNullOrNewline(parentsInType, "any"))
+	//some nodes like "=" will accept "any" type
+	//type checking is deferred for nodes wich output "match"
+	if (
+		matchStrUpToNullOrNewline(parentsInType, "any") ||
+		matchStrUpToNullOrNewline(nodeOutType, "match")
+	) {
 		return;
+	}
 
 	//otherwise parentsInType and nodeOutType need to match
 	if (matchStrUpToNullOrNewline(parentsInType, nodeOutType))

@@ -23,4 +23,7 @@ state result num             |state
 		tenPerFrame
 
 next                         |next frameform
-	? (> result 1000) exit enter
+	?
+		> result 1000
+		exit
+		enter

@@ -1,12 +1,12 @@
 
 
 define test
-	echo running test/mappingColors.marbles...
+	echo running test/functionPass.marbles...
 	echo \n
-	run test/mappingColors.marbles
+	run test/functionPass.marbles
 end
 
-break marblerun.c:174
+break 05_parse.h:758
 
 
 define pnode
