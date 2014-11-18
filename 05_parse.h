@@ -3,6 +3,7 @@
 #define charTag_comment   '|'
 #define charTag_frameform '@'
 #define charTag_paramType '&'
+#define  strTag_paramType "&"
 #define charTag_shareRead ':'
 #define decTag_var   "var"
 #define decTag_fn    "fn"
@@ -275,9 +276,12 @@ void initNodes(void) {
 
 
 	//read the first line into curNode.name
-	inc_namePos();
-	for (; lineBuf[namePos] != '\0'; inc_namePos())
+	while (true) {
+		inc_namePos();
 		nodesInfo[curNode].name[namePos] = lineBuf[namePos];
+		if (!nodesInfo[curNode].name[namePos])
+			break;
+	}
 
 
 	//determine what is being declared based on the decTag
@@ -737,59 +741,75 @@ void resolveNode(nodeIndex nodePos) {
 	free(nodeName);
 }
 
+
+char *WordAfterNthSpace(char *in, int n) {
+	if (!n)
+		return in;
+	int spaceCount = 0;
+	for (int i = 0;; i++) {
+		if (in[i] == ' ') {
+			spaceCount++;
+			if (spaceCount == n)
+				return &in[i+1];
+		}
+		if (in[i] == '\0')
+			return NULL;
+	}
+}
+
 char *getParentsInType(nodeIndex nodePos) {
 	char *parentsInType;
 	int parentsPos = -1;
 	if (nodesInfo[nodePos].level == 1) {
 		parentsPos = nodePos - 1;
 		//parentsInType is right after the title in the rootNode's name
-		for (int i = 0;; i++) {
-			if (nodesInfo[parentsPos].name[i] == ' ') {
-				return &nodesInfo[parentsPos].name[i+1];
-			}
-			if (nodesInfo[parentsPos].name[i] == '\0') {
-				_shouldNotBeHere_
-				return NULL;
-			}
-		}
+		return WordAfterNthSpace(nodesInfo[parentsPos].name, 1);
 	}
 	else {
-		//find parentsPos
+		//find parentsPos and childIndex
+		int childIndex = 0;
 		for (int i = 1; parentsPos < 0; i++) {
-			if (nodesInfo[nodePos-i].level == nodesInfo[nodePos].level-1) {
+			if (nodesInfo[nodePos-i].level == nodesInfo[nodePos].level)
+				childIndex++;
+			else if (nodesInfo[nodePos-i].level == nodesInfo[nodePos].level-1) {
 				parentsPos = nodePos - i;
 				break;
 			}
 		}
 
 		//argLine points to the first character of the
-		//(argRefIndex)th argument declaration in parent's name
+		//(argRefIndex)th argument declaration in parent's name.
+		//The format of argument declarations is different for 
+		//eval_fnArgCall, which are themselves arguments
 		char *argLine;
-		int newLineCounter = -1;
-		for (int i = 0;; i++) {
-			if (nodesInfo[parentsPos].name[i] == '\n') {
-				newLineCounter++;
-				if (newLineCounter == nodes[nodePos].argRefIndex) {
-					argLine = &nodesInfo[parentsPos].name[i+1];
-					break;
+		if (nodes[parentsPos].evaluate != eval_fnArgCall) {
+			int newLineCounter = -1;
+			for (int i = 0;; i++) {
+				if (nodesInfo[parentsPos].name[i] == '\n') {
+					newLineCounter++;
+					if (newLineCounter == childIndex) {
+						argLine = &nodesInfo[parentsPos].name[i+1];
+						break;
+					}
+				}
+				if (nodesInfo[parentsPos].name[i] == '\0') {
+					_shouldNotBeHere_
+					return NULL;
 				}
 			}
-			if (nodesInfo[parentsPos].name[i] == '\0') {
-				_shouldNotBeHere_
-				return NULL;
-			}
+			//find parentsInType in the line pointed to by argLine
+			parentsInType = WordAfterNthSpace(argLine, 1);
 		}
-
-		//find parentsInType in the line pointed to by argLine
-		for (int i = 0;; i++) {
-			if (argLine[i] == ' ') {
-				parentsInType = &argLine[i+1];
-				break;
-			}
-			if (argLine[i] == '\0') {
-				_shouldNotBeHere_
-				return NULL;
-			}
+		else {
+			char *fnArgCallArgs = 1 + strchr(
+				nodesInfo[parentsPos].name, charTag_paramType
+			);
+			if (!nodes[nodePos].argRefIndex)
+				parentsInType = fnArgCallArgs;
+			else
+				parentsInType = WordAfterNthSpace(
+					fnArgCallArgs, nodes[nodePos].argRefIndex
+				);
 		}
 	}
 	//if parentsInType is "match", then we want the parent's parentsInType
@@ -802,43 +822,47 @@ char *getParentsInType(nodeIndex nodePos) {
 void checkType(nodeIndex nodePos) {
 	if (!nodesInfo[nodePos].level)
 		return;
-
-	//nodeOutType points to the first character of
-	//the type string output by nodePos
-	char *nodeOutType;
-	for (int i = 0;; i++) {
-		if (nodesInfo[nodePos].name[i] == ' ') {
-			nodeOutType = &nodesInfo[nodePos].name[i+1];
-			break;
-		}
-		if (nodesInfo[nodePos].name[i] == '\0') {
-			_shouldNotBeHere_
-			return;
-		}
-	}
-
-
+	
 	//parentsInType points to the first character of
 	//the type string expected from nodePos
 	char *parentsInType = getParentsInType(nodePos);
-
+	if (!strncmp(parentsInType, "any", 3))
+		return;
+	
+	
+	//nodeOutType points to the first character of
+	//the type string output by nodePos
+	char *nodeOutType = WordAfterNthSpace(nodesInfo[nodePos].name, 1);
+	int   nodeOutTypeLength;
+	if (nodes[nodePos].evaluate == eval_fnArgCall)
+		nodeOutTypeLength = strcspn(nodeOutType, strTag_paramType);
+	else if (nodes[nodePos].evaluate == eval_fnPass) {
+		//convert long form to short form
+		nodeOutTypeLength = 1;
+	}
+	else {
+		//whole thing up to either '\0' or '\n'
+		if (strchr(nodeOutType, '\n'))
+			nodeOutTypeLength = strcspn(nodeOutType, "\n");
+		else
+			nodeOutTypeLength = strlen(nodeOutType);
+	}
+	
+	
+	
 	//some nodes like "=" will accept "any" type
 	//type checking is deferred for nodes wich output "match"
-	if (
-		matchStrUpToNullOrNewline(parentsInType, "any") ||
-		matchStrUpToNullOrNewline(nodeOutType, "match")
-	) {
+	if (!strncmp(nodeOutType, "match", nodeOutTypeLength))
 		return;
-	}
 
 	//otherwise parentsInType and nodeOutType need to match
-	if (matchStrUpToNullOrNewline(parentsInType, nodeOutType))
+	if (!strncmp(parentsInType, nodeOutType, nodeOutTypeLength))
 		return;
 
 	//they don't match
 	putError(nodesInfo[nodePos].line, "expected type '");
 	printUpTo(parentsInType, '\n');
-	printf("', but output of '");
+	printf("' but '");
 	printUpTo(nodesInfo[nodePos].name, ' ');
 	printf("' is of type '");
 	printUpTo(nodeOutType, '\n');

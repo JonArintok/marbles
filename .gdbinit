@@ -6,7 +6,16 @@ define test
 	run test/functionPass.marbles
 end
 
-break 05_parse.h:758
+break initNodes if curNode == 35
+
+define snpn
+	s
+	output nodesInfo[curNode].name
+	echo \n
+end
+
+
+
 
 
 define pnode
