@@ -3,7 +3,6 @@
 #define charTag_comment   '|'
 #define charTag_frameform '@'
 #define charTag_paramType '&'
-#define  strTag_paramType "&"
 #define charTag_shareRead ':'
 #define decTag_var   "var"
 #define decTag_fn    "fn"
@@ -757,6 +756,7 @@ char *WordAfterNthSpace(char *in, int n) {
 	}
 }
 
+
 char *getParentsInType(nodeIndex nodePos) {
 	char *parentsInType;
 	int parentsPos = -1;
@@ -819,6 +819,38 @@ char *getParentsInType(nodeIndex nodePos) {
 	return parentsInType;
 }
 
+void longDecToShortDec(char *shortDec, char *longDec) {
+	int shortDecPos = strcspn(longDec, "\n");
+	strncpy(shortDec, longDec, shortDecPos);
+	shortDec[shortDecPos] = charTag_paramType;
+	int longDecPos = shortDecPos;
+	bool copyMode = false;
+	while (true) {
+		longDecPos++;
+		
+		if (longDec[longDecPos] == '\0') {
+			shortDecPos++;
+			shortDec[shortDecPos] = '\0';
+			break;
+		}
+		
+		if (copyMode) {
+			shortDecPos++;
+			if (longDec[longDecPos] == '\n') {
+				shortDec[shortDecPos] = ' ';
+				copyMode = false;
+			}
+			else {
+				shortDec[shortDecPos] = longDec[longDecPos];
+			}
+		}
+		else {
+			if (longDec[longDecPos] == ' ')
+				copyMode = true;
+		}
+	}
+}
+
 void checkType(nodeIndex nodePos) {
 	if (!nodesInfo[nodePos].level)
 		return;
@@ -834,11 +866,16 @@ void checkType(nodeIndex nodePos) {
 	//the type string output by nodePos
 	char *nodeOutType = WordAfterNthSpace(nodesInfo[nodePos].name, 1);
 	int   nodeOutTypeLength;
-	if (nodes[nodePos].evaluate == eval_fnArgCall)
+	if (nodes[nodePos].evaluate == eval_fnArgCall) {
+		char strTag_paramType[] = {charTag_paramType, '\0'};
 		nodeOutTypeLength = strcspn(nodeOutType, strTag_paramType);
+	}
 	else if (nodes[nodePos].evaluate == eval_fnPass) {
 		//convert long form to short form
-		nodeOutTypeLength = 1;
+		char shortDec[maxLineLength];
+		longDecToShortDec(shortDec, nodeOutType);
+		nodeOutType = shortDec;
+		nodeOutTypeLength = strlen(nodeOutType);
 	}
 	else {
 		//whole thing up to either '\0' or '\n'

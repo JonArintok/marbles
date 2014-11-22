@@ -6,11 +6,21 @@ define test
 	run test/functionPass.marbles
 end
 
-break initNodes if curNode == 35
+break longDecToShortDec
 
-define snpn
+define snp
 	s
-	output nodesInfo[curNode].name
+	echo longDec......
+	output longDec
+	echo \n
+	echo longDecPos...
+	output longDecPos
+	echo \n
+	echo shortDec.....
+	output shortDec
+	echo \n
+	echo shortDecPos..
+	output shortDecPos
 	echo \n
 end
 
