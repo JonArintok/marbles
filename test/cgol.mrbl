@@ -1,0 +1,80 @@
+
+
+frameRate
+	10
+windowWidth
+	128
+windowHeight
+	128
+
+
+var liveColor byte4
+	byte4From01  0.2  0.8  0.4  1.0
+var deadColor byte4
+	byte4From01  0.1  0.3  0.6  1.0
+
+
+
+@enter
+
+fn neighborCount num
+	x num
+	y num
+	>
+		0
+		-
+			sumLimitedNum''
+				num4 (- x 1) (- y 1) 3 3
+				cells
+			fromNum'' x y cells
+
+
+fn cellFlipper num
+	x num
+	y num
+	sourceWidth  num
+	sourceHeight num
+	?
+		fromNum'' x y cells
+		?
+			< 2 (neighborCount x y)
+			0
+			?
+				> 3 (neighborCount x y)
+				0
+				1
+		?
+			= 3 (neighborCount x y)
+			1
+			0
+
+state cells num''
+	dynamicFillByte''
+		cellFlipper
+		?
+			currentFrame
+			cells
+			fillRandomNum
+				buildNum''
+					windowWidth
+					windowHeight
+
+
+fn cellsToVideo byte4
+	x num
+	y num
+	sourceWidth  num
+	sourceHeight num
+	?
+		fromNum'' x y cells
+		liveColor
+		deadColor
+
+
+videoOut
+	dynamicFillByte4''
+		cellsToVideo
+		buildByte4''
+			windowWidth
+			windowHeight
+
