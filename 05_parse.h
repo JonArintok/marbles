@@ -59,7 +59,6 @@ void getLine(void) {
 		//homogenize formatting:
 		//ignore redundant spaces,
 		//ignore spaces around parentheses
-		//ignore spaces around charTag_paramType
 		//ignore spaces after charTag_frameform
 		if (fileChar == ' ') {
 			if (!bufPos || lineBuf[bufPos-1] == '\t') {
@@ -70,8 +69,7 @@ void getLine(void) {
 				lineBuf[bufPos-1] == ' ' ||
 				lineBuf[bufPos-1] == '(' ||
 				lineBuf[bufPos-1] == ')' ||
-				lineBuf[bufPos-1] == charTag_frameform ||
-				lineBuf[bufPos-1] == charTag_paramType
+				lineBuf[bufPos-1] == charTag_frameform
 			) {
 				bufPos--;
 				continue;
@@ -79,8 +77,7 @@ void getLine(void) {
 		}
 		if (
 			fileChar == '(' ||
-			fileChar == ')' ||
-			fileChar == charTag_paramType
+			fileChar == ')'
 		) {
 			if (!bufPos || lineBuf[bufPos-1] == '\t') {
 				putError(curLine, "leading character '");
@@ -801,7 +798,7 @@ char *getParentsInType(nodeIndex nodePos) {
 			parentsInType = WordAfterNthSpace(argLine, 1);
 		}
 		else {
-			char *fnArgCallArgs = 1 + strchr(
+			char *fnArgCallArgs = 2 + strchr(
 				nodesInfo[parentsPos].name, charTag_paramType
 			);
 			if (!nodes[nodePos].argRefIndex)
@@ -822,7 +819,9 @@ char *getParentsInType(nodeIndex nodePos) {
 void longDecToShortDec(char *shortDec, char *longDec) {
 	int shortDecPos = strcspn(longDec, "\n");
 	strncpy(shortDec, longDec, shortDecPos);
-	shortDec[shortDecPos] = charTag_paramType;
+	shortDec[shortDecPos++] = ' ';
+	shortDec[shortDecPos++] = charTag_paramType;
+	shortDec[shortDecPos  ] = ' ';
 	int longDecPos = shortDecPos;
 	bool copyMode = false;
 	while (true) {
@@ -867,8 +866,7 @@ void checkType(nodeIndex nodePos) {
 	char *nodeOutType = WordAfterNthSpace(nodesInfo[nodePos].name, 1);
 	int   nodeOutTypeLength;
 	if (nodes[nodePos].evaluate == eval_fnArgCall) {
-		char strTag_paramType[] = {charTag_paramType, '\0'};
-		nodeOutTypeLength = strcspn(nodeOutType, strTag_paramType);
+		nodeOutTypeLength = strcspn(nodeOutType, " ");
 	}
 	else if (nodes[nodePos].evaluate == eval_fnPass) {
 		//convert long form to short form
