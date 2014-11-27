@@ -342,7 +342,7 @@ outType eval_dynamicFillByte4array2(_evalargs_) {
 	return toBeReturned;
 }
 const stdNode node_dynamicFillByte4array2 = {
-	.name = "dynamicFillByte4'' byte4''\nfiller byte4 & num num num num\nsource byte4''",
+	.name = "dynamicFillByte4'' byte4''\nfiller byte4&num num num num\nsource byte4''",
 	.arity = 2,
 	.evaluate = eval_dynamicFillByte4array2
 };
@@ -424,7 +424,7 @@ outType eval_limitedDynamicFillByte4array2(_evalargs_) {
 	return toBeReturned;
 }
 const stdNode node_limitedDynamicFillByte4array2 = {
-	.name = "limitedDynamicFillByte4'' byte4''\nfiller byte4 & num num num num\nrect num4\nsource byte4''",
+	.name = "limitedDynamicFillByte4'' byte4''\nfiller byte4&num num num num\nrect num4\nsource byte4''",
 	.arity = 3,
 	.evaluate = eval_limitedDynamicFillByte4array2
 };
@@ -506,14 +506,7 @@ const stdNode node_equal = {
 
 
 
-
-
-
-
-
-
-
-const stdNode *stdNodeTable[stdNodeTableLength] = {
+const stdNode *stdNodeTable[] = {
 	&node_add,
 	&node_sub,
 	&node_mul,
@@ -543,6 +536,7 @@ const stdNode *stdNodeTable[stdNodeTableLength] = {
 	&node_limitedDynamicFillByte4array2,
 	&node_sqr,
 	&node_sin,
-	&node_frameRate
+	&node_frameRate,
+	NULL
 };
 

@@ -49,12 +49,12 @@ fn cellFlipper num
 			0
 
 state cells num''
-	dynamicFillByte''
+	dynamicFillNum''
 		cellFlipper
 		?
 			currentFrame
 			cells
-			fillRandomNum
+			randomFillNum
 				buildNum''
 					windowWidth
 					windowHeight

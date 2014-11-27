@@ -574,7 +574,7 @@ void resolveNode(nodeIndex nodePos) {
 	}
 
 	//check for reference to std fn
-	for (int sntPos = 0; sntPos < stdNodeTableLength; sntPos++) {
+	for (int sntPos = 0; stdNodeTable[sntPos]; sntPos++) {
 		if (matchStrWDelim(nodeName, '\0', stdNodeTable[sntPos]->name, ' ')) {
 			if (!nodes[nodePos].childCount && stdNodeTable[sntPos]->arity) {
 				nodes[nodePos].evaluate = eval_fnPass;
