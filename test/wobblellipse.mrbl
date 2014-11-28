@@ -37,7 +37,7 @@ fn ellipseFiller byte4
 var wobbleRate num
 	0.5
 
-state sinOscOut0_1 num
+state sinOscOut01 num
 	/
 		+ 1 (sin (/ currentFrame (/ frameRate wobbleRate)))
 		2
@@ -45,22 +45,22 @@ state sinOscOut0_1 num
 
 fn ellipseBoundary num4
 	num4
-		* sinOscOut0_1 (/ windowWidth 3)
-		* (- 1 sinOscOut0_1) (/ windowHeight 3)
+		* sinOscOut01 (/ windowWidth 3)
+		* (- 1 sinOscOut01) (/ windowHeight 3)
 		-
 			windowWidth
-			* 2 (* sinOscOut0_1 (/ windowWidth 3))
+			* 2 (* sinOscOut01 (/ windowWidth 3))
 		-
 			windowHeight
-			* 2 (* (- 1 sinOscOut0_1) (/ windowHeight 3))
+			* 2 (* (- 1 sinOscOut01) (/ windowHeight 3))
 
 videoOut
-	limitedDynamicFillByte4''
+	limitedDynamicFillByte4D2
 		ellipseFiller
 		ellipseBoundary
-		fillByte4''
+		fillByte4D2
 			backColor
-			buildByte4''
+			buildByte4D2
 				windowWidth
 				windowHeight
 

@@ -20,14 +20,14 @@ state lightPhase num
 		+ lightPhase phaseIncrem
 
 
-videoOut                  |of type byte4''
-	fillByte4''
+videoOut               |of type byte4D2
+	fillByte4D2
 		byte4From01        |from num 0-1 to byte 0-255
 			0
 			triwave lightPhase
 			- 1 (triwave lightPhase)
 			1
-		buildByte4''
+		buildByte4D2
 			windowWidth
 			windowHeight
 

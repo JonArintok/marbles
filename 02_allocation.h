@@ -55,9 +55,13 @@ void inc_curNode(void) {
 	nodes[curNode].argRefIndex = 0;
 	nodes[curNode].childCount  = 0;
 	nodes[curNode].evaluate    = NULL;
-	nodes[curNode].cache.n     = 0;
 	for (int i = 0; i < maxChildren; i++)
 		nodes[curNode].children[i] = maxNodeIndex;
+	nodes[curNode].cache.B.data = 0;
+	nodes[curNode].cache.B.dataSpace = 0;
+	nodes[curNode].cache.B.dimenX = 1;
+	nodes[curNode].cache.B.dimenY = 1;
+	nodes[curNode].cache.B.dimenZ = 1;
 	
 	nodesInfo[curNode].name  = unnamed;
 	nodesInfo[curNode].line  = 0;

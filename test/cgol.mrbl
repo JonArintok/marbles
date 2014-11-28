@@ -1,7 +1,7 @@
 
 
 frameRate
-	10
+	4
 windowWidth
 	128
 windowHeight
@@ -9,24 +9,44 @@ windowHeight
 
 
 var liveColor byte4
-	byte4From01  0.2  0.8  0.4  1.0
+	byte4From01  0.22  0.92  0.44  1.0
 var deadColor byte4
-	byte4From01  0.1  0.3  0.6  1.0
+	byte4From01  0.08  0.22  0.55  1.0
 
 
 
 @enter
 
+|fn neighborCount num
+|	x num
+|	y num
+|	>
+|		0
+|		-
+|			sumLimitedNumD2
+|				num4 (- x 1) (- y 1) 3 3
+|				cells
+|			fromNumD2 x y cells
+
 fn neighborCount num
 	x num
 	y num
-	>
-		0
-		-
-			sumLimitedNum''
-				num4 (- x 1) (- y 1) 3 3
-				cells
-			fromNum'' x y cells
+	+
+		fromNumD2 (- x 1) (- y 1) cells
+		+
+			fromNumD2    x    (- y 1) cells
+			+
+				fromNumD2 (+ x 1) (- y 1) cells
+				+
+					fromNumD2 (- x 1)    y    cells
+					+
+						fromNumD2 (+ x 1)    y    cells
+						+
+							fromNumD2 (- x 1) (+ y 1) cells
+							+
+								fromNumD2    x    (+ y 1) cells
+								fromNumD2 (+ x 1) (+ y 1) cells
+
 
 
 fn cellFlipper num
@@ -35,7 +55,7 @@ fn cellFlipper num
 	sourceWidth  num
 	sourceHeight num
 	?
-		fromNum'' x y cells
+		fromNumD2 x y cells
 		?
 			< 2 (neighborCount x y)
 			0
@@ -48,16 +68,12 @@ fn cellFlipper num
 			1
 			0
 
-state cells num''
-	dynamicFillNum''
-		cellFlipper
-		?
-			currentFrame
-			cells
-			randomFillNum
-				buildNum''
-					windowWidth
-					windowHeight
+state cells numD2
+	?
+		currentFrame
+		dynamicFillNumD2 cellFlipper cells
+		randomBoolFillNumD2
+			buildNumD2 windowWidth windowHeight
 
 
 fn cellsToVideo byte4
@@ -66,15 +82,15 @@ fn cellsToVideo byte4
 	sourceWidth  num
 	sourceHeight num
 	?
-		fromNum'' x y cells
+		fromNumD2 x y cells
 		liveColor
 		deadColor
 
 
 videoOut
-	dynamicFillByte4''
+	dynamicFillByte4D2
 		cellsToVideo
-		buildByte4''
+		buildByte4D2
 			windowWidth
 			windowHeight
 

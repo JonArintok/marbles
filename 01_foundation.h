@@ -75,7 +75,7 @@ typedef struct {
 	nodeIndex audioOut;
 } frameform;
 char *nextFrameformName = "next num";
-char *videoOutName      = "videoOut byte4''";
+char *videoOutName      = "videoOut byte4D2";
 char *audioOutName      = "audioOut num'";
 
 

@@ -63,10 +63,14 @@ const stdNode *stdNodeTable[] = {
 &node_byte4From01,
 
 //arrays
-&node_buildByte4array2,
-&node_fillByte4array2,
-&node_dynamicFillByte4array2,
-&node_limitedDynamicFillByte4array2,
+&node_buildByte4D2,
+&node_buildNumD2,
+&node_fillByte4D2,
+&node_dynamicFillByte4D2,
+&node_dynamicFillNumD2,
+&node_limitedDynamicFillByte4D2,
+&node_randomBoolFillNumD2,
+&node_fromNumD2,
 &node_widthOf,
 &node_heightOf,
 

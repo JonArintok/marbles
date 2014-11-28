@@ -26,13 +26,13 @@ fn cyanFiller byte4
 		/ yPos sourceHeight
 		1
 
-var image byte4''
-	limitedDynamicFillByte4''
+var image byte4D2
+	limitedDynamicFillByte4D2
 		redFiller
 		num4 40 40 80 80
-		dynamicFillByte4''
+		dynamicFillByte4D2
 			cyanFiller
-			buildByte4''
+			buildByte4D2
 				windowWidth
 				windowHeight
 

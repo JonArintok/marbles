@@ -1,6 +1,6 @@
 
 
-outType eval_buildByte4array2(_evalargs_) {
+outType eval_buildByte4D2(_evalargs_) {
 	nodeIndex arg0 = nodes[self].children[0];
 	nodeIndex arg1 = nodes[self].children[1];
 	outType widthSource  = _output_(arg0, fnCallArgs)
@@ -8,10 +8,12 @@ outType eval_buildByte4array2(_evalargs_) {
 	int newDataSpace = widthSource.n * heightSource.n * 4;
 	
 	if (!nodes[self].cache.B.data) {
+		printf("mallocing data from eval_buildByte4D2, node %i\n", self);
 		nodes[self].cache.B.data = malloc(sizeof(byte) * newDataSpace);
 		addLoadedNode(self);
 	}
 	else if (nodes[self].cache.B.dataSpace < newDataSpace) {
+		printf("reallocing data from eval_buildByte4D2, node %i\n", self);
 		nodes[self].cache.B.data = 
 			realloc(nodes[self].cache.B.data, newDataSpace);
 	}
@@ -21,14 +23,43 @@ outType eval_buildByte4array2(_evalargs_) {
 	
 	return nodes[self].cache;
 }
-const stdNode node_buildByte4array2 = {
-	.name = "buildByte4'' byte4''\nwidth num\nheight num",
+const stdNode node_buildByte4D2 = {
+	.name = "buildByte4D2 byte4D2\nwidth num\nheight num",
 	.arity = 2,
-	.evaluate = eval_buildByte4array2
+	.evaluate = eval_buildByte4D2
+};
+
+outType eval_buildNumD2(_evalargs_) {
+	nodeIndex arg0 = nodes[self].children[0];
+	nodeIndex arg1 = nodes[self].children[1];
+	outType widthSource  = _output_(arg0, fnCallArgs)
+	outType heightSource = _output_(arg1, fnCallArgs)
+	int newDataSpace = widthSource.n * heightSource.n;
+	
+	if (!nodes[self].cache.N.data) {
+		printf("mallocing data from eval_buildNumD2, node %i\n", self);
+		nodes[self].cache.N.data = malloc(sizeof(number) * newDataSpace);
+		addLoadedNode(self);
+	}
+	else if (nodes[self].cache.N.dataSpace < newDataSpace) {
+		printf("reallocing data from eval_buildNumD2, node %i\n", self);
+		nodes[self].cache.N.data = 
+			realloc(nodes[self].cache.N.data, newDataSpace);
+	}
+	nodes[self].cache.N.dataSpace = newDataSpace;
+	nodes[self].cache.N.dimenX = widthSource.n;
+	nodes[self].cache.N.dimenY = heightSource.n;
+	
+	return nodes[self].cache;
+}
+const stdNode node_buildNumD2 = {
+	.name = "buildNumD2 numD2\nwidth num\nheight num",
+	.arity = 2,
+	.evaluate = eval_buildNumD2
 };
 
 
-outType eval_fillByte4array2(_evalargs_) {
+outType eval_fillByte4D2(_evalargs_) {
 	nodeIndex arg0 = nodes[self].children[0];
 	nodeIndex arg1 = nodes[self].children[1];
 	outType value  = _output_(arg0, fnCallArgs);
@@ -39,10 +70,12 @@ outType eval_fillByte4array2(_evalargs_) {
 	
 	if (isReadOnly(source)) {
 		if (!nodes[self].cache.B.data) {
+			printf("mallocing data from eval_fillByte4D2, node %i\n", self);
 			nodes[self].cache.B.data = malloc(sizeof(byte) * newDataSpace);
 			addLoadedNode(self);
 		}
 		else if (nodes[self].cache.B.dataSpace < newDataSpace) {
+			printf("reallocing data from eval_fillByte4D2, node %i\n", self);
 			nodes[self].cache.B.data = 
 				realloc(nodes[self].cache.B.data, newDataSpace);
 		}
@@ -61,15 +94,15 @@ outType eval_fillByte4array2(_evalargs_) {
 	
 	return toBeReturned;
 }
-const stdNode node_fillByte4array2 = {
-	.name = "fillByte4'' byte4''\nvalue byte4\nsource byte4''",
+const stdNode node_fillByte4D2 = {
+	.name = "fillByte4D2 byte4D2\nvalue byte4\nsource byte4D2",
 	.arity = 2,
-	.evaluate = eval_fillByte4array2
+	.evaluate = eval_fillByte4D2
 };
 
 
 
-outType eval_dynamicFillByte4array2(_evalargs_) {
+outType eval_dynamicFillByte4D2(_evalargs_) {
 	nodeIndex arg0 = nodes[self].children[0];
 	nodeIndex arg1 = nodes[self].children[1];
 	outType filler = _output_(arg0, fnCallArgs);
@@ -80,10 +113,12 @@ outType eval_dynamicFillByte4array2(_evalargs_) {
 	
 	if (isReadOnly(source)) {
 		if (!nodes[self].cache.B.data) {
+			printf("mallocing data from eval_dynamicFillByte4D2, node %i\n", self);
 			nodes[self].cache.B.data = malloc(sizeof(byte) * newDataSpace);
 			addLoadedNode(self);
 		}
 		else if (nodes[self].cache.B.dataSpace < newDataSpace) {
+			printf("reallocing data from eval_dynamicFillByte4D2, node %i\n", self);
 			nodes[self].cache.B.data = 
 				realloc(nodes[self].cache.B.data, newDataSpace);
 		}
@@ -116,15 +151,68 @@ outType eval_dynamicFillByte4array2(_evalargs_) {
 	
 	return toBeReturned;
 }
-const stdNode node_dynamicFillByte4array2 = {
-	.name = "dynamicFillByte4'' byte4''\nfiller byte4 & num num num num\nsource byte4''",
+const stdNode node_dynamicFillByte4D2 = {
+	.name = "dynamicFillByte4D2 byte4D2\nfiller byte4 & num num num num\nsource byte4D2",
 	.arity = 2,
-	.evaluate = eval_dynamicFillByte4array2
+	.evaluate = eval_dynamicFillByte4D2
+};
+
+
+outType eval_dynamicFillNumD2(_evalargs_) {
+	nodeIndex arg0 = nodes[self].children[0];
+	nodeIndex arg1 = nodes[self].children[1];
+	outType filler = _output_(arg0, fnCallArgs);
+	outType source = _output_(arg1, fnCallArgs);
+	
+	outType toBeReturned = source;
+	int newDataSpace = toBeReturned.N.dataSpace;
+	
+	if (isReadOnly(source)) {
+		if (!nodes[self].cache.N.data) {
+			printf("mallocing data from eval_dynamicFillNumD2, node %i\n", self);
+			nodes[self].cache.N.data = malloc(sizeof(number) * newDataSpace);
+			addLoadedNode(self);
+		}
+		else if (nodes[self].cache.N.dataSpace < newDataSpace) {
+			printf("reallocing data from eval_dynamicFillNumD2, node %i\n", self);
+			nodes[self].cache.N.data = 
+				realloc(nodes[self].cache.N.data, newDataSpace);
+		}
+		nodes[self].cache.N.dataSpace = newDataSpace;
+		toBeReturned.N.data = nodes[self].cache.N.data;
+		setToWriteable(&toBeReturned);
+	}
+	
+	//filler arguments:
+	//	x position
+	//	y position
+	//	source width
+	//	source height
+	outType fillerCallArgs[maxChildren];
+	fillerCallArgs[2].n = toBeReturned.N.dimenX;
+	fillerCallArgs[3].n = toBeReturned.N.dimenY;
+	number *dataToBeReturned = toBeReturned.N.data;
+	for (int yPos = 0; yPos < toBeReturned.N.dimenY; yPos++) {
+		fillerCallArgs[1].n = yPos;
+		for (int xPos = 0; xPos < toBeReturned.N.dimenX; xPos++) {
+			fillerCallArgs[0].n = xPos;
+			outType value = _output_(filler.f + 1, fillerCallArgs)
+			int dataPos = (yPos * toBeReturned.N.dimenX + xPos);
+			dataToBeReturned[dataPos] = value.n;
+		}
+	}
+	
+	return toBeReturned;
+}
+const stdNode node_dynamicFillNumD2 = {
+	.name = "dynamicFillNumD2 numD2\nfiller num & num num num num\nsource numD2",
+	.arity = 2,
+	.evaluate = eval_dynamicFillNumD2
 };
 
 
 
-outType eval_limitedDynamicFillByte4array2(_evalargs_) {
+outType eval_limitedDynamicFillByte4D2(_evalargs_) {
 	nodeIndex arg0 = nodes[self].children[0];
 	nodeIndex arg1 = nodes[self].children[1];
 	nodeIndex arg2 = nodes[self].children[2];
@@ -137,10 +225,12 @@ outType eval_limitedDynamicFillByte4array2(_evalargs_) {
 	
 	if (isReadOnly(source)) {
 		if (!nodes[self].cache.B.data) {
+			printf("mallocing data from eval_limitedDynamicFillByte4D2, node %i\n", self);
 			nodes[self].cache.B.data = malloc(sizeof(byte) * newDataSpace);
 			addLoadedNode(self);
 		}
 		else if (nodes[self].cache.B.dataSpace < newDataSpace) {
+			printf("reallocing data from eval_limitedDynamicFillByte4D2, node %i\n", self);
 			nodes[self].cache.B.data = 
 				realloc(nodes[self].cache.B.data, newDataSpace);
 		}
@@ -198,12 +288,73 @@ outType eval_limitedDynamicFillByte4array2(_evalargs_) {
 	
 	return toBeReturned;
 }
-const stdNode node_limitedDynamicFillByte4array2 = {
-	.name = "limitedDynamicFillByte4'' byte4''\nfiller byte4 & num num num num\nrect num4\nsource byte4''",
+const stdNode node_limitedDynamicFillByte4D2 = {
+	.name = "limitedDynamicFillByte4D2 byte4D2\nfiller byte4 & num num num num\nrect num4\nsource byte4D2",
 	.arity = 3,
-	.evaluate = eval_limitedDynamicFillByte4array2
+	.evaluate = eval_limitedDynamicFillByte4D2
 };
 
+
+outType eval_randomBoolFillNumD2(_evalargs_) {
+	nodeIndex arg0 = nodes[self].children[0];
+	outType source = _output_(arg0, fnCallArgs);
+	
+	outType toBeReturned = source;
+	int newDataSpace = toBeReturned.N.dataSpace;
+	
+	if (isReadOnly(source)) {
+		if (!nodes[self].cache.N.data) {
+			printf("mallocing data from eval_randomBoolFillNumD2, node %i\n", self);
+			nodes[self].cache.N.data = malloc(sizeof(byte) * newDataSpace);
+			addLoadedNode(self);
+		}
+		else if (nodes[self].cache.N.dataSpace < newDataSpace) {
+			printf("reallocing data from eval_randomBoolFillNumD2, node %i\n", self);
+			nodes[self].cache.N.data = 
+				realloc(nodes[self].cache.N.data, newDataSpace);
+		}
+		nodes[self].cache.N.dataSpace = newDataSpace;
+		toBeReturned.N.data = nodes[self].cache.N.data;
+		setToWriteable(&toBeReturned);
+	}
+	
+	number *dataToBeReturned = toBeReturned.N.data;
+	for (int i = 0; i < newDataSpace; i++)
+		dataToBeReturned[i] = rand()%2;
+	
+	return toBeReturned;
+}
+const stdNode node_randomBoolFillNumD2 = {
+	.name = "randomBoolFillNumD2 numD2\nsource numD2",
+	.arity = 1,
+	.evaluate = eval_randomBoolFillNumD2
+};
+
+
+
+outType eval_fromNumD2(_evalargs_) {
+	nodeIndex arg0 = nodes[self].children[0];
+	nodeIndex arg1 = nodes[self].children[1];
+	nodeIndex arg2 = nodes[self].children[2];
+	outType x      = _output_(arg0, fnCallArgs);
+	outType y      = _output_(arg1, fnCallArgs);
+	outType source = _output_(arg2, fnCallArgs);
+	outType toBeReturned;
+	if      (x.n > source.N.dimenX  ||  x.n < 0)
+		toBeReturned.n = 0;
+	else if (y.n > source.N.dimenY  ||  y.n < 0)
+		toBeReturned.n = 0;
+	else {
+		int i = x.n * y.n  +  x.n;
+		toBeReturned.n = source.N.data[i];
+	}
+	return toBeReturned;
+}
+const stdNode node_fromNumD2 = {
+	.name = "fromNumD2 num\nx num\ny num\nsource numD2",
+	.arity = 3,
+	.evaluate = eval_fromNumD2
+};
 
 
 

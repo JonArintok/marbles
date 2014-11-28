@@ -57,7 +57,7 @@ int main(int argc, char **argv) {
 			initializeVideo();
 		
 		puts("running...");
-		printf("frameRate: %f\n", frameRate);//uncomment this when using valgrind
+		//printf("frameRate: %f\n", frameRate);//uncomment this when using valgrind
 		
 		long frameTimeStamp = getMicroseconds();
 		int csn = frameforms[activeFrameform].curStateNode;
@@ -67,7 +67,9 @@ int main(int argc, char **argv) {
 		//nodeIndex audioRoot = frameforms[activeFrameform].audioOut;
 		bool running = true;
 		
-		//   T H E   L O O P
+		//                     //
+		//   T H E   L O O P   //
+		//                     //
 		while (running) {
 			curFrame++;
 			
@@ -135,6 +137,7 @@ int main(int argc, char **argv) {
 		}
 	}
 	
+	
 	puts("exiting...");
 	if (videoEnabled) {
 		SDL_DestroyTexture(texture);
@@ -143,6 +146,7 @@ int main(int argc, char **argv) {
 		SDL_Quit();
 	}
 	cleanUp();
+	
 	puts("finished.");
 	return 0;
 }

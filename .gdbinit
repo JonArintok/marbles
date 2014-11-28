@@ -1,29 +1,12 @@
 
 
 define test
-	echo running test/functionPass.marbles...
+	echo running test/cgol.mrbl...
 	echo \n
-	run test/functionPass.marbles
+	run test/cgol.mrbl
 end
 
-break longDecToShortDec
-
-define snp
-	s
-	echo longDec......
-	output longDec
-	echo \n
-	echo longDecPos...
-	output longDecPos
-	echo \n
-	echo shortDec.....
-	output shortDec
-	echo \n
-	echo shortDecPos..
-	output shortDecPos
-	echo \n
-end
-
+break eval_fromNumD2
 
 
 
