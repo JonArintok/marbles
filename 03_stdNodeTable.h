@@ -47,6 +47,7 @@ const stdNode *stdNodeTable[] = {
 &node_both,
 &node_either,
 &node_not,
+&node_memcmp,
 
 //runState
 &node_curFrame,
@@ -69,6 +70,7 @@ const stdNode *stdNodeTable[] = {
 &node_dynamicFillByte4D2,
 &node_dynamicFillNumD2,
 &node_limitedDynamicFillByte4D2,
+&node_limitedDynamicFillNumD2,
 &node_randomBoolFillNumD2,
 &node_fromNumD2,
 &node_widthOf,

@@ -3,12 +3,9 @@ outType nullFnCallArgs[maxChildren] = {};
 
 void initializeNodes(void) {
 	int initCount = 0;
-	//first assign anything defined literally while incrementing initCount
+	//first assign variables defined literally while incrementing initCount
 	for (int i = 0; i <= curNode; i++) {
-		if (
-			!nodesInfo[i].level &&
-			nodes[i].evaluate != eval_fnDef
-		) {
+		if (nodes[i].evaluate == eval_varDef || nodes[i].evaluate == eval_gOutDef) {
 			if (nodes[i+1].evaluate == eval_numLit)
 				nodes[i].cache = nodes[i+1].cache;
 			else
@@ -16,14 +13,13 @@ void initializeNodes(void) {
 		}
 	}
 	
-	//then evaluate everything else
+	//then evaluate the other variables
 	outType *hotDef = malloc(sizeof(outType) * initCount);
 	initCount = 0;
 	for (int i = 0; i <= curNode; i++) {
 		if (
-			!nodesInfo[i].level &&
-			nodes[i].evaluate != eval_fnDef &&
-			nodes[i+1].evaluate != eval_numLit
+			(nodes[i].evaluate == eval_varDef || nodes[i].evaluate == eval_gOutDef)
+			&& nodes[i+1].evaluate != eval_numLit
 		) {
 			hotDef[initCount] = _output_(i+1, nullFnCallArgs);
 			initCount++;
@@ -33,9 +29,8 @@ void initializeNodes(void) {
 	initCount = 0;
 	for (int i = 0; i <= curNode; i++) {
 		if (
-			!nodesInfo[i].level &&
-			nodes[i].evaluate != eval_fnDef &&
-			nodes[i+1].evaluate != eval_numLit
+			(nodes[i].evaluate == eval_varDef || nodes[i].evaluate == eval_gOutDef)
+			&& nodes[i+1].evaluate != eval_numLit
 		) {
 			nodes[i].cache = hotDef[initCount];
 			initCount++;

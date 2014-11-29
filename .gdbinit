@@ -6,7 +6,7 @@ define test
 	run test/cgol.mrbl
 end
 
-break eval_fromNumD2
+break marblerun.c:73
 
 
 

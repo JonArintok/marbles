@@ -85,7 +85,8 @@ int main(int argc, char **argv) {
 			//evaluate the bodies, results written to .hotState
 			for (int i = 0; i <= csn; i++) {
 				nodeIndex n = frameforms[activeFrameform].stateNodes[i] + 1;
-				frameforms[activeFrameform].hotState[i] = _output_(n, nullFnCallArgs)
+				frameforms[activeFrameform].hotState[i] = 
+					_output_(n, nullFnCallArgs)
 			}
 			
 			//copy the hotState to the stateNodes cache

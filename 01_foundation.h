@@ -178,9 +178,14 @@ outType eval_shareCall(_evalargs_) {
 }
 
 
+outType eval_gOutDef(_evalargs_) {
+	return nodes[self].cache;
+}
+
 outType eval_outDef(_evalargs_) {
 	return nodes[self].cache;
 }
+
 
 char *name_frameformRef = "frameformRef num";
 outType eval_frameformRef(_evalargs_) {
@@ -208,8 +213,13 @@ void setToWriteable(outType *a) {
 	a->B.dimenZ &= ~readOnlyFlag;
 }
 
-bool isReadOnly(outType a) {
-	return a.B.dimenZ & readOnlyFlag;
+// bool isReadOnly(outType a) {
+// 	return a.B.dimenZ & readOnlyFlag;
+// }
+bool isReadOnly(nodeIndex n) {
+	return 
+		nodes[n].evaluate == eval_varCall ||
+		nodes[n].evaluate == eval_stateCall;
 }
 
 uint32_t dimenZ(outType a) {

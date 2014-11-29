@@ -376,10 +376,15 @@ void initOutput(void) {
 	nodes[curNode].children[0] = curNode + 1;
 	nodesInfo[curNode].line = curLine;
 	nodesInfo[curNode].level = 0;
-	if (inFrameform)
+	
+	if (inFrameform) {
 		nodesInfo[curNode].frameform = curFrameform;
-	nodes[curNode].evaluate = eval_outDef;
-
+		nodes[curNode].evaluate = eval_outDef;
+	}
+	else
+		nodes[curNode].evaluate = eval_gOutDef;
+	
+	
 	//check for global output declaration
 	if (matchStrWDelim(frameRateName, ' ', lineBuf, '\0')) {
 		frameRateRoot = curNode;
