@@ -8,17 +8,21 @@ typedef uint16_t nodeIndex;
 typedef double  number;
 typedef uint8_t byte;
 
-#define _arrayType_(name, elemType)\
-typedef struct {\
-	elemType  *data;\
-	uint64_t   dataSpace;\
-	uint64_t   dimenX;\
-	uint32_t   dimenY;\
-	uint32_t   dimenZ;\
-} name;
-_arrayType_(numArray,  number)
-_arrayType_(byteArray, byte)
-_arrayType_(nodeArray, nodeIndex)
+typedef struct {
+	number  *data;
+	size_t   dataSize; //in bytes
+	uint64_t dimenX;   //in elements
+	uint32_t dimenY;
+	uint32_t dimenZ;
+} numArray;
+typedef struct {
+	byte    *data;
+	size_t   dataSize;
+	uint64_t dimenX;
+	uint32_t dimenY;
+	uint32_t dimenZ;
+} byteArray;
+
 typedef union {
 	number      n;
 	number      n2[2];
@@ -32,7 +36,6 @@ typedef union {
 	byte        b16[16];
 	byteArray   B;
 	nodeIndex   f;
-	nodeArray   F;
 } outType;
 #define _evalargs_ nodeIndex self, outType fnCallArgs[maxChildren]
 typedef outType (*evaluator) (_evalargs_);

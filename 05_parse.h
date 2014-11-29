@@ -956,3 +956,17 @@ void  parse(void) {
 
 }
 
+
+bool isAnArray(nodeIndex n) {
+	char *returnType = WordAfterNthSpace(nodesInfo[n].name, 1);
+	if (returnType[0] == 'b') {
+		if (returnType[4] == 'D'  ||  returnType[5] == 'D')
+			return true;
+	}
+	else if (returnType[0] == 'n') {
+		if (returnType[3] == 'D'  ||  returnType[4] == 'D')
+			return true;
+	}
+	return false;	
+}
+

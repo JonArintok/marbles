@@ -92,7 +92,27 @@ int main(int argc, char **argv) {
 			//copy the hotState to the stateNodes cache
 			for (int i = 0; i <= csn; i++) {
 				nodeIndex n = frameforms[activeFrameform].stateNodes[i];
-				nodes[n].cache = frameforms[activeFrameform].hotState[i];
+				outType hotState = frameforms[activeFrameform].hotState[i];
+				if (isAnArray(n)) {
+					size_t newDataSize = hotState.B.dataSize;
+					nodes[n].cache.B.dimenX = hotState.B.dimenX;
+					nodes[n].cache.B.dimenY = hotState.B.dimenY;
+					nodes[n].cache.B.dimenZ = hotState.B.dimenZ;
+					if (!nodes[n].cache.B.data) {
+						printf("mallocing data from the loop, node %i\n", n);
+						nodes[n].cache.B.data = malloc(newDataSize);
+						addLoadedNode(n);
+					}
+					else if (nodes[n].cache.B.dataSize < newDataSize) {
+						printf("reallocing data from the loop, node %i\n", n);
+						nodes[n].cache.B.data = 
+							realloc(nodes[n].cache.B.data, newDataSize);
+					}
+					nodes[n].cache.B.dataSize = newDataSize;
+					memcpy(nodes[n].cache.B.data, hotState.B.data, newDataSize);
+				}
+				else
+					nodes[n].cache = hotState;
 				if (!videoEnabled)
 					printf("%d:\t%f\n", i, nodes[n].cache.n);
 			}

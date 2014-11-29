@@ -58,7 +58,7 @@ void inc_curNode(void) {
 	for (int i = 0; i < maxChildren; i++)
 		nodes[curNode].children[i] = maxNodeIndex;
 	nodes[curNode].cache.B.data = 0;
-	nodes[curNode].cache.B.dataSpace = 0;
+	nodes[curNode].cache.B.dataSize = 0;
 	nodes[curNode].cache.B.dimenX = 1;
 	nodes[curNode].cache.B.dimenY = 1;
 	nodes[curNode].cache.B.dimenZ = 1;

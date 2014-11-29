@@ -1,7 +1,7 @@
 
 
 frameRate
-	1
+	6
 windowWidth
 	256
 windowHeight
@@ -22,16 +22,6 @@ fn initialCellFiller num
 
 @enter
 
-|fn neighborCount num
-|	x num
-|	y num
-|	>
-|		0
-|		-
-|			sumLimitedNumD2
-|				num4 (- x 1) (- y 1) 3 3
-|				cells
-|			fromNumD2 x y cells
 
 fn neighborCount num
 	x num
@@ -52,41 +42,32 @@ fn neighborCount num
 								fromNumD2 (- x 1)    y    cells
 								fromNumD2 (+ x 1)    y    cells
 
-
-
-|fn cellFlipper num
-|	x num
-|	y num
-|	sourceWidth  num
-|	sourceHeight num
-|	?
-|		fromNumD2 x y cells
-|		?
-|			either
-|				< 2 (neighborCount x y)
-|				> 3 (neighborCount x y)
-|			0
-|			1
-|		?
-|			= 3 (neighborCount x y)
-|			1
-|			0
-
 fn cellFlipper num
 	x num
 	y num
 	sourceWidth  num
 	sourceHeight num
 	?
-		> 2 (neighborCount x y)
-		0
-		1
+		fromNumD2 x y cells
+		?
+			either
+				> 2 (neighborCount x y)
+				< 3 (neighborCount x y)
+			0
+			1
+		?
+			= 3 (neighborCount x y)
+			1
+			0
+
 
 
 |state cells numD2
 |	?
 |		currentFrame
-|		dynamicFillNumD2 cellFlipper cells
+|		dynamicFillNumD2
+|			cellFlipper
+|			buildNumD2 windowWidth windowHeight
 |		randomBoolFillNumD2
 |			buildNumD2 windowWidth windowHeight
 

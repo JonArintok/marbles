@@ -5,19 +5,19 @@ outType eval_buildByte4D2(_evalargs_) {
 	nodeIndex arg1 = nodes[self].children[1];
 	outType widthSource  = _output_(arg0, fnCallArgs)
 	outType heightSource = _output_(arg1, fnCallArgs)
-	int newDataSpace = widthSource.n * heightSource.n * 4;
+	size_t newDataSize = sizeof(byte) * 4 * widthSource.n * heightSource.n;
 	
 	if (!nodes[self].cache.B.data) {
 		printf("mallocing data from eval_buildByte4D2, node %i\n", self);
-		nodes[self].cache.B.data = malloc(sizeof(byte) * newDataSpace);
+		nodes[self].cache.B.data = malloc(newDataSize);
 		addLoadedNode(self);
 	}
-	else if (nodes[self].cache.B.dataSpace < newDataSpace) {
+	else if (nodes[self].cache.B.dataSize < newDataSize) {
 		printf("reallocing data from eval_buildByte4D2, node %i\n", self);
 		nodes[self].cache.B.data = 
-			realloc(nodes[self].cache.B.data, newDataSpace);
+			realloc(nodes[self].cache.B.data, newDataSize);
 	}
-	nodes[self].cache.B.dataSpace = newDataSpace;
+	nodes[self].cache.B.dataSize = newDataSize;
 	nodes[self].cache.B.dimenX = widthSource.n;
 	nodes[self].cache.B.dimenY = heightSource.n;
 	
@@ -34,19 +34,19 @@ outType eval_buildNumD2(_evalargs_) {
 	nodeIndex arg1 = nodes[self].children[1];
 	outType widthSource  = _output_(arg0, fnCallArgs)
 	outType heightSource = _output_(arg1, fnCallArgs)
-	int newDataSpace = widthSource.n * heightSource.n;
+	size_t newDataSize = sizeof(number) * widthSource.n * heightSource.n;
 	
 	if (!nodes[self].cache.N.data) {
 		printf("mallocing data from eval_buildNumD2, node %i\n", self);
-		nodes[self].cache.N.data = malloc(sizeof(number) * newDataSpace);
+		nodes[self].cache.N.data = malloc(newDataSize);
 		addLoadedNode(self);
 	}
-	else if (nodes[self].cache.N.dataSpace < newDataSpace) {
+	else if (nodes[self].cache.N.dataSize < newDataSize) {
 		printf("reallocing data from eval_buildNumD2, node %i\n", self);
 		nodes[self].cache.N.data = 
-			realloc(nodes[self].cache.N.data, newDataSpace);
+			realloc(nodes[self].cache.N.data, newDataSize);
 	}
-	nodes[self].cache.N.dataSpace = newDataSpace;
+	nodes[self].cache.N.dataSize = newDataSize;
 	nodes[self].cache.N.dimenX = widthSource.n;
 	nodes[self].cache.N.dimenY = heightSource.n;
 	
@@ -66,25 +66,25 @@ outType eval_fillByte4D2(_evalargs_) {
 	outType source = _output_(arg1, fnCallArgs);
 	
 	outType toBeReturned = source;
-	int newDataSpace = toBeReturned.B.dataSpace;
+	size_t newDataSize = toBeReturned.B.dataSize;
 	
 	if (isReadOnly(arg1)) {
 		if (!nodes[self].cache.B.data) {
 			printf("mallocing data from eval_fillByte4D2, node %i\n", self);
-			nodes[self].cache.B.data = malloc(sizeof(byte) * newDataSpace);
+			nodes[self].cache.B.data = malloc(newDataSize);
 			addLoadedNode(self);
 		}
-		else if (nodes[self].cache.B.dataSpace < newDataSpace) {
+		else if (nodes[self].cache.B.dataSize < newDataSize) {
 			printf("reallocing data from eval_fillByte4D2, node %i\n", self);
 			nodes[self].cache.B.data = 
-				realloc(nodes[self].cache.B.data, newDataSpace);
+				realloc(nodes[self].cache.B.data, newDataSize);
 		}
-		nodes[self].cache.B.dataSpace = newDataSpace;
+		nodes[self].cache.B.dataSize = newDataSize;
 		toBeReturned.B.data = nodes[self].cache.B.data;
 	}
 	
 	byte *dataToBeReturned = toBeReturned.B.data;
-	for (int i = 0; i < newDataSpace; i += 4) {
+	for (int i = 0; i < newDataSize; i += 4) {
 		dataToBeReturned[i  ] = value.b4[0];
 		dataToBeReturned[i+1] = value.b4[1];
 		dataToBeReturned[i+2] = value.b4[2];
@@ -108,28 +108,24 @@ outType eval_dynamicFillByte4D2(_evalargs_) {
 	outType source = _output_(arg1, fnCallArgs);
 	
 	outType toBeReturned = source;
-	int newDataSpace = toBeReturned.B.dataSpace;
+	size_t newDataSize = toBeReturned.B.dataSize;
 	
 	if (isReadOnly(arg1)) {
 		if (!nodes[self].cache.B.data) {
 			printf("mallocing data from eval_dynamicFillByte4D2, node %i\n", self);
-			nodes[self].cache.B.data = malloc(sizeof(byte) * newDataSpace);
+			nodes[self].cache.B.data = malloc(newDataSize);
 			addLoadedNode(self);
 		}
-		else if (nodes[self].cache.B.dataSpace < newDataSpace) {
+		else if (nodes[self].cache.B.dataSize < newDataSize) {
 			printf("reallocing data from eval_dynamicFillByte4D2, node %i\n", self);
 			nodes[self].cache.B.data = 
-				realloc(nodes[self].cache.B.data, newDataSpace);
+				realloc(nodes[self].cache.B.data, newDataSize);
 		}
-		nodes[self].cache.B.dataSpace = newDataSpace;
+		nodes[self].cache.B.dataSize = newDataSize;
 		toBeReturned.B.data = nodes[self].cache.B.data;
 	}
 	
-	//filler arguments:
-	//	x position
-	//	y position
-	//	source width
-	//	source height
+	//filler arguments: x, y, width, height
 	outType fillerCallArgs[maxChildren];
 	fillerCallArgs[2].n = toBeReturned.B.dimenX;
 	fillerCallArgs[3].n = toBeReturned.B.dimenY;
@@ -163,20 +159,20 @@ outType eval_dynamicFillNumD2(_evalargs_) {
 	outType source = _output_(arg1, fnCallArgs);
 	
 	outType toBeReturned = source;
-	int newDataSpace = toBeReturned.N.dataSpace;
+	size_t newDataSize = toBeReturned.N.dataSize;
 	
 	if (isReadOnly(arg1)) {
 		if (!nodes[self].cache.N.data) {
 			printf("mallocing data from eval_dynamicFillNumD2, node %i\n", self);
-			nodes[self].cache.N.data = malloc(sizeof(number) * newDataSpace);
+			nodes[self].cache.N.data = malloc(newDataSize);
 			addLoadedNode(self);
 		}
-		else if (nodes[self].cache.N.dataSpace < newDataSpace) {
+		else if (nodes[self].cache.N.dataSize < newDataSize) {
 			printf("reallocing data from eval_dynamicFillNumD2, node %i\n", self);
 			nodes[self].cache.N.data = 
-				realloc(nodes[self].cache.N.data, newDataSpace);
+				realloc(nodes[self].cache.N.data, newDataSize);
 		}
-		nodes[self].cache.N.dataSpace = newDataSpace;
+		nodes[self].cache.N.dataSize = newDataSize;
 		toBeReturned.N.data = nodes[self].cache.N.data;
 	}
 	
@@ -214,22 +210,22 @@ outType eval_limitedDynamicFillByte4D2(_evalargs_) {
 	outType source = _output_(arg2, fnCallArgs);
 	
 	outType toBeReturned = source;
-	int newDataSpace = toBeReturned.B.dataSpace;
+	size_t newDataSize = toBeReturned.B.dataSize;
 	
 	if (isReadOnly(arg2)) {
 		if (!nodes[self].cache.B.data) {
 			printf("mallocing data from eval_limitedDynamicFillByte4D2, node %i\n", self);
-			nodes[self].cache.B.data = malloc(sizeof(byte) * newDataSpace);
+			nodes[self].cache.B.data = malloc(newDataSize);
 			addLoadedNode(self);
 		}
-		else if (nodes[self].cache.B.dataSpace < newDataSpace) {
+		else if (nodes[self].cache.B.dataSize < newDataSize) {
 			printf("reallocing data from eval_limitedDynamicFillByte4D2, node %i\n", self);
 			nodes[self].cache.B.data = 
-				realloc(nodes[self].cache.B.data, newDataSpace);
+				realloc(nodes[self].cache.B.data, newDataSize);
 		}
-		nodes[self].cache.B.dataSpace = newDataSpace;
+		nodes[self].cache.B.dataSize = newDataSize;
 		toBeReturned.B.data = nodes[self].cache.B.data;
-		memcpy(toBeReturned.B.data, source.B.data, sizeof(byte)*newDataSpace);
+		memcpy(toBeReturned.B.data, source.B.data, newDataSize);
 	}
 	
 	double rectX = rect.n4[0];
@@ -256,11 +252,7 @@ outType eval_limitedDynamicFillByte4D2(_evalargs_) {
 	if (rectY + rectH  >  toBeReturned.B.dimenY)
 		rectH = toBeReturned.B.dimenY - rectY;
 	
-	//filler arguments:
-	//	xPos
-	//	yPos
-	//	sourceWidth
-	//	sourceHeight
+	//filler arguments: x, y, width, height
 	outType fillerCallArgs[maxChildren];
 	fillerCallArgs[2].n = rectW;
 	fillerCallArgs[3].n = rectH;
@@ -297,22 +289,22 @@ outType eval_limitedDynamicFillNumD2(_evalargs_) {
 	outType source = _output_(arg2, fnCallArgs);
 	
 	outType toBeReturned = source;
-	int newDataSpace = toBeReturned.N.dataSpace;
+	size_t newDataSize = toBeReturned.N.dataSize;
 	
 	if (isReadOnly(arg2)) {
 		if (!nodes[self].cache.N.data) {
 			printf("mallocing data from eval_limitedDynamicFillByte4D2, node %i\n", self);
-			nodes[self].cache.N.data = malloc(sizeof(number) * newDataSpace);
+			nodes[self].cache.N.data = malloc(newDataSize);
 			addLoadedNode(self);
 		}
-		else if (nodes[self].cache.N.dataSpace < newDataSpace) {
+		else if (nodes[self].cache.N.dataSize < newDataSize) {
 			printf("reallocing data from eval_limitedDynamicFillByte4D2, node %i\n", self);
 			nodes[self].cache.N.data = 
-				realloc(nodes[self].cache.N.data, newDataSpace);
+				realloc(nodes[self].cache.N.data, newDataSize);
 		}
-		nodes[self].cache.N.dataSpace = newDataSpace;
+		nodes[self].cache.N.dataSize = newDataSize;
 		toBeReturned.N.data = nodes[self].cache.N.data;
-		memcpy(toBeReturned.N.data, source.N.data, sizeof(number)*newDataSpace);
+		memcpy(toBeReturned.N.data, source.N.data, newDataSize);
 	}
 	
 	double rectX = rect.n4[0];
@@ -372,25 +364,26 @@ outType eval_randomBoolFillNumD2(_evalargs_) {
 	outType source = _output_(arg0, fnCallArgs);
 	
 	outType toBeReturned = source;
-	int newDataSpace = toBeReturned.N.dataSpace;
+	size_t newDataSize = toBeReturned.N.dataSize;
 	
 	if (isReadOnly(arg0)) {
 		if (!nodes[self].cache.N.data) {
 			printf("mallocing data from eval_randomBoolFillNumD2, node %i\n", self);
-			nodes[self].cache.N.data = malloc(sizeof(number) * newDataSpace);
+			nodes[self].cache.N.data = malloc(newDataSize);
 			addLoadedNode(self);
 		}
-		else if (nodes[self].cache.N.dataSpace < newDataSpace) {
+		else if (nodes[self].cache.N.dataSize < newDataSize) {
 			printf("reallocing data from eval_randomBoolFillNumD2, node %i\n", self);
 			nodes[self].cache.N.data = 
-				realloc(nodes[self].cache.N.data, newDataSpace);
+				realloc(nodes[self].cache.N.data, newDataSize);
 		}
-		nodes[self].cache.N.dataSpace = newDataSpace;
+		nodes[self].cache.N.dataSize = newDataSize;
 		toBeReturned.N.data = nodes[self].cache.N.data;
 	}
 	
 	number *dataToBeReturned = toBeReturned.N.data;
-	for (int i = 0; i < newDataSpace; i++)
+	int elements = toBeReturned.N.dimenX * toBeReturned.N.dimenY;
+	for (int i = 0; i < elements; i++)
 		dataToBeReturned[i] = rand()%2;
 	
 	return toBeReturned;
