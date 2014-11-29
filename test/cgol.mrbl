@@ -2,10 +2,14 @@
 
 frameRate
 	6
+videoWidth
+	256
+videoHeight
+	256
 windowWidth
-	256
+	512
 windowHeight
-	256
+	512
 
 
 var liveColor byte4
@@ -67,9 +71,9 @@ fn cellFlipper num
 |		currentFrame
 |		dynamicFillNumD2
 |			cellFlipper
-|			buildNumD2 windowWidth windowHeight
+|			buildNumD2 videoWidth videoHeight
 |		randomBoolFillNumD2
-|			buildNumD2 windowWidth windowHeight
+|			buildNumD2 videoWidth videoHeight
 
 state cells numD2
 	?
@@ -78,11 +82,11 @@ state cells numD2
 		limitedDynamicFillNumD2
 			initialCellFiller
 			num4
-				/ windowWidth  3
-				/ windowHeight 3
-				/ windowWidth  3
-				/ windowHeight 3
-			buildNumD2 windowWidth windowHeight
+				/ videoWidth  3
+				/ videoHeight 3
+				/ videoWidth  3
+				/ videoHeight 3
+			buildNumD2 videoWidth videoHeight
 
 
 fn cellsToVideo byte4
@@ -100,6 +104,6 @@ videoOut
 	dynamicFillByte4D2
 		cellsToVideo
 		buildByte4D2
-			windowWidth
-			windowHeight
+			videoWidth
+			videoHeight
 

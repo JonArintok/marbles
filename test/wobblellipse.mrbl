@@ -2,9 +2,9 @@
 
 frameRate
 	30
-windowWidth
+videoWidth
 	300
-windowHeight
+videoHeight
 	300
 
 var fillColor byte4
@@ -45,14 +45,14 @@ state sinOscOut01 num
 
 fn ellipseBoundary num4
 	num4
-		* sinOscOut01 (/ windowWidth 3)
-		* (- 1 sinOscOut01) (/ windowHeight 3)
+		* sinOscOut01 (/ videoWidth 3)
+		* (- 1 sinOscOut01) (/ videoHeight 3)
 		-
-			windowWidth
-			* 2 (* sinOscOut01 (/ windowWidth 3))
+			videoWidth
+			* 2 (* sinOscOut01 (/ videoWidth 3))
 		-
-			windowHeight
-			* 2 (* (- 1 sinOscOut01) (/ windowHeight 3))
+			videoHeight
+			* 2 (* (- 1 sinOscOut01) (/ videoHeight 3))
 
 videoOut
 	limitedDynamicFillByte4D2
@@ -61,6 +61,6 @@ videoOut
 		fillByte4D2
 			backColor
 			buildByte4D2
-				windowWidth
-				windowHeight
+				videoWidth
+				videoHeight
 

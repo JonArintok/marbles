@@ -24,6 +24,30 @@ const stdNode node_frameRate = {
 
 
 
+outType eval_videoWidth(_evalargs_) {
+	outType toBeReturned;
+	toBeReturned.n = videoWidth;
+	return toBeReturned;
+}
+const stdNode node_videoWidth = {
+	.name = "videoWidth num",
+	.arity = 0,
+	.evaluate = eval_videoWidth
+};
+
+outType eval_videoHeight(_evalargs_) {
+	outType toBeReturned;
+	toBeReturned.n = videoHeight;
+	return toBeReturned;
+}
+const stdNode node_videoHeight = {
+	.name = "videoHeight num",
+	.arity = 0,
+	.evaluate = eval_videoHeight
+};
+
+
+
 outType eval_windowWidth(_evalargs_) {
 	outType toBeReturned;
 	toBeReturned.n = windowWidth;

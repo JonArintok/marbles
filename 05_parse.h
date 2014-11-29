@@ -390,6 +390,16 @@ void initOutput(void) {
 		frameRateRoot = curNode;
 		nodesInfo[curNode].name = frameRateName;
 	}
+	else if (matchStrWDelim(videoWidthName, ' ', lineBuf, '\0')) {
+		videoWidthRoot = curNode;
+		nodesInfo[curNode].name = videoWidthName;
+		videoEnabled = true;
+	}
+	else if (matchStrWDelim(videoHeightName, ' ', lineBuf, '\0')) {
+		videoHeightRoot = curNode;
+		nodesInfo[curNode].name = videoHeightName;
+		videoEnabled = true;
+	}
 	else if (matchStrWDelim(windowWidthName, ' ', lineBuf, '\0')) {
 		windowWidthRoot = curNode;
 		nodesInfo[curNode].name = windowWidthName;

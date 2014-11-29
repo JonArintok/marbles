@@ -52,6 +52,8 @@ const stdNode *stdNodeTable[] = {
 //runState
 &node_curFrame,
 &node_frameRate,
+&node_videoWidth,
+&node_videoHeight,
 &node_windowWidth,
 &node_windowHeight,
 

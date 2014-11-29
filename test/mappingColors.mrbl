@@ -33,8 +33,8 @@ var image byte4D2
 		dynamicFillByte4D2
 			cyanFiller
 			buildByte4D2
-				windowWidth
-				windowHeight
+				videoWidth
+				videoHeight
 
 
 @enter

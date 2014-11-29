@@ -41,6 +41,10 @@ void initializeNodes(void) {
 	//set global outputs
 	if (frameRateRoot <= curNode)
 		frameRate = nodes[frameRateRoot].cache.n;
+	if (videoWidthRoot <= curNode)
+		videoWidth = nodes[videoWidthRoot].cache.n;
+	if (videoHeightRoot <= curNode)
+		videoHeight = nodes[videoHeightRoot].cache.n;
 	if (windowWidthRoot <= curNode)
 		windowWidth = nodes[windowWidthRoot].cache.n;
 	if (windowHeightRoot <= curNode)
@@ -56,6 +60,8 @@ SDL_Texture  *texture  = NULL;
 
 void initializeVideo() {
 	SDL_Init(SDL_INIT_VIDEO);
+	
+	
 	
 	window = SDL_CreateWindow(
 		"marbles",                 // window title
@@ -77,7 +83,10 @@ void initializeVideo() {
 		renderer,
 		SDL_PIXELFORMAT_ABGR8888,
 		SDL_TEXTUREACCESS_STREAMING,
-		windowWidth, windowHeight
+		videoWidth, 
+		videoHeight
 	);
+	
+	SDL_RenderSetLogicalSize(renderer, videoWidth, videoHeight);
 }
 

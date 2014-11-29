@@ -124,8 +124,8 @@ int main(int argc, char **argv) {
 			if (videoRoot <= curNode) {
 				videoOut = _output_(videoRoot+1, nullFnCallArgs)
 				if (
-					videoOut.B.dimenX < windowWidth ||
-					videoOut.B.dimenY < windowHeight
+					videoOut.B.dimenX < videoWidth ||
+					videoOut.B.dimenY < videoHeight
 				) {
 					//??... for now:
 					_shouldNotBeHere_
@@ -134,7 +134,7 @@ int main(int argc, char **argv) {
 					texture,
 					NULL, 
 					(uint32_t*)videoOut.B.data,
-					windowWidth * sizeof(uint32_t)
+					videoWidth * sizeof(uint32_t)
 				);
 				SDL_RenderClear(renderer);
 				SDL_RenderCopy(renderer, texture, NULL, NULL);

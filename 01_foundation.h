@@ -102,12 +102,18 @@ const stdNode *stdNodeTable[];
 
 //global outputs
 double frameRate    = defaultFrameRate;
+int    videoWidth   = defaultWindowWidth;
+int    videoHeight  = defaultWindowHeight;
 int    windowWidth  = defaultWindowWidth;
 int    windowHeight = defaultWindowHeight;
 nodeIndex frameRateRoot    = maxNodeIndex;
+nodeIndex videoWidthRoot   = maxNodeIndex;
+nodeIndex videoHeightRoot  = maxNodeIndex;
 nodeIndex windowWidthRoot  = maxNodeIndex;
 nodeIndex windowHeightRoot = maxNodeIndex;
 char *frameRateName    = "frameRate num";
+char *videoWidthName   = "videoWidth num";
+char *videoHeightName  = "videoHeight num";
 char *windowWidthName  = "windowWidth num";
 char *windowHeightName = "windowHeight num";
 
