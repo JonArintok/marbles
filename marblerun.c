@@ -129,6 +129,12 @@ int main(int argc, char **argv) {
 				) {
 					//??... for now:
 					_shouldNotBeHere_
+					printf("videoOut.B.dimenX.. %i\n", (int)videoOut.B.dimenX);
+					printf("videoOut.B.dimenY.. %i\n", (int)videoOut.B.dimenY);
+					printf("videoWidth......... %i\n", videoWidth);
+					printf("videoHeight........ %i\n", videoHeight);
+					printf("windowWidth........ %i\n", windowWidth);
+					printf("windowHeight....... %i\n", windowHeight);
 				}
 				SDL_UpdateTexture(
 					texture,

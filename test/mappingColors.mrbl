@@ -1,5 +1,11 @@
 
 
+videoWidth
+	512
+videoHeight
+	512
+
+
 fn redFiller byte4
 	xPos num
 	yPos num

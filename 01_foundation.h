@@ -102,10 +102,10 @@ const stdNode *stdNodeTable[];
 
 //global outputs
 double frameRate    = defaultFrameRate;
-int    videoWidth   = defaultWindowWidth;
-int    videoHeight  = defaultWindowHeight;
-int    windowWidth  = defaultWindowWidth;
-int    windowHeight = defaultWindowHeight;
+int    videoWidth   = 0;
+int    videoHeight  = 0;
+int    windowWidth  = 0;
+int    windowHeight = 0;
 nodeIndex frameRateRoot    = maxNodeIndex;
 nodeIndex videoWidthRoot   = maxNodeIndex;
 nodeIndex videoHeightRoot  = maxNodeIndex;
@@ -208,39 +208,8 @@ outType eval_numLit(_evalargs_) {
 
 
 
-
-
-
-
-#define readOnlyFlag 0x80000000
-
-void setToReadOnly(outType *a) {
-	a->B.dimenZ |= readOnlyFlag;
-}
-
-void setToWriteable(outType *a) {
-	a->B.dimenZ &= ~readOnlyFlag;
-}
-
-// bool isReadOnly(outType a) {
-// 	return a.B.dimenZ & readOnlyFlag;
-// }
 bool isReadOnly(nodeIndex n) {
 	return 
 		nodes[n].evaluate == eval_varCall ||
 		nodes[n].evaluate == eval_stateCall;
 }
-
-uint32_t dimenZ(outType a) {
-	return a.B.dimenZ & ~readOnlyFlag;
-}
-
-
-
-
-
-
-
-
-
-

@@ -33,6 +33,7 @@ const stdNode *stdNodeTable[] = {
 &node_sub,
 &node_mul,
 &node_div,
+&node_mod,
 &node_sqr,
 &node_sin,
 
@@ -47,7 +48,6 @@ const stdNode *stdNodeTable[] = {
 &node_both,
 &node_either,
 &node_not,
-&node_memcmp,
 
 //runState
 &node_curFrame,

@@ -19,6 +19,6 @@ state fibCounter num
 	fibonacci currentFrame
 
 next
-	? (> fibCounter 1000) exit enter
+	? (> fibCounter 10000) exit enter
 
 

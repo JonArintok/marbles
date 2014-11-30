@@ -22,10 +22,10 @@ fn initialCellFiller num
 	y num
 	sourceWidth  num
 	sourceHeight num
-	1
+	% (* x y) 2
+
 
 @enter
-
 
 fn neighborCount num
 	x num
@@ -65,15 +65,6 @@ fn cellFlipper num
 			0
 
 
-
-|state cells numD2
-|	?
-|		currentFrame
-|		dynamicFillNumD2
-|			cellFlipper
-|			buildNumD2 videoWidth videoHeight
-|		randomBoolFillNumD2
-|			buildNumD2 videoWidth videoHeight
 
 state cells numD2
 	?

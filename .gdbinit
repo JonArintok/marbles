@@ -6,7 +6,7 @@ define test
 	run test/cgol.mrbl
 end
 
-break marblerun.c:73
+break eval_mod
 
 
 

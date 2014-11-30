@@ -3,6 +3,7 @@ outType nullFnCallArgs[maxChildren] = {};
 
 void initializeNodes(void) {
 	int initCount = 0;
+	
 	//first assign variables defined literally while incrementing initCount
 	for (int i = 0; i <= curNode; i++) {
 		if (nodes[i].evaluate == eval_varDef || nodes[i].evaluate == eval_gOutDef) {
@@ -12,31 +13,6 @@ void initializeNodes(void) {
 				initCount++;
 		}
 	}
-	
-	//then evaluate the other variables
-	outType *hotDef = malloc(sizeof(outType) * initCount);
-	initCount = 0;
-	for (int i = 0; i <= curNode; i++) {
-		if (
-			(nodes[i].evaluate == eval_varDef || nodes[i].evaluate == eval_gOutDef)
-			&& nodes[i+1].evaluate != eval_numLit
-		) {
-			hotDef[initCount] = _output_(i+1, nullFnCallArgs);
-			initCount++;
-		}
-	}
-	//then assign everything else
-	initCount = 0;
-	for (int i = 0; i <= curNode; i++) {
-		if (
-			(nodes[i].evaluate == eval_varDef || nodes[i].evaluate == eval_gOutDef)
-			&& nodes[i+1].evaluate != eval_numLit
-		) {
-			nodes[i].cache = hotDef[initCount];
-			initCount++;
-		}
-	}
-	free(hotDef);
 	
 	//set global outputs
 	if (frameRateRoot <= curNode)
@@ -50,6 +26,31 @@ void initializeNodes(void) {
 	if (windowHeightRoot <= curNode)
 		windowHeight = nodes[windowHeightRoot].cache.n;
 	
+	//then evaluate the other variables
+	outType *hotDef = malloc(sizeof(outType) * initCount);
+	initCount = 0;
+	for (int i = 0; i <= curNode; i++) {
+		if (
+			(nodes[i].evaluate == eval_varDef || nodes[i].evaluate == eval_gOutDef)
+			&& nodes[i+1].evaluate != eval_numLit
+		) {
+			hotDef[initCount] = _output_(i+1, nullFnCallArgs);
+			initCount++;
+		}
+	}
+	//then assign the other variables
+	initCount = 0;
+	for (int i = 0; i <= curNode; i++) {
+		if (
+			(nodes[i].evaluate == eval_varDef || nodes[i].evaluate == eval_gOutDef)
+			&& nodes[i+1].evaluate != eval_numLit
+		) {
+			nodes[i].cache = hotDef[initCount];
+			initCount++;
+		}
+	}
+	free(hotDef);
+	
 }
 
 
@@ -59,9 +60,33 @@ SDL_Renderer *renderer = NULL;
 SDL_Texture  *texture  = NULL;
 
 void initializeVideo() {
+	if (videoWidth < 1) {
+		if (windowWidth < 1)
+			videoWidth = defaultWindowWidth;
+		else
+			videoWidth = windowWidth;
+	}
+	if (videoHeight < 1) {
+		if (windowHeight < 1)
+			videoHeight = defaultWindowHeight;
+		else
+			videoHeight = windowHeight;
+	}
+	if (windowWidth < 1) {
+		if (videoWidth < 1)
+			windowWidth = defaultWindowWidth;
+		else
+			windowWidth = videoWidth;
+	}
+	if (windowHeight < 1) {
+		if (videoHeight < 1)
+			windowHeight = defaultWindowHeight;
+		else
+			windowHeight = videoHeight;
+	}
+	
+	
 	SDL_Init(SDL_INIT_VIDEO);
-	
-	
 	
 	window = SDL_CreateWindow(
 		"marbles",                 // window title
