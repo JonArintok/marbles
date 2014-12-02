@@ -18,11 +18,13 @@ long  getMicroseconds() {
 
 
 void frameWait_default(long *prevTime) {
-	long timeWait = 1e6/frameRate - (getMicroseconds() - *prevTime);
-	//if (timeWait < 0)
-	//	printf("\n!! timeWait : %lo !!\n\n", timeWait);
-	//else
+	if (frameRate > maxFrameRate) {
+		printf("frame time: %li\n", getMicroseconds() - *prevTime);
+	}
+	else {
+		long timeWait = 1e6/frameRate - (getMicroseconds() - *prevTime);
 		microSleep(timeWait);
+	}
 	*prevTime = getMicroseconds();
 }
 

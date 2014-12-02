@@ -1,7 +1,7 @@
 
 
 frameRate
-	6
+	afap
 videoWidth
 	256
 videoHeight
@@ -22,7 +22,7 @@ fn initialCellFiller num
 	y num
 	sourceWidth  num
 	sourceHeight num
-	% (* x y) 2
+	% x 3
 
 
 @enter
@@ -73,10 +73,10 @@ state cells numD2
 		limitedDynamicFillNumD2
 			initialCellFiller
 			num4
-				/ videoWidth  3
-				/ videoHeight 3
-				/ videoWidth  3
-				/ videoHeight 3
+				* 3 (/ videoWidth  8)
+				* 3 (/ videoHeight 8)
+				/ videoWidth  4
+				/ videoHeight 4
 			buildNumD2 videoWidth videoHeight
 
 

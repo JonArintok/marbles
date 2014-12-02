@@ -8,12 +8,12 @@ outType eval_buildByte4D2(_evalargs_) {
 	size_t newDataSize = sizeof(byte) * 4 * widthSource.n * heightSource.n;
 	
 	if (!nodes[self].cache.B.data) {
-		printf("mallocing data from eval_buildByte4D2, node %i\n", self);
+		printf("mallocing data from node %i, in eval_buildByte4D2\n", self);
 		nodes[self].cache.B.data = malloc(newDataSize);
 		addLoadedNode(self);
 	}
 	else if (nodes[self].cache.B.dataSize < newDataSize) {
-		printf("reallocing data from eval_buildByte4D2, node %i\n", self);
+		printf("reallocing data from node %i, in eval_buildByte4D2\n", self);
 		nodes[self].cache.B.data = 
 			realloc(nodes[self].cache.B.data, newDataSize);
 	}
@@ -37,12 +37,12 @@ outType eval_buildNumD2(_evalargs_) {
 	size_t newDataSize = sizeof(number) * widthSource.n * heightSource.n;
 	
 	if (!nodes[self].cache.N.data) {
-		printf("mallocing data from eval_buildNumD2, node %i\n", self);
+		printf("mallocing data from node %i, in eval_buildNumD2\n", self);
 		nodes[self].cache.N.data = malloc(newDataSize);
 		addLoadedNode(self);
 	}
 	else if (nodes[self].cache.N.dataSize < newDataSize) {
-		printf("reallocing data from eval_buildNumD2, node %i\n", self);
+		printf("reallocing data from node %i, in eval_buildNumD2\n", self);
 		nodes[self].cache.N.data = 
 			realloc(nodes[self].cache.N.data, newDataSize);
 	}
@@ -70,12 +70,12 @@ outType eval_fillByte4D2(_evalargs_) {
 	
 	if (isReadOnly(arg1)) {
 		if (!nodes[self].cache.B.data) {
-			printf("mallocing data from eval_fillByte4D2, node %i\n", self);
+			printf("mallocing data from node %i, in eval_fillByte4D2\n", self);
 			nodes[self].cache.B.data = malloc(newDataSize);
 			addLoadedNode(self);
 		}
 		else if (nodes[self].cache.B.dataSize < newDataSize) {
-			printf("reallocing data from eval_fillByte4D2, node %i\n", self);
+			printf("reallocing data from node %i, in eval_fillByte4D2\n", self);
 			nodes[self].cache.B.data = 
 				realloc(nodes[self].cache.B.data, newDataSize);
 		}
@@ -112,12 +112,12 @@ outType eval_dynamicFillByte4D2(_evalargs_) {
 	
 	if (isReadOnly(arg1)) {
 		if (!nodes[self].cache.B.data) {
-			printf("mallocing data from eval_dynamicFillByte4D2, node %i\n", self);
+			printf("mallocing data from node %i, in eval_dynamicFillByte4D2\n", self);
 			nodes[self].cache.B.data = malloc(newDataSize);
 			addLoadedNode(self);
 		}
 		else if (nodes[self].cache.B.dataSize < newDataSize) {
-			printf("reallocing data from eval_dynamicFillByte4D2, node %i\n", self);
+			printf("reallocing data from node %i, in eval_dynamicFillByte4D2\n", self);
 			nodes[self].cache.B.data = 
 				realloc(nodes[self].cache.B.data, newDataSize);
 		}
@@ -163,12 +163,12 @@ outType eval_dynamicFillNumD2(_evalargs_) {
 	
 	if (isReadOnly(arg1)) {
 		if (!nodes[self].cache.N.data) {
-			printf("mallocing data from eval_dynamicFillNumD2, node %i\n", self);
+			printf("mallocing data from node %i, in eval_dynamicFillNumD2\n", self);
 			nodes[self].cache.N.data = malloc(newDataSize);
 			addLoadedNode(self);
 		}
 		else if (nodes[self].cache.N.dataSize < newDataSize) {
-			printf("reallocing data from eval_dynamicFillNumD2, node %i\n", self);
+			printf("reallocing data from node %i, in eval_dynamicFillNumD2\n", self);
 			nodes[self].cache.N.data = 
 				realloc(nodes[self].cache.N.data, newDataSize);
 		}
@@ -214,12 +214,12 @@ outType eval_limitedDynamicFillByte4D2(_evalargs_) {
 	
 	if (isReadOnly(arg2)) {
 		if (!nodes[self].cache.B.data) {
-			printf("mallocing data from eval_limitedDynamicFillByte4D2, node %i\n", self);
+			printf("mallocing data from node %i, in eval_limitedDynamicFillByte4D2\n", self);
 			nodes[self].cache.B.data = malloc(newDataSize);
 			addLoadedNode(self);
 		}
 		else if (nodes[self].cache.B.dataSize < newDataSize) {
-			printf("reallocing data from eval_limitedDynamicFillByte4D2, node %i\n", self);
+			printf("reallocing data from node %i, in eval_limitedDynamicFillByte4D2\n", self);
 			nodes[self].cache.B.data = 
 				realloc(nodes[self].cache.B.data, newDataSize);
 		}
@@ -293,12 +293,12 @@ outType eval_limitedDynamicFillNumD2(_evalargs_) {
 	
 	if (isReadOnly(arg2)) {
 		if (!nodes[self].cache.N.data) {
-			printf("mallocing data from eval_limitedDynamicFillByte4D2, node %i\n", self);
+			printf("mallocing data from node %i, in eval_limitedDynamicFillByte4D2\n", self);
 			nodes[self].cache.N.data = malloc(newDataSize);
 			addLoadedNode(self);
 		}
 		else if (nodes[self].cache.N.dataSize < newDataSize) {
-			printf("reallocing data from eval_limitedDynamicFillByte4D2, node %i\n", self);
+			printf("reallocing data from node %i, in eval_limitedDynamicFillByte4D2\n", self);
 			nodes[self].cache.N.data = 
 				realloc(nodes[self].cache.N.data, newDataSize);
 		}
@@ -368,12 +368,12 @@ outType eval_randomBoolFillNumD2(_evalargs_) {
 	
 	if (isReadOnly(arg0)) {
 		if (!nodes[self].cache.N.data) {
-			printf("mallocing data from eval_randomBoolFillNumD2, node %i\n", self);
+			printf("mallocing data from node %i, in eval_randomBoolFillNumD2\n", self);
 			nodes[self].cache.N.data = malloc(newDataSize);
 			addLoadedNode(self);
 		}
 		else if (nodes[self].cache.N.dataSize < newDataSize) {
-			printf("reallocing data from eval_randomBoolFillNumD2, node %i\n", self);
+			printf("reallocing data from node %i, in eval_randomBoolFillNumD2\n", self);
 			nodes[self].cache.N.data = 
 				realloc(nodes[self].cache.N.data, newDataSize);
 		}

@@ -159,8 +159,10 @@ void addLoadedNode(nodeIndex n) {
 
 void cleanUp(void) {
 	
-	for (int lnPos = 0; lnPos <= curLoadedNode; lnPos++)
+	for (int lnPos = 0; lnPos <= curLoadedNode; lnPos++) {
+		printf("freeing data from node %i\n", loadedNodes[lnPos]);
 		free( (void*) nodes[ loadedNodes[lnPos] ].cache.B.data );
+	}
 	
 	for (int ffPos = 0; ffPos <= curFrameform; ffPos++) {
 		free(frameforms[ffPos].hotState);

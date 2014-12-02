@@ -1,6 +1,20 @@
 
 outType nullFnCallArgs[maxChildren] = {};
 
+
+void setGlobalState(void) {
+	if (frameRateRoot <= curNode)
+		frameRate = nodes[frameRateRoot].cache.n;
+	if (videoWidthRoot <= curNode)
+		videoWidth = nodes[videoWidthRoot].cache.n;
+	if (videoHeightRoot <= curNode)
+		videoHeight = nodes[videoHeightRoot].cache.n;
+	if (windowWidthRoot <= curNode)
+		windowWidth = nodes[windowWidthRoot].cache.n;
+	if (windowHeightRoot <= curNode)
+		windowHeight = nodes[windowHeightRoot].cache.n;
+}
+
 void initializeNodes(void) {
 	int initCount = 0;
 	
@@ -14,17 +28,8 @@ void initializeNodes(void) {
 		}
 	}
 	
-	//set global outputs
-	if (frameRateRoot <= curNode)
-		frameRate = nodes[frameRateRoot].cache.n;
-	if (videoWidthRoot <= curNode)
-		videoWidth = nodes[videoWidthRoot].cache.n;
-	if (videoHeightRoot <= curNode)
-		videoHeight = nodes[videoHeightRoot].cache.n;
-	if (windowWidthRoot <= curNode)
-		windowWidth = nodes[windowWidthRoot].cache.n;
-	if (windowHeightRoot <= curNode)
-		windowHeight = nodes[windowHeightRoot].cache.n;
+	//set literally defined global outputs
+	setGlobalState();
 	
 	//then evaluate the other variables
 	outType *hotDef = malloc(sizeof(outType) * initCount);
@@ -51,6 +56,8 @@ void initializeNodes(void) {
 	}
 	free(hotDef);
 	
+	//set other global outputs
+	setGlobalState();
 }
 
 
@@ -84,6 +91,7 @@ void initializeVideo() {
 		else
 			windowHeight = videoHeight;
 	}
+	
 	
 	
 	SDL_Init(SDL_INIT_VIDEO);

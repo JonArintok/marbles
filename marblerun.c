@@ -18,11 +18,13 @@
 #define defaultWindowHeight 480
 #define tao 6.283185307179586476925286766559005768394338798750
 
-int  curFrame = -1;
 bool audioEnabled = false;
 bool videoEnabled = false;
-int  activeFrameform = 0;
-int  exitFrameform;
+int curFrame = -1;
+int maxFrameRate = 300;
+int minFrameRate = 0.2;
+int activeFrameform = 0;
+int exitFrameform;
 
 #include "01_foundation.h"
 #include "02_allocation.h"
@@ -57,7 +59,7 @@ int main(int argc, char **argv) {
 			initializeVideo();
 		
 		puts("running...");
-		//printf("frameRate: %f\n", frameRate);//uncomment this when using valgrind
+		printf("frameRate: %f\n", frameRate);//uncomment this when using valgrind
 		
 		long frameTimeStamp = getMicroseconds();
 		int csn = frameforms[activeFrameform].curStateNode;
@@ -99,12 +101,12 @@ int main(int argc, char **argv) {
 					nodes[n].cache.B.dimenY = hotState.B.dimenY;
 					nodes[n].cache.B.dimenZ = hotState.B.dimenZ;
 					if (!nodes[n].cache.B.data) {
-						printf("mallocing data from the loop, node %i\n", n);
+						printf("mallocing data from node %i, in  T H E   L O O P\n", n);
 						nodes[n].cache.B.data = malloc(newDataSize);
 						addLoadedNode(n);
 					}
 					else if (nodes[n].cache.B.dataSize < newDataSize) {
-						printf("reallocing data from the loop, node %i\n", n);
+						printf("reallocing data from node %i, in  T H E   L O O P\n", n);
 						nodes[n].cache.B.data = 
 							realloc(nodes[n].cache.B.data, newDataSize);
 					}
