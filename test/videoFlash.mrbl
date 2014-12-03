@@ -1,4 +1,6 @@
 
+frameRate
+	60
 
 fn triwave num
 	phase num
@@ -11,7 +13,7 @@ fn triwave num
 @enter
 
 var phaseIncrem num
-	0.01
+	0.005
 
 state lightPhase num
 	?

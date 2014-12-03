@@ -56,7 +56,6 @@ const stdNode *stdNodeTable[] = {
 &node_videoHeight,
 &node_windowWidth,
 &node_windowHeight,
-&node_afap,
 
 //tuples
 &node_num4,

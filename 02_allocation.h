@@ -49,11 +49,7 @@ void inc_curNode(void) {
 	nodes[curNode].evaluate    = NULL;
 	for (int i = 0; i < maxChildren; i++)
 		nodes[curNode].children[i] = maxNodeIndex;
-	nodes[curNode].cache.B.data = 0;
-	nodes[curNode].cache.B.dataSize = 0;
-	nodes[curNode].cache.B.dimenX = 1;
-	nodes[curNode].cache.B.dimenY = 1;
-	nodes[curNode].cache.B.dimenZ = 1;
+	memset(&nodes[curNode].cache, 0, sizeof(outType));
 	
 	nodesInfo[curNode].name  = unnamed;
 	nodesInfo[curNode].line  = 0;

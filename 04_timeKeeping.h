@@ -18,7 +18,7 @@ long  getMicroseconds() {
 
 
 void frameWait_default(long *prevTime) {
-	if (frameRate > maxFrameRate) {
+	if (frameRate < 0) {
 		printf("frame time: %li\n", getMicroseconds() - *prevTime);
 	}
 	else {

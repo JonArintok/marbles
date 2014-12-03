@@ -101,7 +101,7 @@ const stdNode *stdNodeTable[];
 
 
 //global outputs
-double frameRate    = defaultFrameRate;
+double frameRate    = -1;
 int    videoWidth   = 0;
 int    videoHeight  = 0;
 int    windowWidth  = 0;

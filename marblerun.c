@@ -13,7 +13,6 @@
 #define _shouldNotBeHere_ \
 	printf("\n!! Should not be here: line %d of %s !!\n", __LINE__, __FILE__);
 
-#define defaultFrameRate     30
 #define defaultWindowWidth  640
 #define defaultWindowHeight 480
 #define tao 6.283185307179586476925286766559005768394338798750
@@ -21,8 +20,6 @@
 bool audioEnabled = false;
 bool videoEnabled = false;
 int curFrame = -1;
-int maxFrameRate = 300;
-int minFrameRate = 0.2;
 int activeFrameform = 0;
 int exitFrameform;
 

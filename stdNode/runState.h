@@ -69,15 +69,3 @@ const stdNode node_windowHeight = {
 	.arity = 0,
 	.evaluate = eval_windowHeight
 };
-
-outType eval_afap(_evalargs_) {
-	outType toBeReturned;
-	toBeReturned.n = maxFrameRate+1;
-	puts("yo");
-	return toBeReturned;
-}
-const stdNode node_afap = {
-	.name = "afap num",
-	.arity = 0,
-	.evaluate = eval_afap
-};
