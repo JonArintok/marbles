@@ -1,22 +1,14 @@
 
 
-#define    nodePage 16 //for arrays of nodes
-#define    namePage 16 //for arrays of chars
 
 int        nodeSpace     =  0;
 int        nodeNameSpace =  0;
 int        namePos       = -1;
 
-
-#define    nodeIndexPage 16 //for arrays of nodeIndex and refs to nodeIndex
-
 int        gRootNodeSpace =  0;
 
-#define    frameformPage 16
 int        frameformSpace =  0;
 
-
-#define    loadedNodePage 16
 int        loadedNodeSpace = 0;
 int        curLoadedNode = -1;
 nodeIndex *loadedNodes;
@@ -28,24 +20,24 @@ uint32_t   curLine = 0;//line numbers start at 1, not 0
 
 
 void init_Allocation(void) {
-	nodeSpace = nodePage;
+	nodeSpace = 32;
 	nodes     = malloc(sizeof(node    ) * nodeSpace);
 	nodesInfo = malloc(sizeof(nodeInfo) * nodeSpace);
 	
-	frameformSpace = frameformPage;
+	frameformSpace = 32;
 	frameforms = malloc(sizeof(frameform) * frameformSpace);
 	
-	gRootNodeSpace = nodeIndexPage;
+	gRootNodeSpace = 32;
 	gRootNodes = malloc(sizeof(nodeIndex) * gRootNodeSpace);
 	
-	loadedNodeSpace = loadedNodePage;
+	loadedNodeSpace = 32;
 	loadedNodes = malloc(sizeof(nodeIndex) * loadedNodeSpace);
 }
 
 void inc_curNode(void) {
 	curNode++;
 	if (curNode == nodeSpace) {
-		nodeSpace += nodePage;
+		nodeSpace *= 2;
 		nodes      = realloc(nodes,     sizeof(node    ) * nodeSpace);
 		nodesInfo  = realloc(nodesInfo, sizeof(nodeInfo) * nodeSpace);
 	}
@@ -69,7 +61,7 @@ void inc_curNode(void) {
 	nodesInfo[curNode].arity = 0;
 	nodesInfo[curNode].frameform = -1;
 	
-	nodeNameSpace = namePage;
+	nodeNameSpace = 16;
 	nodesInfo[curNode].name = malloc(sizeof(char) * nodeNameSpace);
 	namePos = -1;
 }
@@ -77,7 +69,7 @@ void inc_curNode(void) {
 void inc_namePos(void) {
 	namePos++;
 	if (namePos == nodeNameSpace) {
-		nodeNameSpace += namePage;
+		nodeNameSpace *= 2;
 		nodesInfo[curNode].name = 
 			realloc(nodesInfo[curNode].name, sizeof(char) * nodeNameSpace);
 	}
@@ -86,7 +78,7 @@ void inc_namePos(void) {
 void inc_gCurRootNode(void) {
 	gCurRootNode++;
 	if (gCurRootNode == gRootNodeSpace) {
-		gRootNodeSpace += nodeIndexPage;
+		gRootNodeSpace *= 2;
 		gRootNodes = realloc(gRootNodes, sizeof(nodeIndex) * gRootNodeSpace);
 	}
 }
@@ -94,19 +86,19 @@ void inc_gCurRootNode(void) {
 void inc_curFrameform(void) {
 	curFrameform++;
 	if (curFrameform == frameformSpace) {
-		frameformSpace += frameformPage;
+		frameformSpace *= 2;
 		frameforms = realloc(frameforms, sizeof(frameform) * frameformSpace);
 	}
 	
 	frameforms[curFrameform].curStateNode   = maxNodeIndex;
-	frameforms[curFrameform].stateNodeSpace = nodeIndexPage;
+	frameforms[curFrameform].stateNodeSpace = 16;
 	frameforms[curFrameform].stateNodes = 
 		malloc(sizeof(nodeIndex) * frameforms[curFrameform].stateNodeSpace);
 	frameforms[curFrameform].hotState = 
 		malloc(sizeof(outType) * frameforms[curFrameform].stateNodeSpace);
 	
 	frameforms[curFrameform].curRootNode   = maxNodeIndex;
-	frameforms[curFrameform].rootNodeSpace = nodeIndexPage;
+	frameforms[curFrameform].rootNodeSpace = 16;
 	frameforms[curFrameform].rootNodes = 
 		malloc(sizeof(nodeIndex) * frameforms[curFrameform].rootNodeSpace);
 	
@@ -121,7 +113,7 @@ void inc_curStateNode(void) {
 		frameforms[curFrameform].curStateNode == 
 		frameforms[curFrameform].stateNodeSpace
 	) {
-		frameforms[curFrameform].stateNodeSpace += nodeIndexPage;
+		frameforms[curFrameform].stateNodeSpace *= 2;
 		frameforms[curFrameform].stateNodes = realloc(
 			frameforms[curFrameform].stateNodes,
 			sizeof(nodeIndex) * frameforms[curFrameform].stateNodeSpace
@@ -138,7 +130,7 @@ void inc_curRootNode(void) {
 		frameforms[curFrameform].curRootNode == 
 		frameforms[curFrameform].rootNodeSpace
 	) {
-		frameforms[curFrameform].rootNodeSpace += nodeIndexPage;
+		frameforms[curFrameform].rootNodeSpace *= 2;
 		frameforms[curFrameform].rootNodes = realloc(
 			frameforms[curFrameform].rootNodes,
 			sizeof(nodeIndex) * frameforms[curFrameform].rootNodeSpace
@@ -149,7 +141,7 @@ void inc_curRootNode(void) {
 void addLoadedNode(nodeIndex n) {
 	curLoadedNode++;
 	if (curLoadedNode == loadedNodeSpace) {
-		loadedNodeSpace += loadedNodePage;
+		loadedNodeSpace *= 2;
 		loadedNodes = realloc(loadedNodes, sizeof(nodeIndex) * loadedNodeSpace);
 	}
 	loadedNodes[curLoadedNode] = n;
