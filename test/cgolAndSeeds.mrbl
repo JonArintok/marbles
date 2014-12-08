@@ -1,0 +1,120 @@
+
+
+videoWidth
+	256
+videoHeight
+	256
+windowWidth
+	512
+windowHeight
+	512
+
+
+fn automataSelector num
+	< (% currentFrame 40) 30
+
+fn liveColor byte4
+	?
+		automataSelector
+		byte4From01  0.22  0.92  0.44  1.0
+		byte4From01  0.92  0.22  0.44  1.0
+
+var deadColor byte4
+	byte4From01  0.08  0.22  0.55  1.0
+
+fn initialCellFiller num
+	x num
+	y num
+	sourceWidth  num
+	sourceHeight num
+	% x 2
+
+
+@enter
+
+fn neighborCount num
+	x num
+	y num
+	+
+		fromNumD2 (- x 1) (- y 1) cells
+		+
+			fromNumD2    x    (- y 1) cells
+			+
+				fromNumD2 (+ x 1) (- y 1) cells
+				+
+					fromNumD2 (- x 1) (+ y 1) cells
+					+
+						fromNumD2    x    (+ y 1) cells
+						+
+							fromNumD2 (+ x 1) (+ y 1) cells
+							+
+								fromNumD2 (- x 1)    y    cells
+								fromNumD2 (+ x 1)    y    cells
+
+fn cgol num
+	x num
+	y num
+	sourceWidth  num
+	sourceHeight num
+	?
+		fromNumD2 x y cells
+		?
+			either
+				> 2 (neighborCount x y)
+				< 3 (neighborCount x y)
+			0
+			1
+		?
+			= 3 (neighborCount x y)
+			1
+			0
+
+
+fn seeds num
+	x num
+	y num
+	sourceWidth  num
+	sourceHeight num
+	?
+		= 2 (neighborCount x y)
+		1
+		0
+
+fn cellFlipper num & num num num num
+	?
+		automataSelector
+		cgol
+		seeds
+
+state cells numD2
+	?
+		currentFrame
+		dynamicFillNumD2 cellFlipper cells
+		limitedDynamicFillNumD2
+			initialCellFiller
+			num4
+				* 3 (/ videoWidth  8)
+				* 3 (/ videoHeight 8)
+				/ videoWidth  4
+				/ videoHeight 4
+			buildNumD2 videoWidth videoHeight
+
+
+fn cellsToVideo byte4
+	x num
+	y num
+	sourceWidth  num
+	sourceHeight num
+	?
+		fromNumD2 x y cells
+		liveColor
+		deadColor
+
+
+videoOut
+	dynamicFillByte4D2
+		cellsToVideo
+		buildByte4D2
+			videoWidth
+			videoHeight
+

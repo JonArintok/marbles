@@ -154,7 +154,7 @@ int strRemoveUpToIncl(char *s, char d) {
 	for (int rpos = 0;; rpos++) {
 		if (s[rpos] == d) {
 			int wpos = 0;
-			for (; s[wpos]; wpos++)//"uninitialised value" from valgrind sometimes?
+			for (; s[wpos]; wpos++)
 				s[wpos] = s[++rpos];
 			return wpos;
 		}
@@ -298,7 +298,7 @@ void initNodes(void) {
 				break;
 			}
 			char fileChar;
-			while ( (fileChar = fgetc(fileStream)) != '\n') {
+			while ((fileChar = fgetc(fileStream)) != '\n') {
 				if (fileChar == EOF) {
 					reachedEOF = true;
 					putError(curLine, "incomplete definition\n");
