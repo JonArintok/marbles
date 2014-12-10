@@ -5,7 +5,7 @@
 typedef uint16_t nodeIndex;
 #define  maxNodeIndex  0xFFFF
 
-typedef double  number;
+typedef float   number;
 typedef uint8_t byte;
 
 typedef struct {

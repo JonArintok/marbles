@@ -1,7 +1,7 @@
 
 
-frameRate
-	30
+|frameRate
+|	30
 videoWidth
 	300
 videoHeight
@@ -35,7 +35,7 @@ fn ellipseFiller byte4
 @enter
 
 var wobbleRate num
-	0.5
+	0.01
 
 state sinOscOut01 num
 	/

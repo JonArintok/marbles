@@ -19,7 +19,7 @@ long  getMicroseconds() {
 
 void frameWait_default(long *prevTime) {
 	if (frameRate < 0) {
-		printf("frame time: %li\n", getMicroseconds() - *prevTime);
+		printf("%li\n", getMicroseconds() - *prevTime);
 	}
 	else {
 		long timeWait = 1e6/frameRate - (getMicroseconds() - *prevTime);

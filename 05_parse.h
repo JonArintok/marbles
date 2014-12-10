@@ -537,7 +537,7 @@ void resolveNode(nodeIndex nodePos) {
 			}
 		}
 		nodes[nodePos].evaluate = eval_numLit;
-		sscanf(nodeName, "%lf", &nodes[nodePos].cache.n);
+		sscanf(nodeName, "%f", &nodes[nodePos].cache.n);
 		nodesInfo[nodePos].name = name_numLit;
 		free(nodeName);
 		return;

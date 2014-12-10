@@ -1,8 +1,7 @@
 *.[oa]
 *~
-*.cbp
-*.layout
 
 .gdb_history
 marblerun
 thoughts.txt
+output.txt

@@ -404,9 +404,9 @@ outType eval_fromNumD2(_evalargs_) {
 	outType y      = _output_(arg1, fnCallArgs);
 	outType source = _output_(arg2, fnCallArgs);
 	outType toBeReturned;
-	if      (x.n > source.N.dimenX  ||  x.n < 0)
+	if      (x.n >= source.N.dimenX  ||  x.n < 0)
 		toBeReturned.n = 0;
-	else if (y.n > source.N.dimenY  ||  y.n < 0)
+	else if (y.n >= source.N.dimenY  ||  y.n < 0)
 		toBeReturned.n = 0;
 	else {
 		int i = (y.n * source.N.dimenX) + x.n;

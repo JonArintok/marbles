@@ -20,7 +20,7 @@ fn initialCellFiller num
 	y num
 	sourceWidth  num
 	sourceHeight num
-	% x 3
+	% x 2
 
 
 @enter
