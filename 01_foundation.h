@@ -28,6 +28,7 @@ typedef union {
 	number      n2[2];
 	number      n3[3];
 	number      n4[4];
+	number      n8[8];
 	numArray    N;
 	byte        b;
 	byte        b2[2];

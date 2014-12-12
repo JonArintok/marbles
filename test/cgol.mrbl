@@ -28,21 +28,15 @@ fn initialCellFiller num
 fn neighborCount num
 	x num
 	y num
-	+
+	add8
 		fromNumD2 (- x 1) (- y 1) cells
-		+
-			fromNumD2    x    (- y 1) cells
-			+
-				fromNumD2 (+ x 1) (- y 1) cells
-				+
-					fromNumD2 (- x 1) (+ y 1) cells
-					+
-						fromNumD2    x    (+ y 1) cells
-						+
-							fromNumD2 (+ x 1) (+ y 1) cells
-							+
-								fromNumD2 (- x 1)    y    cells
-								fromNumD2 (+ x 1)    y    cells
+		fromNumD2    x    (- y 1) cells
+		fromNumD2 (+ x 1) (- y 1) cells
+		fromNumD2 (- x 1) (+ y 1) cells
+		fromNumD2    x    (+ y 1) cells
+		fromNumD2 (+ x 1) (+ y 1) cells
+		fromNumD2 (- x 1)    y    cells
+		fromNumD2 (+ x 1)    y    cells
 
 fn cellFlipper num
 	x num
