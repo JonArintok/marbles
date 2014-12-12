@@ -1,5 +1,6 @@
 
-
+frameRate
+	10
 videoWidth
 	512
 videoHeight

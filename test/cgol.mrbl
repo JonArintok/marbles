@@ -1,5 +1,6 @@
 
-
+frameRate
+	10
 videoWidth
 	256
 videoHeight
@@ -20,7 +21,7 @@ fn initialCellFiller num
 	y num
 	sourceWidth  num
 	sourceHeight num
-	% x 2
+	> 1 (% x 3)
 
 
 @enter

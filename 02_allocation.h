@@ -143,6 +143,20 @@ void addLoadedNode(nodeIndex n) {
 	loadedNodes[curLoadedNode] = n;
 }
 
+void setLoadedNode(nodeIndex self, size_t newDataSize) {
+	if (!nodes[self].cache.B.data) {
+		printf("mallocing data from node %i\n", self);
+		nodes[self].cache.B.data = malloc(newDataSize);
+		nodes[self].cache.B.dataSize = newDataSize;
+		addLoadedNode(self);
+	}
+	else if (nodes[self].cache.B.dataSize < newDataSize) {
+		printf("reallocing data from node %i\n", self);
+		nodes[self].cache.B.data = 
+			realloc(nodes[self].cache.B.data, newDataSize);
+		nodes[self].cache.B.dataSize = newDataSize;
+	}
+}
 
 
 void cleanUp(void) {
