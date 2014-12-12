@@ -22,7 +22,7 @@ void frameWait_default(long *prevTime) {
 		long timeWait = 1e6/frameRate - (getMicroseconds() - *prevTime);
 		microSleep(timeWait);
 	}
-	printf("%li\n", getMicroseconds() - *prevTime);
+	//printf("%li\n", getMicroseconds() - *prevTime);
 	*prevTime = getMicroseconds();
 }
 

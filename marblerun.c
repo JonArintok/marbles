@@ -56,7 +56,7 @@ int main(int argc, char **argv) {
 			initializeVideo();
 		
 		puts("running...");
-		printf("frameRate: %f\n", frameRate);//uncomment this when using valgrind
+		//printf("frameRate: %f\n", frameRate);//uncomment this when using valgrind
 		
 		long frameTimeStamp = getMicroseconds();
 		int csn = frameforms[activeFrameform].curStateNode;
@@ -97,17 +97,7 @@ int main(int argc, char **argv) {
 					nodes[n].cache.B.dimenX = hotState.B.dimenX;
 					nodes[n].cache.B.dimenY = hotState.B.dimenY;
 					nodes[n].cache.B.dimenZ = hotState.B.dimenZ;
-					if (!nodes[n].cache.B.data) {
-						printf("mallocing data from node %i, in  T H E   L O O P\n", n);
-						nodes[n].cache.B.data = malloc(newDataSize);
-						addLoadedNode(n);
-					}
-					else if (nodes[n].cache.B.dataSize < newDataSize) {
-						printf("reallocing data from node %i, in  T H E   L O O P\n", n);
-						nodes[n].cache.B.data = 
-							realloc(nodes[n].cache.B.data, newDataSize);
-					}
-					nodes[n].cache.B.dataSize = newDataSize;
+					setLoadedNode(n, newDataSize);
 					memcpy(nodes[n].cache.B.data, hotState.B.data, newDataSize);
 				}
 				else

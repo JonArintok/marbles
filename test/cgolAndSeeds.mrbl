@@ -27,7 +27,7 @@ fn initialCellFiller num
 	y num
 	sourceWidth  num
 	sourceHeight num
-	% x 2
+	> 3 (% x 5)
 
 
 @enter
