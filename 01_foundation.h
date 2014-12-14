@@ -25,16 +25,10 @@ typedef struct {
 
 typedef union {
 	number      n;
-	number      n2[2];
-	number      n3[3];
-	number      n4[4];
-	number      n8[8];
+	number      nt[8];
 	numArray    N;
 	byte        b;
-	byte        b2[2];
-	byte        b4[4];
-	byte        b8[8];
-	byte        b16[16];
+	byte        bt[32];
 	byteArray   B;
 	nodeIndex   f;
 } outType;

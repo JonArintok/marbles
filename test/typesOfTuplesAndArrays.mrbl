@@ -1,0 +1,36 @@
+
+|this is intended to return certain type errors
+
+
+@enter
+
+
+state An_tooBigButOK num2
+	num4 1 2 3 4
+
+state An_tooSmall! num8
+	num4 1 2 3 4
+
+state Ab_tooBigButOK byte2
+	byte4From01 0.1 0.2 0.3 0.4
+
+state Ab_tooSmall! byte8
+	byte4From01 0.1 0.2 0.3 0.4
+
+state B_tooBigButOK numD1
+	buildNumD2 10 20
+
+state B_tooSmallButOK numD3
+	buildNumD2 10 20
+
+state C_tooBigButOK byte4D1
+	buildByte4D2 10 20
+
+state C_tooSmallButOK byte4D3
+	buildByte4D2 10 20
+
+state D_tooBig! byte2D2
+	buildByte4D2 10 20
+
+state D_tooSmall! byte8D2
+	buildByte4D2 10 20

@@ -24,10 +24,10 @@ outType eval_byte4From01(_evalargs_) {
 	outType argOut2 = _output_(arg2, fnCallArgs)
 	outType argOut3 = _output_(arg3, fnCallArgs)
 	outType toBeReturned;
-	toBeReturned.b4[0] = argOut0.n * 255;
-	toBeReturned.b4[1] = argOut1.n * 255;
-	toBeReturned.b4[2] = argOut2.n * 255;
-	toBeReturned.b4[3] = argOut3.n * 255;
+	toBeReturned.bt[0] = argOut0.n * 255;
+	toBeReturned.bt[1] = argOut1.n * 255;
+	toBeReturned.bt[2] = argOut2.n * 255;
+	toBeReturned.bt[3] = argOut3.n * 255;
 	return toBeReturned;
 }
 const stdNode node_byte4From01 = {

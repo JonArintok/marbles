@@ -10,10 +10,10 @@ outType eval_num4(_evalargs_) {
 	outType argOut2 = _output_(arg2, fnCallArgs)
 	outType argOut3 = _output_(arg3, fnCallArgs)
 	outType toBeReturned;
-	toBeReturned.n4[0] = argOut0.n;
-	toBeReturned.n4[1] = argOut1.n;
-	toBeReturned.n4[2] = argOut2.n;
-	toBeReturned.n4[3] = argOut3.n;
+	toBeReturned.nt[0] = argOut0.n;
+	toBeReturned.nt[1] = argOut1.n;
+	toBeReturned.nt[2] = argOut2.n;
+	toBeReturned.nt[3] = argOut3.n;
 	return toBeReturned;
 }
 const stdNode node_num4 = {
@@ -30,10 +30,10 @@ outType eval_fillByte4(_evalargs_) {
 	nodeIndex arg = nodes[self].children[0];
 	outType argOut = _output_(arg, fnCallArgs)
 	outType toBeReturned;
-	toBeReturned.b4[0] = argOut.b;
-	toBeReturned.b4[1] = argOut.b;
-	toBeReturned.b4[2] = argOut.b;
-	toBeReturned.b4[3] = argOut.b;
+	toBeReturned.bt[0] = argOut.b;
+	toBeReturned.bt[1] = argOut.b;
+	toBeReturned.bt[2] = argOut.b;
+	toBeReturned.bt[3] = argOut.b;
 	return toBeReturned;
 }
 const stdNode node_fillByte4 = {

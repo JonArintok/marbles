@@ -908,7 +908,20 @@ void checkType(nodeIndex nodePos) {
 	//otherwise parentsInType and nodeOutType need to match
 	if (!strncmp(parentsInType, nodeOutType, nodeOutTypeLength))
 		return;
-
+	
+	//Ignore array dimensionality differences.
+	
+	//If tuple length length is the issue, 
+	//then be sure the length of parentsInType is < that of nodeOutType.
+	//But for arrays of tuples, the tuple length must match.
+	
+	
+	
+	
+	
+	
+	
+	
 	//they don't match
 	putError(nodesInfo[nodePos].line, "expected type '");
 	printUpTo(parentsInType, '\n');

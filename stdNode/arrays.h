@@ -10,6 +10,7 @@ outType eval_buildByte4D2(_evalargs_) {
 	setLoadedNode(self, newDataSize);
 	nodes[self].cache.B.dimenX = widthSource.n;
 	nodes[self].cache.B.dimenY = heightSource.n;
+	nodes[self].cache.B.dimenZ = 1;
 	
 	return nodes[self].cache;
 }
@@ -29,6 +30,7 @@ outType eval_buildNumD2(_evalargs_) {
 	setLoadedNode(self, newDataSize);
 	nodes[self].cache.N.dimenX = widthSource.n;
 	nodes[self].cache.N.dimenY = heightSource.n;
+	nodes[self].cache.B.dimenZ = 1;
 	
 	return nodes[self].cache;
 }
@@ -55,10 +57,10 @@ outType eval_fillByte4D2(_evalargs_) {
 	
 	byte *dataToBeReturned = toBeReturned.B.data;
 	for (int i = 0; i < newDataSize; i += 4) {
-		dataToBeReturned[i  ] = value.b4[0];
-		dataToBeReturned[i+1] = value.b4[1];
-		dataToBeReturned[i+2] = value.b4[2];
-		dataToBeReturned[i+3] = value.b4[3];
+		dataToBeReturned[i  ] = value.bt[0];
+		dataToBeReturned[i+1] = value.bt[1];
+		dataToBeReturned[i+2] = value.bt[2];
+		dataToBeReturned[i+3] = value.bt[3];
 	}
 	
 	return toBeReturned;
@@ -96,10 +98,10 @@ outType eval_dynamicFillByte4D2(_evalargs_) {
 			fillerCallArgs[0].n = xPos;
 			outType value = _output_(filler.f + 1, fillerCallArgs)
 			int dataPos = (yPos * toBeReturned.B.dimenX + xPos) * 4;
-			dataToBeReturned[dataPos  ] = value.b4[0];
-			dataToBeReturned[dataPos+1] = value.b4[1];
-			dataToBeReturned[dataPos+2] = value.b4[2];
-			dataToBeReturned[dataPos+3] = value.b4[3];
+			dataToBeReturned[dataPos  ] = value.bt[0];
+			dataToBeReturned[dataPos+1] = value.bt[1];
+			dataToBeReturned[dataPos+2] = value.bt[2];
+			dataToBeReturned[dataPos+3] = value.bt[3];
 		}
 	}
 	
@@ -168,10 +170,10 @@ outType eval_limitedDynamicFillByte4D2(_evalargs_) {
 		memcpy(toBeReturned.B.data, source.B.data, newDataSize);
 	}
 	
-	double rectX = rect.n4[0];
-	double rectY = rect.n4[1];
-	double rectW = rect.n4[2];
-	double rectH = rect.n4[3];
+	double rectX = rect.nt[0];
+	double rectY = rect.nt[1];
+	double rectW = rect.nt[2];
+	double rectH = rect.nt[3];
 	
 	//clip the rectangle to prevent out-of-bounds access
 	if (
@@ -203,10 +205,10 @@ outType eval_limitedDynamicFillByte4D2(_evalargs_) {
 			fillerCallArgs[0].n = xPos - rectX;
 			outType value = _output_(filler.f + 1, fillerCallArgs)
 			int dataPos = (yPos * toBeReturned.B.dimenX + xPos) * 4;
-			dataToBeReturned[dataPos  ] = value.b4[0];
-			dataToBeReturned[dataPos+1] = value.b4[1];
-			dataToBeReturned[dataPos+2] = value.b4[2];
-			dataToBeReturned[dataPos+3] = value.b4[3];
+			dataToBeReturned[dataPos  ] = value.bt[0];
+			dataToBeReturned[dataPos+1] = value.bt[1];
+			dataToBeReturned[dataPos+2] = value.bt[2];
+			dataToBeReturned[dataPos+3] = value.bt[3];
 		}
 	}
 	
@@ -237,10 +239,10 @@ outType eval_limitedDynamicFillNumD2(_evalargs_) {
 		memcpy(toBeReturned.N.data, source.N.data, newDataSize);
 	}
 	
-	double rectX = rect.n4[0];
-	double rectY = rect.n4[1];
-	double rectW = rect.n4[2];
-	double rectH = rect.n4[3];
+	double rectX = rect.nt[0];
+	double rectY = rect.nt[1];
+	double rectW = rect.nt[2];
+	double rectH = rect.nt[3];
 	
 	//clip the rectangle to prevent out-of-bounds access
 	if (
