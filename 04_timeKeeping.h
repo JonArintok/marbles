@@ -20,9 +20,10 @@ long  getMicroseconds() {
 void frameWait_default(long *prevTime) {
 	if (frameRate > 0) {
 		long timeWait = 1e6/frameRate - (getMicroseconds() - *prevTime);
-		microSleep(timeWait);
+		if (timeWait > 0.01) 
+			microSleep(timeWait);
 	}
-	//printf("%li\n", getMicroseconds() - *prevTime);
+	printf("%li\n", getMicroseconds() - *prevTime);
 	*prevTime = getMicroseconds();
 }
 
