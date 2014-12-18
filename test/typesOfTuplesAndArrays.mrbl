@@ -34,3 +34,11 @@ state D_tooBig! byte2D2
 
 state D_tooSmall! byte8D2
 	buildByte4D2 10 20
+
+state E_wrongType! numD2
+	buildByte4D2 10 20
+
+state E_wrongType! num
+	buildByte4 10 20
+
+
