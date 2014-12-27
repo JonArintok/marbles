@@ -1,12 +1,12 @@
 
 
 define test
-	echo running test/cgol.mrbl...
+	echo running test/functionPass.mrbl...
 	echo \n
-	run test/cgol.mrbl
+	run test/functionPass.mrbl
 end
 
-break eval_mod
+break checkType
 
 
 

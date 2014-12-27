@@ -11,41 +11,41 @@ windowHeight
 	768
 
 
-var liveColor byte4
-	byte4From01  0.22  0.92  0.44  1.0
-var deadColor byte4
-	byte4From01  0.08  0.22  0.55  1.0
+var liveColor B4
+	B4from01  0.22  0.92  0.44  1.0
+var deadColor B4
+	B4from01  0.08  0.22  0.55  1.0
 
-fn initialCellFiller num
-	x num
-	y num
-	sourceWidth  num
-	sourceHeight num
+fn initialCellFiller N1
+	x N1
+	y N1
+	sourceWidth  N1
+	sourceHeight N1
 	> 2 (% x 4)
 
 
 @enter
 
-fn neighborCount num
-	x num
-	y num
+fn neighborCount N1
+	x N1
+	y N1
 	add8
-		fromNumD2 (- x 1) (- y 1) cells
-		fromNumD2    x    (- y 1) cells
-		fromNumD2 (+ x 1) (- y 1) cells
-		fromNumD2 (- x 1) (+ y 1) cells
-		fromNumD2    x    (+ y 1) cells
-		fromNumD2 (+ x 1) (+ y 1) cells
-		fromNumD2 (- x 1)    y    cells
-		fromNumD2 (+ x 1)    y    cells
+		fromN1D2 (- x 1) (- y 1) cells
+		fromN1D2    x    (- y 1) cells
+		fromN1D2 (+ x 1) (- y 1) cells
+		fromN1D2 (- x 1) (+ y 1) cells
+		fromN1D2    x    (+ y 1) cells
+		fromN1D2 (+ x 1) (+ y 1) cells
+		fromN1D2 (- x 1)    y    cells
+		fromN1D2 (+ x 1)    y    cells
 
-fn cellFlipper num
-	x num
-	y num
-	sourceWidth  num
-	sourceHeight num
+fn cellFlipper N1
+	x N1
+	y N1
+	sourceWidth  N1
+	sourceHeight N1
 	?
-		fromNumD2 x y cells
+		fromN1D2 x y cells
 		?
 			either
 				> 2 (neighborCount x y)
@@ -59,35 +59,35 @@ fn cellFlipper num
 
 
 
-state cells numD2
+state cells N1D2
 	?
 		currentFrame
-		dynamicFillNumD2 cellFlipper cells
-		limitedDynamicFillNumD2
+		dynamicFillN1D2 cellFlipper cells
+		limitedDynamicFillN1D2
 			initialCellFiller
-			num4
+			N4
 				* 3 (/ videoWidth  8)
 				* 3 (/ videoHeight 8)
 				/ videoWidth  4
 				/ videoHeight 4
-			buildNumD2 videoWidth videoHeight
+			buildN1D2 videoWidth videoHeight
 
 
-fn cellsToVideo byte4
-	x num
-	y num
-	sourceWidth  num
-	sourceHeight num
+fn cellsToVideo B4
+	x N1
+	y N1
+	sourceWidth  N1
+	sourceHeight N1
 	?
-		fromNumD2 x y cells
+		fromN1D2 x y cells
 		liveColor
 		deadColor
 
 
 videoOut
-	dynamicFillByte4D2
+	dynamicFillB4D2
 		cellsToVideo
-		buildByte4D2
+		buildB4D2
 			videoWidth
 			videoHeight
 

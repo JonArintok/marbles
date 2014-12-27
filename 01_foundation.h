@@ -28,7 +28,7 @@ typedef union {
 	number      nt[8];
 	numArray    N;
 	byte        b;
-	byte        bt[32];
+	byte        bt[8];
 	byteArray   B;
 	nodeIndex   f;
 } outType;
@@ -72,9 +72,9 @@ typedef struct {
 	nodeIndex videoOut;
 	nodeIndex audioOut;
 } frameform;
-char *nextFrameformName = "next num";
-char *videoOutName      = "videoOut byte4D2";
-char *audioOutName      = "audioOut num'";
+char *nextFrameformName = "next N1";
+char *videoOutName      = "videoOut B4D2";
+char *audioOutName      = "audioOut N1'";
 
 
 node      *nodes;
@@ -106,11 +106,11 @@ nodeIndex videoWidthRoot   = maxNodeIndex;
 nodeIndex videoHeightRoot  = maxNodeIndex;
 nodeIndex windowWidthRoot  = maxNodeIndex;
 nodeIndex windowHeightRoot = maxNodeIndex;
-char *frameRateName    = "frameRate num";
-char *videoWidthName   = "videoWidth num";
-char *videoHeightName  = "videoHeight num";
-char *windowWidthName  = "windowWidth num";
-char *windowHeightName = "windowHeight num";
+char *frameRateName    = "frameRate N1";
+char *videoWidthName   = "videoWidth N1";
+char *videoHeightName  = "videoHeight N1";
+char *windowWidthName  = "windowWidth N1";
+char *windowHeightName = "windowHeight N1";
 
 
 
@@ -191,12 +191,12 @@ outType eval_outDef(_evalargs_) {
 }
 
 
-char *name_frameformRef = "frameformRef num";
+char *name_frameformRef = "frameformRef N1";
 outType eval_frameformRef(_evalargs_) {
 	return nodes[self].cache;
 }
 
-char *name_numLit = "numLit num";
+char *name_numLit = "numLit N1";
 outType eval_numLit(_evalargs_) {
 	return nodes[self].cache;
 }

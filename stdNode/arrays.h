@@ -1,6 +1,6 @@
 
 
-outType eval_buildByte4D2(_evalargs_) {
+outType eval_buildB4D2(_evalargs_) {
 	nodeIndex arg0 = nodes[self].children[0];
 	nodeIndex arg1 = nodes[self].children[1];
 	outType widthSource  = _output_(arg0, fnCallArgs)
@@ -14,13 +14,13 @@ outType eval_buildByte4D2(_evalargs_) {
 	
 	return nodes[self].cache;
 }
-const stdNode node_buildByte4D2 = {
-	.name = "buildByte4D2 byte4D2\nwidth num\nheight num",
+const stdNode node_buildB4D2 = {
+	.name = "buildB4D2 B4D2\nwidth N1\nheight N1",
 	.arity = 2,
-	.evaluate = eval_buildByte4D2
+	.evaluate = eval_buildB4D2
 };
 
-outType eval_buildNumD2(_evalargs_) {
+outType eval_buildN1D2(_evalargs_) {
 	nodeIndex arg0 = nodes[self].children[0];
 	nodeIndex arg1 = nodes[self].children[1];
 	outType widthSource  = _output_(arg0, fnCallArgs)
@@ -34,14 +34,14 @@ outType eval_buildNumD2(_evalargs_) {
 	
 	return nodes[self].cache;
 }
-const stdNode node_buildNumD2 = {
-	.name = "buildNumD2 numD2\nwidth num\nheight num",
+const stdNode node_buildN1D2 = {
+	.name = "buildN1D2 N1D2\nwidth N1\nheight N1",
 	.arity = 2,
-	.evaluate = eval_buildNumD2
+	.evaluate = eval_buildN1D2
 };
 
 
-outType eval_fillByte4D2(_evalargs_) {
+outType eval_fillB4D2(_evalargs_) {
 	nodeIndex arg0 = nodes[self].children[0];
 	nodeIndex arg1 = nodes[self].children[1];
 	outType value  = _output_(arg0, fnCallArgs);
@@ -65,15 +65,15 @@ outType eval_fillByte4D2(_evalargs_) {
 	
 	return toBeReturned;
 }
-const stdNode node_fillByte4D2 = {
-	.name = "fillByte4D2 byte4D2\nvalue byte4\nsource byte4D2",
+const stdNode node_fillB4D2 = {
+	.name = "fillB4D2 B4D2\nvalue B4\nsource B4D2",
 	.arity = 2,
-	.evaluate = eval_fillByte4D2
+	.evaluate = eval_fillB4D2
 };
 
 
 
-outType eval_dynamicFillByte4D2(_evalargs_) {
+outType eval_dynamicFillB4D2(_evalargs_) {
 	nodeIndex arg0 = nodes[self].children[0];
 	nodeIndex arg1 = nodes[self].children[1];
 	outType filler = _output_(arg0, fnCallArgs);
@@ -107,14 +107,14 @@ outType eval_dynamicFillByte4D2(_evalargs_) {
 	
 	return toBeReturned;
 }
-const stdNode node_dynamicFillByte4D2 = {
-	.name = "dynamicFillByte4D2 byte4D2\nfiller byte4 & num num num num\nsource byte4D2",
+const stdNode node_dynamicFillB4D2 = {
+	.name = "dynamicFillB4D2 B4D2\nfiller B4 & N1 N1 N1 N1\nsource B4D2",
 	.arity = 2,
-	.evaluate = eval_dynamicFillByte4D2
+	.evaluate = eval_dynamicFillB4D2
 };
 
 
-outType eval_dynamicFillNumD2(_evalargs_) {
+outType eval_dynamicFillN1D2(_evalargs_) {
 	nodeIndex arg0 = nodes[self].children[0];
 	nodeIndex arg1 = nodes[self].children[1];
 	outType filler = _output_(arg0, fnCallArgs);
@@ -145,15 +145,15 @@ outType eval_dynamicFillNumD2(_evalargs_) {
 	
 	return toBeReturned;
 }
-const stdNode node_dynamicFillNumD2 = {
-	.name = "dynamicFillNumD2 numD2\nfiller num & num num num num\nsource numD2",
+const stdNode node_dynamicFillN1D2 = {
+	.name = "dynamicFillN1D2 N1D2\nfiller N1 & N1 N1 N1 N1\nsource N1D2",
 	.arity = 2,
-	.evaluate = eval_dynamicFillNumD2
+	.evaluate = eval_dynamicFillN1D2
 };
 
 
 
-outType eval_limitedDynamicFillByte4D2(_evalargs_) {
+outType eval_limitedDynamicFillB4D2(_evalargs_) {
 	nodeIndex arg0 = nodes[self].children[0];
 	nodeIndex arg1 = nodes[self].children[1];
 	nodeIndex arg2 = nodes[self].children[2];
@@ -214,15 +214,15 @@ outType eval_limitedDynamicFillByte4D2(_evalargs_) {
 	
 	return toBeReturned;
 }
-const stdNode node_limitedDynamicFillByte4D2 = {
-	.name = "limitedDynamicFillByte4D2 byte4D2\nfiller byte4 & num num num num\nrect num4\nsource byte4D2",
+const stdNode node_limitedDynamicFillB4D2 = {
+	.name = "limitedDynamicFillB4D2 B4D2\nfiller B4 & N1 N1 N1 N1\nrect N4\nsource B4D2",
 	.arity = 3,
-	.evaluate = eval_limitedDynamicFillByte4D2
+	.evaluate = eval_limitedDynamicFillB4D2
 };
 
 
 
-outType eval_limitedDynamicFillNumD2(_evalargs_) {
+outType eval_limitedDynamicFillN1D2(_evalargs_) {
 	nodeIndex arg0 = nodes[self].children[0];
 	nodeIndex arg1 = nodes[self].children[1];
 	nodeIndex arg2 = nodes[self].children[2];
@@ -284,14 +284,14 @@ outType eval_limitedDynamicFillNumD2(_evalargs_) {
 	
 	return toBeReturned;
 }
-const stdNode node_limitedDynamicFillNumD2 = {
-	.name = "limitedDynamicFillNumD2 numD2\nfiller num & num num num num\nrect num4\nsource numD2",
+const stdNode node_limitedDynamicFillN1D2 = {
+	.name = "limitedDynamicFillN1D2 N1D2\nfiller N1 & N1 N1 N1 N1\nrect N4\nsource N1D2",
 	.arity = 3,
-	.evaluate = eval_limitedDynamicFillNumD2
+	.evaluate = eval_limitedDynamicFillN1D2
 };
 
 
-outType eval_randomBoolFillNumD2(_evalargs_) {
+outType eval_randomBoolFillN1D2(_evalargs_) {
 	nodeIndex arg0 = nodes[self].children[0];
 	outType source = _output_(arg0, fnCallArgs);
 	
@@ -310,15 +310,15 @@ outType eval_randomBoolFillNumD2(_evalargs_) {
 	
 	return toBeReturned;
 }
-const stdNode node_randomBoolFillNumD2 = {
-	.name = "randomBoolFillNumD2 numD2\nsource numD2",
+const stdNode node_randomBoolFillN1D2 = {
+	.name = "randomBoolFillN1D2 N1D2\nsource N1D2",
 	.arity = 1,
-	.evaluate = eval_randomBoolFillNumD2
+	.evaluate = eval_randomBoolFillN1D2
 };
 
 
 
-outType eval_fromNumD2(_evalargs_) {
+outType eval_fromN1D2(_evalargs_) {
 	nodeIndex arg0 = nodes[self].children[0];
 	nodeIndex arg1 = nodes[self].children[1];
 	nodeIndex arg2 = nodes[self].children[2];
@@ -336,10 +336,10 @@ outType eval_fromNumD2(_evalargs_) {
 	}
 	return toBeReturned;
 }
-const stdNode node_fromNumD2 = {
-	.name = "fromNumD2 num\nx num\ny num\nsource numD2",
+const stdNode node_fromN1D2 = {
+	.name = "fromN1D2 N1\nx N1\ny N1\nsource N1D2",
 	.arity = 3,
-	.evaluate = eval_fromNumD2
+	.evaluate = eval_fromN1D2
 };
 
 
@@ -352,7 +352,7 @@ outType eval_widthOf(_evalargs_) {
 	return toBeReturned;
 }
 const stdNode node_widthOf = {
-	.name = "widthOf num\narray array",
+	.name = "widthOf N1\narray N3",
 	.arity = 1,
 	.evaluate = eval_widthOf
 };
@@ -365,7 +365,7 @@ outType eval_heightOf(_evalargs_) {
 	return toBeReturned;
 }
 const stdNode node_heightOf = {
-	.name = "heightOf num\narray array",
+	.name = "heightOf N1\narray N3",
 	.arity = 1,
 	.evaluate = eval_heightOf
 };

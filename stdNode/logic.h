@@ -10,7 +10,7 @@ outType eval_if(_evalargs_) {
 	return _output_(selection, fnCallArgs)
 }
 const stdNode node_if = {
-	.name = "? match\ncondition num\nifTrue match\nelse match",
+	.name = "? match\ncondition N1\nifTrue match\nelse match",
 	.arity = 3,
 	.evaluate = eval_if
 };
@@ -38,7 +38,7 @@ outType eval_not(_evalargs_) {
 	return toBeReturned;
 }
 const stdNode node_not = {
-	.name = "! num\na num",
+	.name = "! N1\na N1",
 	.arity = 1,
 	.evaluate = eval_not
 };

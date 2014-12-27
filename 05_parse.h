@@ -163,8 +163,12 @@ int strRemoveUpToIncl(char *s, char d) {
 	}
 }
 
-void printUpTo(char *s, char d) {
+void printUpToThis(char *s, char d) {
 	for (int i = 0; s[i] && s[i] != d; putc(s[i++], stdout));
+}
+
+void printUpToThese(char *s, char* d) {
+	for (int i = 0; !strchr(d, s[i]); putc(s[i++], stdout));
 }
 
 void setBodyNode(int level) {
@@ -697,7 +701,7 @@ void resolveNode(nodeIndex nodePos) {
 							if (nodes[sDef].evaluate == eval_stateDef) {
 								putError(nodeLine, "cannot read '");
 								printf("%s' from '", &nodeName[nnPos+1]);
-								printUpTo(nodeName, charTag_shareRead);
+								printUpToThis(nodeName, charTag_shareRead);
 								puts("'");
 								free(nodeName);
 								return;
@@ -713,7 +717,7 @@ void resolveNode(nodeIndex nodePos) {
 					}
 					putError(nodeLine, "did not find '");
 					printf("%s' in '", &nodeName[nnPos+1]);
-					printUpTo(nodeName, charTag_shareRead);
+					printUpToThis(nodeName, charTag_shareRead);
 					puts("'");
 					free(nodeName);
 					return;
@@ -728,7 +732,7 @@ void resolveNode(nodeIndex nodePos) {
 				return;
 			}
 			putError(nodeLine, "did not recognize frameform '");
-			printUpTo(nodeName, charTag_shareRead);
+			printUpToThis(nodeName, charTag_shareRead);
 			puts("'");
 			free(nodeName);
 			return;
@@ -816,11 +820,11 @@ char *getParentsInType(nodeIndex nodePos) {
 			char *fnArgCallArgs = 2 + strchr(
 				nodesInfo[parentsPos].name, charTag_paramType
 			);
-			if (!nodes[nodePos].argRefIndex)
+			if (!childIndex)
 				parentsInType = fnArgCallArgs;
 			else
 				parentsInType = WordAfterNthSpace(
-					fnArgCallArgs, nodes[nodePos].argRefIndex
+					fnArgCallArgs, childIndex
 				);
 		}
 	}
@@ -865,6 +869,36 @@ void longDecToShortDec(char *shortDec, char *longDec) {
 	}
 }
 
+bool typesMatch(char *a, char *b, nodeIndex nodePos) {
+	//Ignore array dimensionality differences.
+	//For arrays of tuples, the tuple length must match,
+	//otherwise ignore tuple length differences.
+	if (a[0] == b[0]) {
+		if (a[2] != 'D' && b[2] != 'D')
+			return true;
+		if (a[2] == 'D' && b[2] == 'D' && a[1] == b[1])
+			return true;
+	}
+	
+	//they don't match
+	putError(nodesInfo[nodePos].line, "expected type '");
+	printUpToThese(a, " \n");
+	printf("' but got '");
+	printUpToThese(b, " \n");
+	puts("'");
+	return false;
+	
+	
+// 	putError(nodesInfo[nodePos].line, "expected type '");
+// 	printUpTo(a, '\n');
+// 	printf("' but '");
+// 	printUpTo(nodesInfo[nodePos].name, ' ');
+// 	printf("' is of type '");
+// 	printUpTo(b, '\n');
+// 	puts("'");
+// 	return false;
+}
+
 void checkType(nodeIndex nodePos) {
 	if (!nodesInfo[nodePos].level)
 		return;
@@ -872,6 +906,8 @@ void checkType(nodeIndex nodePos) {
 	//parentsInType points to the first character of
 	//the type string expected from nodePos
 	char *parentsInType = getParentsInType(nodePos);
+	
+	//some nodes like "=" will accept "any" type
 	if (!strncmp(parentsInType, "any", 3))
 		return;
 	
@@ -879,57 +915,37 @@ void checkType(nodeIndex nodePos) {
 	//nodeOutType points to the first character of
 	//the type string output by nodePos
 	char *nodeOutType = WordAfterNthSpace(nodesInfo[nodePos].name, 1);
-	int   nodeOutTypeLength;
+	
+	//type checking is deferred for nodes wich output "match"
+	if (!strncmp(nodeOutType, "match", 5))
+		return;
+	
 	if (nodes[nodePos].evaluate == eval_fnArgCall) {
-		nodeOutTypeLength = strcspn(nodeOutType, " ");
-	}
-	else if (nodes[nodePos].evaluate == eval_fnPass) {
-		//convert long form to short form
-		char shortDec[maxLineLength];
-		longDecToShortDec(shortDec, nodeOutType);
-		nodeOutType = shortDec;
-		nodeOutTypeLength = strlen(nodeOutType);
+		//just the beginning
+		if (!typesMatch(parentsInType, nodeOutType, nodePos))
+			return;
 	}
 	else {
-		//whole thing up to either '\0' or '\n'
-		if (strchr(nodeOutType, '\n'))
-			nodeOutTypeLength = strcspn(nodeOutType, "\n");
-		else
-			nodeOutTypeLength = strlen(nodeOutType);
+		if (nodes[nodePos].evaluate == eval_fnPass) {
+			//convert long form to short form
+			char shortDec[maxLineLength];
+			longDecToShortDec(shortDec, nodeOutType);
+			nodeOutType = shortDec;
+		}
+		if (!typesMatch(parentsInType, nodeOutType, nodePos))
+			return;
+		char *innerParentsInType;
+		char *innerNodeOutType;
+		for (int i = 0; nodeOutType[i] != '\n' && nodeOutType[i] != '\0'; i++) {
+			if (nodeOutType[i] == ' ') {
+				i++;
+				innerParentsInType = &parentsInType[i];
+				innerNodeOutType   = &nodeOutType[i];
+				if (!typesMatch(innerParentsInType, innerNodeOutType, nodePos))
+					return;
+			}
+		}
 	}
-	
-	
-	
-	//some nodes like "=" will accept "any" type
-	//type checking is deferred for nodes wich output "match"
-	if (!strncmp(nodeOutType, "match", nodeOutTypeLength))
-		return;
-
-	//otherwise parentsInType and nodeOutType need to match
-	if (!strncmp(parentsInType, nodeOutType, nodeOutTypeLength))
-		return;
-	
-	//Ignore array dimensionality differences.
-	
-	//If tuple length length is the issue, 
-	//then be sure the length of parentsInType is < that of nodeOutType.
-	//But for arrays of tuples, the tuple length must match.
-	
-	
-	
-	
-	
-	
-	
-	
-	//they don't match
-	putError(nodesInfo[nodePos].line, "expected type '");
-	printUpTo(parentsInType, '\n');
-	printf("' but '");
-	printUpTo(nodesInfo[nodePos].name, ' ');
-	printf("' is of type '");
-	printUpTo(nodeOutType, '\n');
-	puts("'");
 }
 
 
@@ -982,14 +998,6 @@ void  parse(void) {
 
 bool isAnArray(nodeIndex n) {
 	char *returnType = WordAfterNthSpace(nodesInfo[n].name, 1);
-	if (returnType[0] == 'b') {
-		if (returnType[4] == 'D'  ||  returnType[5] == 'D')
-			return true;
-	}
-	else if (returnType[0] == 'n') {
-		if (returnType[3] == 'D'  ||  returnType[4] == 'D')
-			return true;
-	}
-	return false;	
+	return returnType[2] == 'D' ? true : false;	
 }
 

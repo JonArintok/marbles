@@ -1,6 +1,6 @@
 
 
-outType eval_num4(_evalargs_) {
+outType eval_N4(_evalargs_) {
 	nodeIndex arg0 = nodes[self].children[0];
 	nodeIndex arg1 = nodes[self].children[1];
 	nodeIndex arg2 = nodes[self].children[2];
@@ -16,17 +16,17 @@ outType eval_num4(_evalargs_) {
 	toBeReturned.nt[3] = argOut3.n;
 	return toBeReturned;
 }
-const stdNode node_num4 = {
-	.name = "num4 num4\nn0 num\nn1 num\nn2 num\nn3 num",
+const stdNode node_N4 = {
+	.name = "N4 N4\na N1\nb N1\nc N1\nf N1",
 	.arity = 4,
-	.evaluate = eval_num4
+	.evaluate = eval_N4
 };
 
 
 
 
 
-outType eval_fillByte4(_evalargs_) {
+outType eval_fillB4(_evalargs_) {
 	nodeIndex arg = nodes[self].children[0];
 	outType argOut = _output_(arg, fnCallArgs)
 	outType toBeReturned;
@@ -36,9 +36,9 @@ outType eval_fillByte4(_evalargs_) {
 	toBeReturned.bt[3] = argOut.b;
 	return toBeReturned;
 }
-const stdNode node_fillByte4 = {
-	.name = "fillByte4 byte4\nvalue byte",
+const stdNode node_fillB4 = {
+	.name = "fillB4 B4\nvalue B1",
 	.arity = 1,
-	.evaluate = eval_fillByte4
+	.evaluate = eval_fillB4
 };
 

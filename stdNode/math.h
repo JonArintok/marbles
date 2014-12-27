@@ -15,7 +15,7 @@ outType eval_mod(_evalargs_) {
 	return toBeReturned;
 }
 const stdNode node_mod = {
-	.name = "% num\na num\nb num",
+	.name = "% N1\na N1\nb N1",
 	.arity = 2,
 	.evaluate = eval_mod
 };
@@ -29,7 +29,7 @@ outType eval_sqr(_evalargs_) {
 	return toBeReturned;
 }
 const stdNode node_sqr = {
-	.name = "sqr num\ninput num",
+	.name = "sqr N1\ninput N1",
 	.arity = 1,
 	.evaluate = eval_sqr
 };
@@ -66,7 +66,7 @@ outType eval_add8(_evalargs_) {
 	return toBeReturned;
 }
 const stdNode node_add8 = {
-	.name = "add8 num\na num\nb num\nc num\nd num\ne num\nf num\ng num\nh num",
+	.name = "add8 N1\na N1\nb N1\nc N1\nd N1\ne N1\nf N1\ng N1\nh N1",
 	.arity = 8,
 	.evaluate = eval_add8
 };
@@ -82,7 +82,7 @@ outType eval_sin(_evalargs_) {
 	return toBeReturned;
 }
 const stdNode node_sin = {
-	.name = "sin num\ninput num",
+	.name = "sin N1\ninput N1",
 	.arity = 1,
 	.evaluate = eval_sin
 };

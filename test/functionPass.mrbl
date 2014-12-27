@@ -1,19 +1,19 @@
 
 
-fn add num
-	addendA num
-	addendB num
+fn add N1
+	addendA N1
+	addendB N1
 	+ addendA addendB
 
-fn applyBiop num
-	biop num & num num
-	a num
-	b num
+fn applyBiop N1
+	biop N1 & N1 N1
+	a N1
+	b N1
 	biop a b
 
-fn fnSelector num & num num
-	earlyFn num & num num
-	lateFn  num & num num
+fn fnSelector N1 & N1 N1
+	earlyFn N1 & N1 N1
+	lateFn  N1 & N1 N1
 	?
 		< currentFrame (/ frameLimit 2)
 		earlyFn
@@ -22,13 +22,13 @@ fn fnSelector num & num num
 
 @enter
 
-state A num
+state A N1
 	applyBiop
 		-
 		frameLimit
 		currentFrame
 
-state B num
+state B N1
 	applyBiop
 		fnSelector add *
 		currentFrame
@@ -42,7 +42,7 @@ next
 
 @.
 
-var frameLimit num
+var frameLimit N1
 	20
 
 
@@ -54,14 +54,14 @@ var frameLimit num
 
 
 |fn everyNthFrame match
-|	n num
+|	n N1
 |	onNthFrame  match
 |	offNthFrame match
 |	? (% currentFrame n) offNthFrame onNthFrame
 
 
 |fn timedSwitch match
-|	timeLimit num
+|	timeLimit N1
 |	preTimeLimit  match
 |	postTimeLimit match
 |	?
@@ -69,15 +69,15 @@ var frameLimit num
 |		postTimeLimit
 |		preTimeLimit
 
-|fn randomMatchMaker match & num match match
-|	a match & num match match
-|	b match & num match match
+|fn randomMatchMaker match & N1 match match
+|	a match & N1 match match
+|	b match & N1 match match
 |	? random a b
 
-|state curMatchMaker match & num match match
+|state curMatchMaker match & N1 match match
 |	randomMatchMaker everyNthFrame timedSwitch
 
-|state foo num
+|state foo N1
 |	curMatchMaker 0 1
 
 

@@ -12,7 +12,7 @@ outType eval_name(_evalargs_) {\
 	return toBeReturned;\
 }\
 const stdNode node_name = {\
-	.name = title " num\na num\nb num",\
+	.name = title " N1\na N1\nb N1",\
 	.arity    = 2,\
 	.evaluate = eval_name\
 };
@@ -59,23 +59,23 @@ const stdNode *stdNodeTable[] = {
 &node_windowHeight,
 
 //tuples
-&node_num4,
-&node_fillByte4,
+&node_N4,
+&node_fillB4,
 
 //convert
-&node_byteFrom01,
-&node_byte4From01,
+&node_B1from01,
+&node_B4from01,
 
 //arrays
-&node_buildByte4D2,
-&node_buildNumD2,
-&node_fillByte4D2,
-&node_dynamicFillByte4D2,
-&node_dynamicFillNumD2,
-&node_limitedDynamicFillByte4D2,
-&node_limitedDynamicFillNumD2,
-&node_randomBoolFillNumD2,
-&node_fromNumD2,
+&node_buildB4D2,
+&node_buildN1D2,
+&node_fillB4D2,
+&node_dynamicFillB4D2,
+&node_dynamicFillN1D2,
+&node_limitedDynamicFillB4D2,
+&node_limitedDynamicFillN1D2,
+&node_randomBoolFillN1D2,
+&node_fromN1D2,
 &node_widthOf,
 &node_heightOf,
 

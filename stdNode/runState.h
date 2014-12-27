@@ -5,7 +5,7 @@ outType eval_currentFrame(_evalargs_) {
 	return toBeReturned;
 }
 const stdNode node_curFrame = {
-	.name = "currentFrame num",
+	.name = "currentFrame N1",
 	.arity = 0,
 	.evaluate = eval_currentFrame
 };
@@ -17,7 +17,7 @@ outType eval_frameRate(_evalargs_) {
 	return toBeReturned;
 }
 const stdNode node_frameRate = {
-	.name = "frameRate num",
+	.name = "frameRate N1",
 	.arity = 0,
 	.evaluate = eval_frameRate
 };
@@ -30,7 +30,7 @@ outType eval_videoWidth(_evalargs_) {
 	return toBeReturned;
 }
 const stdNode node_videoWidth = {
-	.name = "videoWidth num",
+	.name = "videoWidth N1",
 	.arity = 0,
 	.evaluate = eval_videoWidth
 };
@@ -41,7 +41,7 @@ outType eval_videoHeight(_evalargs_) {
 	return toBeReturned;
 }
 const stdNode node_videoHeight = {
-	.name = "videoHeight num",
+	.name = "videoHeight N1",
 	.arity = 0,
 	.evaluate = eval_videoHeight
 };
@@ -54,7 +54,7 @@ outType eval_windowWidth(_evalargs_) {
 	return toBeReturned;
 }
 const stdNode node_windowWidth = {
-	.name = "windowWidth num",
+	.name = "windowWidth N1",
 	.arity = 0,
 	.evaluate = eval_windowWidth
 };
@@ -65,7 +65,7 @@ outType eval_windowHeight(_evalargs_) {
 	return toBeReturned;
 }
 const stdNode node_windowHeight = {
-	.name = "windowHeight num",
+	.name = "windowHeight N1",
 	.arity = 0,
 	.evaluate = eval_windowHeight
 };

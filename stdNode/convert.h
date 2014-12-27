@@ -1,20 +1,20 @@
 
-outType eval_byteFrom01(_evalargs_) {
+outType eval_B1from01(_evalargs_) {
 	nodeIndex arg = nodes[self].children[0];
 	outType argOut = _output_(arg, fnCallArgs)
 	outType toBeReturned;
 	toBeReturned.b = argOut.n * 255;
 	return toBeReturned;
 }
-const stdNode node_byteFrom01 = {
-	.name = "byteFrom01 byte\ninput num",
+const stdNode node_B1from01 = {
+	.name = "B1from01 B1\ninput N1",
 	.arity = 1,
-	.evaluate = eval_byteFrom01
+	.evaluate = eval_B1from01
 };
 
 
 
-outType eval_byte4From01(_evalargs_) {
+outType eval_B4from01(_evalargs_) {
 	nodeIndex arg0 = nodes[self].children[0];
 	nodeIndex arg1 = nodes[self].children[1];
 	nodeIndex arg2 = nodes[self].children[2];
@@ -30,10 +30,10 @@ outType eval_byte4From01(_evalargs_) {
 	toBeReturned.bt[3] = argOut3.n * 255;
 	return toBeReturned;
 }
-const stdNode node_byte4From01 = {
-	.name = "byte4From01 byte4\nb0 num\nb1 num\nb2 num\nb3 num",
+const stdNode node_B4from01 = {
+	.name = "B4from01 B4\na N1\nb N1\nc N1\nd N1",
 	.arity = 4,
-	.evaluate = eval_byte4From01
+	.evaluate = eval_B4from01
 };
 
 
