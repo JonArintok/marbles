@@ -836,65 +836,86 @@ char *getParentsInType(nodeIndex nodePos) {
 }
 
 void longDecToShortDec(char *shortDec, char *longDec) {
-	int shortDecPos = strcspn(longDec, "\n");
-	strncpy(shortDec, longDec, shortDecPos);
-	shortDec[shortDecPos++] = ' ';
-	shortDec[shortDecPos++] = charTag_paramType;
-	shortDec[shortDecPos  ] = ' ';
-	int longDecPos = shortDecPos;
-	bool copyMode = false;
-	while (true) {
-		longDecPos++;
-		
-		if (longDec[longDecPos] == '\0') {
-			shortDecPos++;
-			shortDec[shortDecPos] = '\0';
-			break;
-		}
-		
-		if (copyMode) {
-			shortDecPos++;
-			if (longDec[longDecPos] == '\n') {
-				shortDec[shortDecPos] = ' ';
-				copyMode = false;
+	int shortDecPos = 0;
+	int longDecPos = 0;
+	bool passedOutType = false;
+	for (; longDec[longDecPos] != '\0'; longDecPos++) {
+		if (longDec[longDecPos] == '\n') {	
+			shortDec[shortDecPos++] = ' ';
+			if (!passedOutType) {
+				shortDec[shortDecPos++] = charTag_paramType;
+				shortDec[shortDecPos++] = ' ';
+				passedOutType = true;
 			}
-			else {
-				shortDec[shortDecPos] = longDec[longDecPos];
-			}
+			while (longDec[longDecPos] != ' ')
+				longDecPos++;
 		}
-		else {
-			if (longDec[longDecPos] == ' ')
-				copyMode = true;
-		}
+		else
+			shortDec[shortDecPos++] = longDec[longDecPos];
 	}
+	shortDec[shortDecPos++] = '\0';
 }
 
-bool typesMatch(char *a, char *b, nodeIndex nodePos) {
+bool typesMatch(
+	char *iTypePart, 
+	char *iTypeWhole, 
+	char *oTypePart, 
+	char *oTypeWhole, 
+	nodeIndex nodePos
+) {
 	//Ignore array dimensionality differences.
 	//For arrays of tuples, the tuple length must match,
 	//otherwise ignore tuple length differences.
-	if (a[0] == b[0]) {
-		if (a[2] != 'D' && b[2] != 'D')
+	if (iTypePart[0] == oTypePart[0]) {
+		if (iTypePart[2] != 'D' && oTypePart[2] != 'D')
 			return true;
-		if (a[2] == 'D' && b[2] == 'D' && a[1] == b[1])
+		if (
+			iTypePart[2]  == 'D' && 
+			oTypePart[2] == 'D' && 
+			iTypePart[1] == oTypePart[1]
+		) {
 			return true;
+		}
 	}
 	
 	//they don't match
-	putError(nodesInfo[nodePos].line, "expected type '");
-	printUpToThese(a, " \n");
-	printf("' but got '");
-	printUpToThese(b, " \n");
-	puts("'");
+	if (nodes[nodePos].evaluate != eval_fnArgCall && (strchr(iTypeWhole, '&') || strchr(oTypeWhole, '&'))) {
+		//print whole type
+		putError(nodesInfo[nodePos].line, "expected type '");
+		printUpToThese(iTypeWhole, "\n");
+		printf("' but '");
+		printUpToThis(nodesInfo[nodePos].name, ' ');
+		printf("' is of type '");
+		printUpToThese(oTypeWhole, "\n");
+		puts("'");
+	}
+	else {
+		//print part type
+		putError(nodesInfo[nodePos].line, "expected type '");
+		printUpToThese(iTypePart, " \n");
+		printf("' but '");
+		printUpToThis(nodesInfo[nodePos].name, ' ');
+		printf("' is of type '");
+		printUpToThese(oTypePart, " \n");
+		puts("'");
+	}
 	return false;
 	
 	
+	//they don't match
+// 	char *iTypePrint = iTypePart;
+// 	char *oTypePrint = oTypePart;	
+// 	if (strchr(iTypeWhole, '&') || strchr(oTypeWhole, '&')) {
+// 		//print whole type
+// 		char *iTypePrint = iTypeWhole;
+// 		char *oTypePrint = oTypeWhole;	
+// 	}
 // 	putError(nodesInfo[nodePos].line, "expected type '");
-// 	printUpTo(a, '\n');
+// 	printUpToThese(iTypePrint, " \n");
 // 	printf("' but '");
-// 	printUpTo(nodesInfo[nodePos].name, ' ');
+// 	printUpToThis(nodesInfo[nodePos].name, ' ');
 // 	printf("' is of type '");
-// 	printUpTo(b, '\n');
+// 	printUpToThese(oTypePrint, " \n");
 // 	puts("'");
 // 	return false;
 }
@@ -922,7 +943,7 @@ void checkType(nodeIndex nodePos) {
 	
 	if (nodes[nodePos].evaluate == eval_fnArgCall) {
 		//just the beginning
-		if (!typesMatch(parentsInType, nodeOutType, nodePos))
+		if (!typesMatch(parentsInType, parentsInType, nodeOutType, nodeOutType, nodePos))
 			return;
 	}
 	else {
@@ -932,7 +953,7 @@ void checkType(nodeIndex nodePos) {
 			longDecToShortDec(shortDec, nodeOutType);
 			nodeOutType = shortDec;
 		}
-		if (!typesMatch(parentsInType, nodeOutType, nodePos))
+		if (!typesMatch(parentsInType, parentsInType, nodeOutType, nodeOutType, nodePos))
 			return;
 		char *innerParentsInType;
 		char *innerNodeOutType;
@@ -941,7 +962,7 @@ void checkType(nodeIndex nodePos) {
 				i++;
 				innerParentsInType = &parentsInType[i];
 				innerNodeOutType   = &nodeOutType[i];
-				if (!typesMatch(innerParentsInType, innerNodeOutType, nodePos))
+				if (!typesMatch(innerParentsInType, parentsInType, innerNodeOutType, nodeOutType, nodePos))
 					return;
 			}
 		}

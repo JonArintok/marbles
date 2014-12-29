@@ -46,39 +46,3 @@ var frameLimit N1
 	20
 
 
-
-
-
-
-
-
-
-|fn everyNthFrame match
-|	n N1
-|	onNthFrame  match
-|	offNthFrame match
-|	? (% currentFrame n) offNthFrame onNthFrame
-
-
-|fn timedSwitch match
-|	timeLimit N1
-|	preTimeLimit  match
-|	postTimeLimit match
-|	?
-|		> frameTime timeLimit
-|		postTimeLimit
-|		preTimeLimit
-
-|fn randomMatchMaker match & N1 match match
-|	a match & N1 match match
-|	b match & N1 match match
-|	? random a b
-
-|state curMatchMaker match & N1 match match
-|	randomMatchMaker everyNthFrame timedSwitch
-
-|state foo N1
-|	curMatchMaker 0 1
-
-
-

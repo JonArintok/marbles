@@ -6,10 +6,15 @@ define test
 	run test/functionPass.mrbl
 end
 
-break checkType
+break longDecToShortDec
 
-
-
+define snp
+	step
+	output longDec[longDecPos]
+	echo \n
+	output shortDec
+	echo \n
+end
 
 define pnode
 	echo node:
