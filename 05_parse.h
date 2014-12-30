@@ -900,24 +900,6 @@ bool typesMatch(
 		puts("'");
 	}
 	return false;
-	
-	
-	//they don't match
-// 	char *iTypePrint = iTypePart;
-// 	char *oTypePrint = oTypePart;	
-// 	if (strchr(iTypeWhole, '&') || strchr(oTypeWhole, '&')) {
-// 		//print whole type
-// 		char *iTypePrint = iTypeWhole;
-// 		char *oTypePrint = oTypeWhole;	
-// 	}
-// 	putError(nodesInfo[nodePos].line, "expected type '");
-// 	printUpToThese(iTypePrint, " \n");
-// 	printf("' but '");
-// 	printUpToThis(nodesInfo[nodePos].name, ' ');
-// 	printf("' is of type '");
-// 	printUpToThese(oTypePrint, " \n");
-// 	puts("'");
-// 	return false;
 }
 
 void checkType(nodeIndex nodePos) {
