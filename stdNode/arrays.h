@@ -73,7 +73,7 @@ const stdNode node_fillB4D2 = {
 
 
 
-outType eval_dynamicFillB4D2(_evalargs_) {
+outType eval_mapB4D2(_evalargs_) {
 	nodeIndex arg0 = nodes[self].children[0];
 	nodeIndex arg1 = nodes[self].children[1];
 	outType filler = _output_(arg0, fnCallArgs);
@@ -107,14 +107,14 @@ outType eval_dynamicFillB4D2(_evalargs_) {
 	
 	return toBeReturned;
 }
-const stdNode node_dynamicFillB4D2 = {
-	.name = "dynamicFillB4D2 B4D2\nfiller B4 & N1 N1 N1 N1\nsource B4D2",
+const stdNode node_mapB4D2 = {
+	.name = "mapB4D2 B4D2\nfiller B4 & N1 N1 N1 N1\nsource B4D2",
 	.arity = 2,
-	.evaluate = eval_dynamicFillB4D2
+	.evaluate = eval_mapB4D2
 };
 
 
-outType eval_dynamicFillN1D2(_evalargs_) {
+outType eval_mapN1D2(_evalargs_) {
 	nodeIndex arg0 = nodes[self].children[0];
 	nodeIndex arg1 = nodes[self].children[1];
 	outType filler = _output_(arg0, fnCallArgs);
@@ -145,15 +145,15 @@ outType eval_dynamicFillN1D2(_evalargs_) {
 	
 	return toBeReturned;
 }
-const stdNode node_dynamicFillN1D2 = {
-	.name = "dynamicFillN1D2 N1D2\nfiller N1 & N1 N1 N1 N1\nsource N1D2",
+const stdNode node_mapN1D2 = {
+	.name = "mapN1D2 N1D2\nfiller N1 & N1 N1 N1 N1\nsource N1D2",
 	.arity = 2,
-	.evaluate = eval_dynamicFillN1D2
+	.evaluate = eval_mapN1D2
 };
 
 
 
-outType eval_limitedDynamicFillB4D2(_evalargs_) {
+outType eval_mapInB4D2(_evalargs_) {
 	nodeIndex arg0 = nodes[self].children[0];
 	nodeIndex arg1 = nodes[self].children[1];
 	nodeIndex arg2 = nodes[self].children[2];
@@ -214,15 +214,15 @@ outType eval_limitedDynamicFillB4D2(_evalargs_) {
 	
 	return toBeReturned;
 }
-const stdNode node_limitedDynamicFillB4D2 = {
-	.name = "limitedDynamicFillB4D2 B4D2\nfiller B4 & N1 N1 N1 N1\nrect N4\nsource B4D2",
+const stdNode node_mapInB4D2 = {
+	.name = "mapInB4D2 B4D2\nfiller B4 & N1 N1 N1 N1\nrect N4\nsource B4D2",
 	.arity = 3,
-	.evaluate = eval_limitedDynamicFillB4D2
+	.evaluate = eval_mapInB4D2
 };
 
 
 
-outType eval_limitedDynamicFillN1D2(_evalargs_) {
+outType eval_mapInN1D2(_evalargs_) {
 	nodeIndex arg0 = nodes[self].children[0];
 	nodeIndex arg1 = nodes[self].children[1];
 	nodeIndex arg2 = nodes[self].children[2];
@@ -284,10 +284,10 @@ outType eval_limitedDynamicFillN1D2(_evalargs_) {
 	
 	return toBeReturned;
 }
-const stdNode node_limitedDynamicFillN1D2 = {
-	.name = "limitedDynamicFillN1D2 N1D2\nfiller N1 & N1 N1 N1 N1\nrect N4\nsource N1D2",
+const stdNode node_mapInN1D2 = {
+	.name = "mapInN1D2 N1D2\nfiller N1 & N1 N1 N1 N1\nrect N4\nsource N1D2",
 	.arity = 3,
-	.evaluate = eval_limitedDynamicFillN1D2
+	.evaluate = eval_mapInN1D2
 };
 
 

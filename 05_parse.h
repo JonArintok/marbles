@@ -496,23 +496,12 @@ void attachFnOrVarCall(nodeIndex def, nodeIndex call) {
 			nodes[call].evaluate = eval_fnPass;
 			nodes[call].cache.f = def;
 		}
-		else if (nodes[call].childCount == nodesInfo[def].arity) {
+		else {
 			nodes[call].evaluate = eval_fnCall;
 		}
-		else {
-			putError(nodesInfo[call].line, "");
-			printf(
-				"number of arguments for '%s' is off by %d\n",
-				nodesInfo[call].name,
-				nodes[call].childCount - nodesInfo[def].arity
-			);
-			return;
-		}
 	}
-	//else perhaps it's a nullary function
 	else if (nodes[def].evaluate == eval_fnDefN)
 		nodes[call].evaluate = eval_fnCallN;
-	//else it's a variable
 	else if (nodes[def].evaluate == eval_varDef) {
 		nodes[call].evaluate = eval_varCall;
 		//if (nodes[call].childCount != 0)
@@ -554,10 +543,7 @@ void resolveNode(nodeIndex nodePos) {
 				int   bnNamePos  = 1;
 				int   paramPos   = 0;
 				char *bnNodeName = nodesInfo[backNode].name;
-				for (;
-					bnNodeName[bnNamePos] && paramPos < nodesInfo[backNode].arity;
-					paramPos++
-				) {
+				for (; bnNodeName[bnNamePos]; paramPos++) {
 					while (bnNodeName[bnNamePos] && bnNodeName[bnNamePos-1] != '\n')
 						bnNamePos++;
 					if (matchStrWDelim(nodeName, '\0', &bnNodeName[bnNamePos], ' ')) {
@@ -596,18 +582,8 @@ void resolveNode(nodeIndex nodePos) {
 				nodes[nodePos].evaluate = eval_fnPass;
 				nodes[nodePos].cache.f = sntPos + curNode + 1;
 			}
-			else if (nodes[nodePos].childCount == stdNodeTable[sntPos]->arity) {
-				nodes[nodePos].evaluate = stdNodeTable[sntPos]->evaluate;
-			}
 			else {
-				putError(nodeLine, "");
-				printf(
-					"number of arguments for '%s' is off by %d\n",
-					nodeName,
-					nodes[nodePos].childCount - stdNodeTable[sntPos]->arity
-				);
-				free(nodeName);
-				return;
+				nodes[nodePos].evaluate = stdNodeTable[sntPos]->evaluate;
 			}
 			nodesInfo[nodePos].name = stdNodeTable[sntPos]->name;
 			free(nodeName);
@@ -809,7 +785,9 @@ char *getParentsInType(nodeIndex nodePos) {
 					}
 				}
 				if (nodesInfo[parentsPos].name[i] == '\0') {
-					_shouldNotBeHere_
+					if (strstr(nodesInfo[parentsPos].name, " ...")) {
+						return "...";
+					}
 					return NULL;
 				}
 			}
@@ -879,7 +857,10 @@ bool typesMatch(
 	}
 	
 	//they don't match
-	if (nodes[nodePos].evaluate != eval_fnArgCall && (strchr(iTypeWhole, '&') || strchr(oTypeWhole, '&'))) {
+	if (
+		nodes[nodePos].evaluate != eval_fnArgCall && 
+		(strchr(iTypeWhole, '&') || strchr(oTypeWhole, '&'))
+	) {
 		//print whole type
 		putError(nodesInfo[nodePos].line, "expected type '");
 		printUpToThese(iTypeWhole, "\n");
@@ -902,6 +883,11 @@ bool typesMatch(
 	return false;
 }
 
+void checkExargType(nodeIndex nodePos) {
+	printf("checkExargType: %i\n", nodePos);
+}
+
+
 void checkType(nodeIndex nodePos) {
 	if (!nodesInfo[nodePos].level)
 		return;
@@ -914,6 +900,11 @@ void checkType(nodeIndex nodePos) {
 	if (!strncmp(parentsInType, "any", 3))
 		return;
 	
+	//getParentsInType returns "..." when exargs are detected
+	if (!strcmp(parentsInType, "...")) {
+		checkExargType(nodePos);
+		return;
+	}
 	
 	//nodeOutType points to the first character of
 	//the type string output by nodePos
@@ -939,11 +930,15 @@ void checkType(nodeIndex nodePos) {
 			return;
 		char *innerParentsInType;
 		char *innerNodeOutType;
+		int   argPos = 0;
 		for (int i = 0; nodeOutType[i] != '\n' && nodeOutType[i] != '\0'; i++) {
 			if (nodeOutType[i] == ' ') {
 				i++;
+				argPos++;
 				innerParentsInType = &parentsInType[i];
 				innerNodeOutType   = &nodeOutType[i];
+				if (matchStrWDelim(innerParentsInType, '\n', "...", '\0'))
+					return; //type checking for exargs happens elsewhere
 				if (!typesMatch(innerParentsInType, parentsInType, innerNodeOutType, nodeOutType, nodePos))
 					return;
 			}

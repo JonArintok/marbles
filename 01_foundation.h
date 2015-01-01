@@ -87,7 +87,7 @@ int        curFrameform = -1;
 
 typedef struct {
 	char     *name;
-	uint8_t   arity;
+	int8_t    arity;
 	evaluator evaluate;
 } stdNode;
 
