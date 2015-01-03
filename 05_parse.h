@@ -311,17 +311,25 @@ void initNodes(void) {
 			}
 		}
 		nodesInfo[curNode].arity = paramCount;
-		nodes[curNode].evaluate = paramCount ? eval_fnDef : eval_fnDefN;
-		//else replace that \0 with a \n and read the parameters into the name
-		for (int i = 0; i < paramCount; i++) {
-			nodesInfo[curNode].name[namePos] = '\n';
-			getLine();
-			int bufPos = 0;//would be -1 if we weren't ignoring the tabs
-			while (lineBuf[bufPos]) {
-				inc_namePos();
-				bufPos++;
-				nodesInfo[curNode].name[namePos] = lineBuf[bufPos];
+		if (paramCount) {
+			//replace that \0 with a \n and read the parameters into the name
+			for (int i = 0; i < paramCount; i++) {
+				nodesInfo[curNode].name[namePos] = '\n';
+				getLine();
+				int bufPos = 0;//would be -1 if we weren't ignoring the tabs
+				while (lineBuf[bufPos]) {
+					inc_namePos();
+					bufPos++;
+					nodesInfo[curNode].name[namePos] = lineBuf[bufPos];
+				}
 			}
+			if (strstr(nodesInfo[curNode].name, " ..."))
+				nodes[curNode].evaluate = eval_fnDefWExargs;
+			else
+				nodes[curNode].evaluate = eval_fnDef;
+		}
+		else {
+			nodes[curNode].evaluate = eval_fnDefNullary;
 		}
 	}
 	else if (matchStrWDelim(decTag_var, '\0', lineBuf, ' '))
@@ -355,7 +363,8 @@ void initNodes(void) {
 	else if (
 		nodes[curNode].evaluate == eval_varDef ||
 		nodes[curNode].evaluate == eval_fnDef  ||
-		nodes[curNode].evaluate == eval_fnDefN
+		nodes[curNode].evaluate == eval_fnDefNullary ||
+		nodes[curNode].evaluate == eval_fnDefWExargs
 	) {
 		if (inFrameform) {
 			inc_curRootNode();
@@ -368,6 +377,8 @@ void initNodes(void) {
 			gRootNodes[gCurRootNode] = curNode;
 		}
 	}
+	else
+		_shouldNotBeHere_
 
 	//initialize the nodes in the body of the defNode
 	getBody();
@@ -500,8 +511,10 @@ void attachFnOrVarCall(nodeIndex def, nodeIndex call) {
 			nodes[call].evaluate = eval_fnCall;
 		}
 	}
-	else if (nodes[def].evaluate == eval_fnDefN)
-		nodes[call].evaluate = eval_fnCallN;
+	else if (nodes[def].evaluate == eval_fnDefWExargs)
+		nodes[call].evaluate = eval_fnCallWExargs;
+	else if (nodes[def].evaluate == eval_fnDefNullary)
+		nodes[call].evaluate = eval_fnCallNullary;
 	else if (nodes[def].evaluate == eval_varDef) {
 		nodes[call].evaluate = eval_varCall;
 		//if (nodes[call].childCount != 0)
@@ -539,7 +552,10 @@ void resolveNode(nodeIndex nodePos) {
 	//check for argCall
 	for (int backNode = nodePos;; backNode--) {
 		if (nodesInfo[backNode].level == 0) {
-			if (nodes[backNode].evaluate == eval_fnDef) {
+			if (
+				nodes[backNode].evaluate == eval_fnDef ||
+				nodes[backNode].evaluate == eval_fnDefWExargs
+			) {
 				int   bnNamePos  = 1;
 				int   paramPos   = 0;
 				char *bnNodeName = nodesInfo[backNode].name;
@@ -561,7 +577,9 @@ void resolveNode(nodeIndex nodePos) {
 								nodesInfo[nodePos].name[paramNamePos] == charTag_paramType &&
 								nodes[nodePos].childCount
 							) {
-								nodes[nodePos].evaluate = eval_fnArgCall;
+								nodes[nodePos].evaluate = 
+									nodes[backNode].evaluate == eval_fnDef ?
+										eval_fnArgCall : eval_fnArgCallWExargs;
 								break;
 							}
 						}
@@ -785,9 +803,8 @@ char *getParentsInType(nodeIndex nodePos) {
 					}
 				}
 				if (nodesInfo[parentsPos].name[i] == '\0') {
-					if (strstr(nodesInfo[parentsPos].name, " ...")) {
+					if (nodes[parentsPos].evaluate == eval_fnCallWExargs)
 						return "...";
-					}
 					return NULL;
 				}
 			}
@@ -859,6 +876,7 @@ bool typesMatch(
 	//they don't match
 	if (
 		nodes[nodePos].evaluate != eval_fnArgCall && 
+		nodes[nodePos].evaluate != eval_fnArgCallWExargs && 
 		(strchr(iTypeWhole, '&') || strchr(oTypeWhole, '&'))
 	) {
 		//print whole type
@@ -914,7 +932,10 @@ void checkType(nodeIndex nodePos) {
 	if (!strncmp(nodeOutType, "match", 5))
 		return;
 	
-	if (nodes[nodePos].evaluate == eval_fnArgCall) {
+	if (
+		nodes[nodePos].evaluate == eval_fnArgCall || 
+		nodes[nodePos].evaluate == eval_fnArgCallWExargs
+	) {
 		//just the beginning
 		if (!typesMatch(parentsInType, parentsInType, nodeOutType, nodeOutType, nodePos))
 			return;

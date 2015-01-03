@@ -35,6 +35,7 @@ const stdNode *stdNodeTable[] = {
 &node_div,
 &node_mod,
 &node_sqr,
+&node_add4,
 &node_add8,
 &node_sin,
 

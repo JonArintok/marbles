@@ -7,7 +7,7 @@ fn usesThroughput N1
 		* a 2
 		* b 2
 
-fn add4 N1
+fn myAdd4 N1
 	a N1
 	b N1
 	c N1
@@ -18,7 +18,10 @@ fn add4 N1
 @enter
 
 state foo N1
-	usesThroughput add4 10 10 30 30  |args should match params above
+	usesThroughput myAdd4 10 10 30 30  |args should match params above
+
+state bar N1
+	usesThroughput add4 10 10 30 30    |args should match params above
 
 next
 	exit

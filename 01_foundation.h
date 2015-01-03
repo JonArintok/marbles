@@ -37,7 +37,7 @@ typedef outType (*evaluator) (_evalargs_);
 typedef struct {
 	nodeIndex  definition;//for variable/state/fn calls
 	int8_t     argRefIndex;//for argument calls
-	int8_t     childCount;//the number of "subnodes", defNodes have 1
+	int8_t     childCount;//the number of "subnodes"
 	nodeIndex  children[maxChildren];
 	evaluator  evaluate;
 	outType    cache;
@@ -127,7 +127,10 @@ outType eval_varCall(_evalargs_) {
 outType eval_fnDef(_evalargs_) {
 	return _output_(self+1, fnCallArgs)
 }
-outType eval_fnDefN(_evalargs_) {
+outType eval_fnDefWExargs(_evalargs_) {
+	return _output_(self+1, fnCallArgs)
+}
+outType eval_fnDefNullary(_evalargs_) {
 	return _output_(self+1, fnCallArgs)
 }
 
@@ -140,10 +143,20 @@ outType eval_fnCall(_evalargs_) {
 	nodeIndex fnBody = nodes[self].definition + 1;
 	return _output_(fnBody, newFnCallArgs)
 }
-outType eval_fnCallN(_evalargs_) {
+outType eval_fnCallWExargs(_evalargs_) {
+	outType newFnCallArgs[maxChildren];
+	for (int i = 0; i < nodes[self].childCount; i++) {
+		nodeIndex arg = nodes[self].children[i];
+		newFnCallArgs[i] = nodes[arg].evaluate(arg, fnCallArgs);
+	}
+	nodeIndex fnBody = nodes[self].definition + 1;
+	return _output_(fnBody, newFnCallArgs)
+}
+outType eval_fnCallNullary(_evalargs_) {
 	nodeIndex fnBody = nodes[self].definition + 1;
 	return _output_(fnBody, fnCallArgs)
 }
+
 
 outType eval_argCall(_evalargs_) {
 	return fnCallArgs[ nodes[self].argRefIndex ];
@@ -207,4 +220,31 @@ bool isReadOnly(nodeIndex n) {
 	return 
 		nodes[n].evaluate == eval_varCall ||
 		nodes[n].evaluate == eval_stateCall;
+}
+
+
+
+
+
+
+outType eval_fnArgCallWExargs(_evalargs_) {
+	nodeIndex nodePassed = fnCallArgs[ nodes[self].argRefIndex ].f;
+	int firstExargIndex = nodes[self].cache.bt[0];
+	int exargCount      = nodes[self].cache.bt[1];
+	outType newFnCallArgs[maxChildren];
+	
+	int curArg = 0;
+	for (; curArg < nodes[self].childCount; curArg++) {
+		nodeIndex a = nodes[self].children[curArg];
+		newFnCallArgs[curArg] = nodes[a].evaluate(a, fnCallArgs);
+	}
+	for (int curExarg = 0; curExarg < exargCount; curExarg++) {
+		newFnCallArgs[curArg+curExarg] = fnCallArgs[firstExargIndex+curExarg];
+	}
+	
+	//std fn
+	if (nodePassed > curNode)
+		return stdNodeTable[nodePassed-curNode-1]->evaluate(self, newFnCallArgs);
+	//user-defined fn
+	return _output_(nodePassed+1, newFnCallArgs)
 }

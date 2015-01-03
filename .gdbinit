@@ -1,18 +1,16 @@
 
 
 define test
-	echo running test/functionPass.mrbl...
+	echo running test/exargs.mrbl...
 	echo \n
-	run test/functionPass.mrbl
+	run test/exargs.mrbl
 end
 
-break longDecToShortDec
+
 
 define snp
 	step
-	output longDec[longDecPos]
-	echo \n
-	output shortDec
+	output nodesInfo[nodePos].name
 	echo \n
 end
 
