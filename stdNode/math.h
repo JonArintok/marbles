@@ -8,8 +8,8 @@ _biop_(eval_div, node_div, "/", /, n)
 outType eval_mod(_evalargs_) {
 	nodeIndex arg0 = nodes[self].children[0];
 	nodeIndex arg1 = nodes[self].children[1];
-	outType a = _output_(arg0, fnCallArgs)
-	outType b = _output_(arg1, fnCallArgs)
+	outType a = output(arg0, fnCallSource, fnCallArgs);
+	outType b = output(arg1, fnCallSource, fnCallArgs);
 	outType toBeReturned;
 	toBeReturned.n = (int)a.n % (int)b.n;
 	return toBeReturned;
@@ -23,7 +23,7 @@ const stdNode node_mod = {
 
 outType eval_sqr(_evalargs_) {
 	nodeIndex arg = nodes[self].children[0];
-	outType argOut = _output_(arg, fnCallArgs)
+	outType argOut = output(arg, fnCallSource, fnCallArgs);
 	outType toBeReturned;
 	toBeReturned.n = argOut.n * argOut.n;
 	return toBeReturned;
@@ -41,10 +41,10 @@ outType eval_add4(_evalargs_) {
 	nodeIndex arg1 = nodes[self].children[1];
 	nodeIndex arg2 = nodes[self].children[2];
 	nodeIndex arg3 = nodes[self].children[3];
-	outType argOut0 = _output_(arg0, fnCallArgs)
-	outType argOut1 = _output_(arg1, fnCallArgs)
-	outType argOut2 = _output_(arg2, fnCallArgs)
-	outType argOut3 = _output_(arg3, fnCallArgs)
+	outType argOut0 = output(arg0, fnCallSource, fnCallArgs);
+	outType argOut1 = output(arg1, fnCallSource, fnCallArgs);
+	outType argOut2 = output(arg2, fnCallSource, fnCallArgs);
+	outType argOut3 = output(arg3, fnCallSource, fnCallArgs);
 	outType toBeReturned;
 	toBeReturned.n = 
 		argOut0.n +
@@ -68,14 +68,14 @@ outType eval_add8(_evalargs_) {
 	nodeIndex arg5 = nodes[self].children[5];
 	nodeIndex arg6 = nodes[self].children[6];
 	nodeIndex arg7 = nodes[self].children[7];
-	outType argOut0 = _output_(arg0, fnCallArgs)
-	outType argOut1 = _output_(arg1, fnCallArgs)
-	outType argOut2 = _output_(arg2, fnCallArgs)
-	outType argOut3 = _output_(arg3, fnCallArgs)
-	outType argOut4 = _output_(arg4, fnCallArgs)
-	outType argOut5 = _output_(arg5, fnCallArgs)
-	outType argOut6 = _output_(arg6, fnCallArgs)
-	outType argOut7 = _output_(arg7, fnCallArgs)
+	outType argOut0 = output(arg0, fnCallSource, fnCallArgs);
+	outType argOut1 = output(arg1, fnCallSource, fnCallArgs);
+	outType argOut2 = output(arg2, fnCallSource, fnCallArgs);
+	outType argOut3 = output(arg3, fnCallSource, fnCallArgs);
+	outType argOut4 = output(arg4, fnCallSource, fnCallArgs);
+	outType argOut5 = output(arg5, fnCallSource, fnCallArgs);
+	outType argOut6 = output(arg6, fnCallSource, fnCallArgs);
+	outType argOut7 = output(arg7, fnCallSource, fnCallArgs);
 	outType toBeReturned;
 	toBeReturned.n = 
 		argOut0.n +
@@ -98,7 +98,7 @@ const stdNode node_add8 = {
 
 outType eval_sin(_evalargs_) {
 	nodeIndex arg = nodes[self].children[0];
-	outType argOut = _output_(arg, fnCallArgs)
+	outType argOut = output(arg, fnCallSource, fnCallArgs);
 	outType toBeReturned;
 	toBeReturned.n = sin(tao * argOut.n);
 	return toBeReturned;

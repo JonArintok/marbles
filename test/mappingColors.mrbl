@@ -7,12 +7,12 @@ videoHeight
 	512
 
 
-fn redFiller byte4
-	xPos num
-	yPos num
-	sourceWidth  num
-	sourceHeight num
-	byte4From01
+fn redFiller B4
+	xPos N1
+	yPos N1
+	sourceWidth  N1
+	sourceHeight N1
+	B4from01
 		/
 			+
 				/ xPos sourceWidth
@@ -22,24 +22,24 @@ fn redFiller byte4
 		0
 		1
 
-fn cyanFiller byte4
-	xPos num
-	yPos num
-	sourceWidth  num
-	sourceHeight num
-	byte4From01
+fn cyanFiller B4
+	xPos N1
+	yPos N1
+	sourceWidth  N1
+	sourceHeight N1
+	B4from01
 		0
 		/ xPos sourceWidth
 		/ yPos sourceHeight
 		1
 
-var image byte4D2
-	limitedDynamicFillByte4D2
+var image B4D2
+	mapInB4D2
 		redFiller
-		num4 40 40 80 80
-		dynamicFillByte4D2
+		N4 40 40 80 80
+		mapB4D2
 			cyanFiller
-			buildByte4D2
+			buildB4D2
 				videoWidth
 				videoHeight
 

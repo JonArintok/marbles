@@ -1,13 +1,13 @@
 
 outType eval_if(_evalargs_) {
 	nodeIndex cond = nodes[self].children[0];
-	outType condOut = _output_(cond, fnCallArgs)
+	outType condOut = output(cond, fnCallSource, fnCallArgs);
 	nodeIndex selection;
 	if (condOut.n)
 		selection = nodes[self].children[1];
 	else
 		selection = nodes[self].children[2];
-	return _output_(selection, fnCallArgs)
+	return output(selection, fnCallSource, fnCallArgs);
 }
 const stdNode node_if = {
 	.name = "? match\ncondition N1\nifTrue match\nelse match",
@@ -29,7 +29,7 @@ _biop_(eval_either, node_either, "either", ||, n)
 
 outType eval_not(_evalargs_) {
 	nodeIndex arg = nodes[self].children[0];
-	outType argOut = _output_(arg, fnCallArgs)
+	outType argOut = output(arg, fnCallSource, fnCallArgs);
 	outType toBeReturned;
 	if (argOut.n)
 		toBeReturned.n = 0;

@@ -4,7 +4,7 @@ frameRate
 
 @other
 
-state dnCounter num
+state dnCounter N1
 	- dnCounter increm
 
 next
@@ -13,7 +13,7 @@ next
 
 @enter
 
-share upCounter num
+share upCounter N1
 	+ upCounter increm
 
 next
@@ -21,6 +21,6 @@ next
 
 @.
 
-var increm num
+var increm N1
 	0.25
 

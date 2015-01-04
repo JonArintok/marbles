@@ -1,6 +1,6 @@
 
-fn fibonacci num
-	n num
+fn fibonacci N1
+	n N1
 	?
 		= n 0
 		0
@@ -15,7 +15,7 @@ fn fibonacci num
 
 @enter
 
-state fibCounter num
+state fibCounter N1
 	fibonacci currentFrame
 
 next

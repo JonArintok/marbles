@@ -2,7 +2,7 @@
 
 @enter
 
-state A num
+state A N1
 	*
 		1.5
 		+
@@ -13,19 +13,19 @@ state A num
 				20
 				0.5
 
-state B num
+state B N1
 	*
 		1.5
 		+
 			- 68 8
 			/ 20 0.5
 
-state C num
+state C N1
 	*
 		1.5
 		+ (- 68 8) (/ 20 0.5)
 
-state D num
+state D N1
 	* -1.5 (- 0 (+ (- 68 8) (/ 20 0.5) ) )
 
 next

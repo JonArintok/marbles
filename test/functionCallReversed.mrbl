@@ -5,24 +5,24 @@
 next                          |next frameform
 	? (> result 1000) exit enter
 
-state result num              |state
+state result N1              |state
 	addmul                      |body
 		/ nihyaku hyaku
 		tenPerFrame
 
 @.
 
-fn addmul num                 |global function
-	input  num                  |first parameter
-	factor num                  |second parameter
+fn addmul N1                 |global function
+	input  N1                  |first parameter
+	factor N1                  |second parameter
 	* factor (+ factor input)   |body
 
-fn tenPerFrame num            |global nullary function
+fn tenPerFrame N1            |global nullary function
 	* currentFrame 10           |body
 
-var nihyaku num               |global variable
+var nihyaku N1               |global variable
 	* hyaku 2                   |body, evaluated after literals
 
-var hyaku num                 |global variable
-	100                         |numeric literal, evaluated immediately
+var hyaku N1                 |global variable
+	100                         |N1eric literal, evaluated immediately
 

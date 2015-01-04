@@ -2,13 +2,13 @@
 
 @enter
 
-state foo num
+state foo N1
 	+ varble (+ bar foo)
 
-share bar num
+share bar N1
 	+ varble (+ foo bar)
 
-var varble num
+var varble N1
 	2
 
 next

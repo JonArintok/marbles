@@ -1,6 +1,6 @@
 
-frameRate
-	15
+|frameRate
+|	15
 videoWidth
 	256
 videoHeight
@@ -62,8 +62,8 @@ fn cellFlipper N1
 state cells N1D2
 	?
 		currentFrame
-		dynamicFillN1D2 cellFlipper cells
-		limitedDynamicFillN1D2
+		mapN1D2 cellFlipper cells
+		mapInN1D2
 			initialCellFiller
 			N4
 				* 3 (/ videoWidth  8)
@@ -85,7 +85,7 @@ fn cellsToVideo B4
 
 
 videoOut
-	dynamicFillB4D2
+	mapB4D2
 		cellsToVideo
 		buildB4D2
 			videoWidth

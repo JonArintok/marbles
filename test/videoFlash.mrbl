@@ -2,8 +2,8 @@
 frameRate
 	60
 
-fn triwave num
-	phase num
+fn triwave N1
+	phase N1
 	?
 		<= phase 0.5
 		* 2 phase
@@ -12,24 +12,24 @@ fn triwave num
 
 @enter
 
-var phaseIncrem num
+var phaseIncrem N1
 	0.005
 
-state lightPhase num
+state lightPhase N1
 	?
 		>= lightPhase 1
 		0
 		+ lightPhase phaseIncrem
 
 
-videoOut               |of type byte4D2
-	fillByte4D2
-		byte4From01        |from num 0-1 to byte 0-255
+videoOut               |of type B4D2
+	fillB4D2
+		B4from01        |from N1 0-1 to B1 0-255
 			0
 			triwave lightPhase
 			- 1 (triwave lightPhase)
 			1
-		buildByte4D2
+		buildB4D2
 			videoWidth
 			videoHeight
 

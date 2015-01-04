@@ -1,6 +1,6 @@
 
-fn factorial num
-	n num
+fn factorial N1
+	n N1
 	?
 		n
 		* n (factorial (- n 1))
@@ -9,7 +9,7 @@ fn factorial num
 
 @enter
 
-state factorialCounter num
+state factorialCounter N1
 	factorial currentFrame
 
 next

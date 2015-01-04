@@ -39,7 +39,7 @@ void initializeNodes(void) {
 			(nodes[i].evaluate == eval_varDef || nodes[i].evaluate == eval_gOutDef)
 			&& nodes[i+1].evaluate != eval_numLit
 		) {
-			hotDef[initCount] = _output_(i+1, nullFnCallArgs);
+			hotDef[initCount] = output(i+1, maxNodeIndex, nullFnCallArgs);
 			initCount++;
 		}
 	}

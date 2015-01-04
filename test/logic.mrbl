@@ -2,44 +2,44 @@
 
 @enter
 
-state a num
+state a N1
 	? (= 2 2) 1 0
-state b num
+state b N1
 	? (= 2 4) 1 0
-state c num
+state c N1
 	? (< 2 4) 1 0
-state d num
+state d N1
 	? (< 4 2) 1 0
-state e num
+state e N1
 	? (> 4 2) 1 0
-state f num
+state f N1
 	? (> 2 4) 1 0
 
-state g num
+state g N1
 	? (!= 2 2) 0 1
-state h num
+state h N1
 	? (!= 2 4) 0 1
-state i num
+state i N1
 	? (>= 2 4) 0 1
-state j num
+state j N1
 	? (>= 4 2) 0 1
-state k num
+state k N1
 	? (<= 4 2) 0 1
-state l num
+state l N1
 	? (<= 2 4) 0 1
 
-state m num
+state m N1
 	? (!(<= 2 4)) 0 1
 
-state n num
+state n N1
 	=
-		byte4From01 0.1 0.2 0.3 0.4
-		byte4From01 0.1 0.2 0.3 0.5
+		B4from01 0.1 0.2 0.3 0.4
+		B4from01 0.1 0.2 0.3 0.5
 
-state n num
+state n N1
 	=
-		byte4From01 0.1 0.2 0.3 0.4
-		byte4From01 0.1 0.2 0.3 0.4
+		B4from01 0.1 0.2 0.3 0.4
+		B4from01 0.1 0.2 0.3 0.4
 
 next
 	exit

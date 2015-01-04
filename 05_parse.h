@@ -500,7 +500,7 @@ void initFrameform(void) {
 
 void attachFnOrVarCall(nodeIndex def, nodeIndex call) {
 	nodesInfo[call].name = nodesInfo[def].name;
-	nodes[call].definition = def;
+	nodes[call].def = def;
 	//if it's a function with parameters
 	if (nodes[def].evaluate == eval_fnDef) {
 		if (!nodes[call].childCount) {
@@ -511,8 +511,14 @@ void attachFnOrVarCall(nodeIndex def, nodeIndex call) {
 			nodes[call].evaluate = eval_fnCall;
 		}
 	}
-	else if (nodes[def].evaluate == eval_fnDefWExargs)
+	else if (nodes[def].evaluate == eval_fnDefWExargs) {
 		nodes[call].evaluate = eval_fnCallWExargs;
+		int arity = nodesInfo[nodes[call].def].arity;
+		int exargCount = nodes[call].childCount - arity;
+		for (int i = 0; i < exargCount; i++) {
+			nodes[call].cache.exargs[i] = nodes[call].children[arity+i];
+		}
+	}
 	else if (nodes[def].evaluate == eval_fnDefNullary)
 		nodes[call].evaluate = eval_fnCallNullary;
 	else if (nodes[def].evaluate == eval_varDef) {
@@ -577,9 +583,11 @@ void resolveNode(nodeIndex nodePos) {
 								nodesInfo[nodePos].name[paramNamePos] == charTag_paramType &&
 								nodes[nodePos].childCount
 							) {
-								nodes[nodePos].evaluate = 
-									nodes[backNode].evaluate == eval_fnDef ?
-										eval_fnArgCall : eval_fnArgCallWExargs;
+								if (nodes[backNode].evaluate == eval_fnDef)
+									nodes[nodePos].evaluate = eval_fnArgCall;
+								else if (nodes[backNode].evaluate == eval_fnDefWExargs)
+									nodes[nodePos].evaluate = eval_fnArgCallWExargs;
+								else _shouldNotBeHere_
 								break;
 							}
 						}
@@ -634,7 +642,7 @@ void resolveNode(nodeIndex nodePos) {
 		for (int snPos = 0; snPos <= frameforms[nodeFf].curStateNode; snPos++) {
 			nodeIndex sDef = frameforms[nodeFf].stateNodes[snPos];
 			if (matchStrWDelim(nodeName, '\0', nodesInfo[sDef].name, ' ')) {
-				nodes[nodePos].definition = sDef;
+				nodes[nodePos].def = sDef;
 				nodesInfo[nodePos].name = nodesInfo[sDef].name;
 				free(nodeName);
 				if (nodes[sDef].evaluate == eval_stateDef)
@@ -700,7 +708,7 @@ void resolveNode(nodeIndex nodePos) {
 								free(nodeName);
 								return;
 							}
-							nodes[nodePos].definition = sDef;
+							nodes[nodePos].def = sDef;
 							nodesInfo[nodePos].name = nodesInfo[sDef].name;
 							free(nodeName);
 							if (nodes[sDef].evaluate == eval_shareDef)

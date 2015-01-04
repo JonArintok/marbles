@@ -6,7 +6,7 @@ define test
 	run test/exargs.mrbl
 end
 
-
+break marblerun.c:59
 
 define snp
 	step
@@ -31,7 +31,7 @@ define pnode
 	output nodesInfo[$arg0].frameform
 	echo \n
 	echo definition..
-	output nodes[$arg0].definition
+	output nodes[$arg0].def
 	echo \n
 	echo argRefIndex.
 	output nodes[$arg0].argRefIndex

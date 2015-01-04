@@ -7,17 +7,17 @@ videoWidth
 videoHeight
 	300
 
-var fillColor byte4
-	byte4From01  0.2  0.8  0.4  1.0
-var backColor byte4
-	byte4From01  0.1  0.3  0.6  1.0
+var fillColor B4
+	B4from01  0.2  0.8  0.4  1.0
+var backColor B4
+	B4from01  0.1  0.3  0.6  1.0
 
 
-fn ellipseFiller byte4
-	xPos num
-	yPos num
-	sourceWidth  num
-	sourceHeight num
+fn ellipseFiller B4
+	xPos N1
+	yPos N1
+	sourceWidth  N1
+	sourceHeight N1
 	?
 		>=
 			1
@@ -34,17 +34,17 @@ fn ellipseFiller byte4
 
 @enter
 
-var wobbleRate num
+var wobbleRate N1
 	0.01
 
-state sinOscOut01 num
+state sinOscOut01 N1
 	/
 		+ 1 (sin (/ currentFrame (/ frameRate wobbleRate)))
 		2
 
 
-fn ellipseBoundary num4
-	num4
+fn ellipseBoundary N4
+	N4
 		* sinOscOut01 (/ videoWidth 3)
 		* (- 1 sinOscOut01) (/ videoHeight 3)
 		-
@@ -55,12 +55,12 @@ fn ellipseBoundary num4
 			* 2 (* (- 1 sinOscOut01) (/ videoHeight 3))
 
 videoOut
-	limitedDynamicFillByte4D2
+	mapInB4D2
 		ellipseFiller
 		ellipseBoundary
-		fillByte4D2
+		fillB4D2
 			backColor
-			buildByte4D2
+			buildB4D2
 				videoWidth
 				videoHeight
 

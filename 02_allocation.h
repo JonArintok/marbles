@@ -43,7 +43,7 @@ void inc_curNode(void) {
 	}
 	
 	//initialize fields
-	nodes[curNode].definition  = maxNodeIndex;
+	nodes[curNode].def         = maxNodeIndex;
 	nodes[curNode].argRefIndex = 0;
 	nodes[curNode].childCount  = 0;
 	nodes[curNode].evaluate    = NULL;

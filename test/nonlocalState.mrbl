@@ -2,7 +2,7 @@
 
 @enter
 
-share foo num
+share foo N1
 	2
 
 next
@@ -11,7 +11,7 @@ next
 
 @other
 
-state foo num
+state foo N1
 	+ foo enter:foo
 
 next
