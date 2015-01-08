@@ -1,0 +1,96 @@
+
+
+videoWidth
+	256
+videoHeight
+	256
+windowWidth
+	512
+windowHeight
+	512
+
+
+var liveColor B4
+	B4from01  0.22  0.92  0.44  1.0
+var deadColor B4
+	B4from01  0.08  0.22  0.55  1.0
+
+fn neighborCount N1
+	x N1
+	y N1
+	cells N1D2
+	add8
+		fromN1D2 (- x 1) (- y 1) cells
+		fromN1D2    x    (- y 1) cells
+		fromN1D2 (+ x 1) (- y 1) cells
+		fromN1D2 (- x 1)    y    cells
+		fromN1D2 (+ x 1)    y    cells
+		fromN1D2 (- x 1) (+ y 1) cells
+		fromN1D2    x    (+ y 1) cells
+		fromN1D2 (+ x 1) (+ y 1) cells
+
+fn cgol N1
+	x N1
+	y N1
+	w N1
+	h N1
+	cells N1D2
+	?
+		fromN1D2 x y cells
+		?
+			either
+				> 2 (neighborCount x y cells)
+				< 3 (neighborCount x y cells)
+			0
+			1
+		?
+			= 3 (neighborCount x y cells)
+			1
+			0
+
+
+fn cellsToVideo B4
+	x N1
+	y N1
+	w N1
+	h N1
+	cells N1D2
+	?
+		fromN1D2 x y cells
+		liveColor
+		deadColor
+
+
+fn initialCellFiller N1
+	x N1
+	y N1
+	w N1
+	h N1
+	% x 3
+
+var initialCells N1D2
+	mapInN1D2
+		initialCellFiller
+		N4
+			* 3 (/ videoWidth  8)
+			* 3 (/ videoHeight 8)
+			/ videoWidth  4
+			/ videoHeight 4
+		buildN1D2 videoWidth videoHeight
+
+@enter
+
+state cellState N1D2
+	?
+		currentFrame
+		mapN1D2 cgol cellState cellState
+		initialCells
+
+videoOut
+	mapB4D2
+		cellsToVideo
+		buildB4D2
+			videoWidth
+			videoHeight
+		cellState
+

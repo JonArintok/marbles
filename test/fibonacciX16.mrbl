@@ -1,0 +1,60 @@
+
+fn fibonacci N1
+	n N1
+	?
+		= n 0
+		0
+		?
+			= n 1
+			1
+			+
+				fibonacci
+					- n 1
+				fibonacci
+					- n 2
+
+@enter
+
+state fib00 N1
+	fibonacci fibit
+state fib01 N1
+	fibonacci fibit
+state fib02 N1
+	fibonacci fibit
+state fib03 N1
+	fibonacci fibit
+state fib04 N1
+	fibonacci fibit
+state fib05 N1
+	fibonacci fibit
+state fib06 N1
+	fibonacci fibit
+state fib07 N1
+	fibonacci fibit
+state fib08 N1
+	fibonacci fibit
+state fib09 N1
+	fibonacci fibit
+state fib10 N1
+	fibonacci fibit
+state fib11 N1
+	fibonacci fibit
+state fib12 N1
+	fibonacci fibit
+state fib13 N1
+	fibonacci fibit
+state fib14 N1
+	fibonacci fibit
+state fib15 N1
+	fibonacci fibit
+
+next
+	? (<= currentFrame lastFrame) enter exit
+
+@.
+
+var fibit N1
+	24
+
+var lastFrame N1
+	10

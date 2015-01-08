@@ -31,15 +31,15 @@ typedef union {
 	byte        bt[8];
 	byteArray   B;
 	nodeIndex   f;
-	nodeIndex   exargs[8];//held by fnCallWExargs, exargs start at 1, 0 is def
+	nodeIndex   exargs[8];//held by fnCallWExargs
 } outType;
 #define _evalargs_  nodeIndex self, nodeIndex fnCallSource, outType *fnCallArgs
 typedef outType (*evaluator) (_evalargs_);
 typedef struct {
 	nodeIndex  children[maxChildren];
-	int8_t     childCount;//the number of "subnodes"
-	int8_t     argRefIndex;//for argument calls
-	nodeIndex  def; //for variable/state/fn calls
+	int8_t     childCount;  //the number of "subnodes"
+	int8_t     argRefIndex; //for argument calls
+	nodeIndex  def;         //for variable/state/fn calls
 	outType    cache;
 	evaluator  evaluate;
 } node;
@@ -196,6 +196,7 @@ outType eval_fnArgCallWExargs(_evalargs_) {
 		return toBeReturned;
 	}
 	
+	//user-defined fn
 	outType newFnCallArgs[maxChildren];
 	int curArg = 0;
 	for (; curArg < nodes[self].childCount; curArg++) {
@@ -206,8 +207,6 @@ outType eval_fnArgCallWExargs(_evalargs_) {
 		nodeIndex arg = nodes[fnCallSource].cache.exargs[curExarg];
 		newFnCallArgs[curArg+curExarg] = output(arg, fnCallSource, fnCallArgs);
 	}
-	
-	//user-defined fn
 	return output(nodePassed+1, fnCallSource, newFnCallArgs);
 }
 

@@ -811,8 +811,12 @@ char *getParentsInType(nodeIndex nodePos) {
 					}
 				}
 				if (nodesInfo[parentsPos].name[i] == '\0') {
-					if (nodes[parentsPos].evaluate == eval_fnCallWExargs)
+					if (
+						nodes[parentsPos].evaluate == eval_fnCallWExargs || 
+						strstr(nodesInfo[parentsPos].name, " ...")
+					) {
 						return "...";
+					}
 					return NULL;
 				}
 			}

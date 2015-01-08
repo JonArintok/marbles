@@ -1,12 +1,11 @@
 
 
 define test
-	echo running test/exargs.mrbl...
+	echo running test/cgol2.mrbl...
 	echo \n
-	run test/exargs.mrbl
+	run test/cgol2.mrbl
 end
 
-break marblerun.c:59
 
 define snp
 	step
