@@ -925,6 +925,12 @@ void checkType(nodeIndex nodePos) {
 	//parentsInType points to the first character of
 	//the type string expected from nodePos
 	char *parentsInType = getParentsInType(nodePos);
+	if (!parentsInType) {
+		putError(nodesInfo[nodePos].line, "unexpected: '");
+		printUpToThis(nodesInfo[nodePos].name, ' ');
+		puts("'");
+		return;
+	}
 	
 	//some nodes like "=" will accept "any" type
 	if (!strncmp(parentsInType, "any", 3))
