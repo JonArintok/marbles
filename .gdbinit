@@ -1,9 +1,9 @@
 
 
 define test
-	echo running test/cgol2.mrbl...
+	echo running test/fibonacciX16.mrbl...
 	echo \n
-	run test/cgol2.mrbl
+	run test/fibonacciX16.mrbl
 end
 
 

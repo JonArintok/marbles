@@ -115,9 +115,9 @@ char *windowHeightName = "windowHeight N1";
 
 
 
-outType output(_evalargs_) {
-	return nodes[self].evaluate(self, fnCallSource, fnCallArgs);
-}
+#define output(self, fnCallSource, fnCallArgs)\
+	nodes[self].evaluate(self, fnCallSource, fnCallArgs);
+
 
 outType eval_varDef(_evalargs_) {
 	return nodes[self].cache;
