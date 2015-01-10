@@ -114,7 +114,6 @@ char *windowWidthName  = "windowWidth N1";
 char *windowHeightName = "windowHeight N1";
 
 
-
 #define output(self, fnCallSource, fnCallArgs)\
 	nodes[self].evaluate(self, fnCallSource, fnCallArgs);
 

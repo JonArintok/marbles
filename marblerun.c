@@ -37,22 +37,20 @@ nodeIndex nextRoot;
 nodeIndex videoRoot;
 outType   videoOut;
 //nodeIndex audioRoot;
+//outType   audioOut;
 bool running = false;
 long frameTimeStamp;
 
-void checkEvents(void) {
-	if (videoEnabled) {
-		SDL_Event event;
-		while (SDL_PollEvent(&event) != 0) {
-			if (event.type == SDL_QUIT)
-				running = false;
-		}
-	}
-}
+int threadCount;
+SDL_atomic_t stateThreadPunch;
+SDL_atomic_t videoPunch;
 
+#define _threadWait_ microSleep(threadCount*10);
+
+
+//this function needs to be called from the main thread
 void renderVideoOut(void) {
 	if (videoRoot <= curNode) {
-		videoOut = output(videoRoot+1, maxNodeIndex, nullFnCallArgs);
 		if (
 			videoOut.B.dimenX < videoWidth ||
 			videoOut.B.dimenY < videoHeight
@@ -77,50 +75,62 @@ void renderVideoOut(void) {
 	}
 }
 
+
 void betweenFrames(void) {
 	if (nextRoot <= curNode) {
 		outType nextRootOut = output(nextRoot+1, maxNodeIndex, nullFnCallArgs);
 		activeFrameform = nextRootOut.n;
-		if (activeFrameform > curFrameform)
+		if (activeFrameform > curFrameform) {
 			running = false;
+		}
 		csn       = frameforms[activeFrameform].curStateNode;
 		nextRoot  = frameforms[activeFrameform].nextFrameform;
 		videoRoot = frameforms[activeFrameform].videoOut;
 		//audioRoot = frameforms[activeFrameform].audioOut;
 	}
+	
+	if (videoEnabled) {
+		SDL_AtomicIncRef(&videoPunch);// from 0 to 1
+		while (SDL_AtomicGet(&videoPunch)) {
+			_threadWait_
+		}
+		
+		//frameWait(&frameTimeStamp);
+		
+		SDL_Event event;
+		while (SDL_PollEvent(&event) != 0) {
+			if (event.type == SDL_QUIT)
+				running = false;
+		}
+	}
+	
+	curFrame++;
 }
 
 
-#define _stub_ printf("%i:%i\n", threadIndex, __LINE__);
-
-int threadCount;
-SDL_atomic_t stateThreadPunch;
+#define _stub_ //printf("TI:%i   line:%3i   STP:%2i\n", threadIndex, __LINE__, SDL_AtomicGet(&stateThreadPunch));
 
 int stateThread(void *ti) {
-	int threadIndex = *(int*)ti;
-	
+	const int threadIndex = *(int*)ti;
 	while (true) {
-		_stub_
 		
 		//evaluate the bodies, results written to .hotState
 		for (int i = threadIndex; i <= csn; i += threadCount) {
-			nodeIndex n = frameforms[activeFrameform].stateNodes[i] + 1;
+			const nodeIndex n = frameforms[activeFrameform].stateNodes[i] + 1;
 			frameforms[activeFrameform].hotState[i] = 
 				output(n, maxNodeIndex, nullFnCallArgs);
 		}
 		
 		SDL_AtomicIncRef(&stateThreadPunch);
-		while (true) {
-			if (SDL_AtomicGet(&stateThreadPunch) >= threadCount)
-				break;
-			SDL_Delay(1);
+		while (SDL_AtomicGet(&stateThreadPunch) < threadCount) {
+			_stub_
+			_threadWait_
 		}
-		_stub_
 		
 		//copy the hotState to the stateNodes cache
 		for (int i = threadIndex; i <= csn; i += threadCount) {
-			nodeIndex n = frameforms[activeFrameform].stateNodes[i];
-			outType hs = frameforms[activeFrameform].hotState[i];
+			const nodeIndex n = frameforms[activeFrameform].stateNodes[i];
+			const outType  hs = frameforms[activeFrameform].hotState[i];
 			if (isAnArray(n)) {
 				size_t newDataSize = hs.B.dataSize;
 				nodes[n].cache.B.dimenX = hs.B.dimenX;
@@ -135,53 +145,44 @@ int stateThread(void *ti) {
 		}
 		
 		SDL_AtomicIncRef(&stateThreadPunch);
-		while (true) {
-			if (SDL_AtomicGet(&stateThreadPunch) >= threadCount*2)
-				break;
-			SDL_Delay(1);
+		while (SDL_AtomicGet(&stateThreadPunch) < threadCount*2) {
+			_stub_
+			_threadWait_
 		}
-		_stub_
 		
-		if (!threadIndex && !videoEnabled) {
-			for (int i = 0; i <= csn; i++) {
-				nodeIndex n = frameforms[activeFrameform].stateNodes[i];
-				printf("%d:\t%f\n", i, nodes[n].cache.n);
+		if (!threadIndex) {
+			if (videoEnabled) {
+				videoOut = output(videoRoot+1, maxNodeIndex, nullFnCallArgs);
 			}
-			puts("");
+			else {
+				// this is temporary
+				for (int i = 0; i <= csn; i++) {
+					nodeIndex n = frameforms[activeFrameform].stateNodes[i];
+					printf("%d:\t%f\n", i, nodes[n].cache.n);
+				}
+				puts("");
+			}
 		}
 		
-// 		if (!threadIndex)
-// 			frameWait(&frameTimeStamp);
-// 		
-// 		if (threadIndex == 1 || threadCount == 1)
-// 			renderVideoOut();
-// 		
-// 		if (threadIndex == 2 || threadCount == 1 || (threadCount == 2 && threadIndex == 1))
-// 			betweenFrames();
-		
-		_stub_
 		SDL_AtomicIncRef(&stateThreadPunch);
-		while (!threadIndex) {
-			if (SDL_AtomicGet(&stateThreadPunch) >= threadCount*3) {
-				renderVideoOut();
-				betweenFrames();
-				frameWait(&frameTimeStamp);
-				checkEvents();
-				curFrame++;
-				SDL_AtomicSet(&stateThreadPunch, 0);
-				break;
+		if (!threadIndex) {
+			_stub_
+			while (SDL_AtomicGet(&stateThreadPunch) < threadCount*3) {
+				_threadWait_
 			}
-			SDL_Delay(1);
+			betweenFrames();
+			SDL_AtomicSet(&stateThreadPunch, 0);
 		}
-		while (threadIndex) {
-			if (SDL_AtomicGet(&stateThreadPunch) == 0)
-				break;
-			SDL_Delay(1);
+		if (threadIndex) {
+			_stub_
+			while (SDL_AtomicGet(&stateThreadPunch) > threadCount) {
+				_threadWait_
+			}
 		}
-		_stub_
 		
-		if (!running)
+		if (!running) {
 			return 0;
+		}
 	}
 }
 
@@ -189,12 +190,12 @@ int stateThread(void *ti) {
 
 int main(int argc, char **argv) {
 	fileName = argv[1];
-	if (fileName == NULL) {
-		puts("usage: marblerun <file name>");
+	if (!fileName) {
+		puts("usage: marblerun hello.mrbl");
 		return 1;
 	}
 	fileStream = fopen(fileName, "r");
-	if (fileStream == NULL) {
+	if (!fileStream) {
 		printf("could not open: %s\n", fileName);
 		return 2;
 	}
@@ -219,6 +220,8 @@ int main(int argc, char **argv) {
 		running = true;
 		threadCount = SDL_GetCPUCount();
 		SDL_AtomicSet(&stateThreadPunch, 0);
+		SDL_AtomicSet(&videoPunch, 0);
+
 		printf("using %i threads\n", threadCount);
 
 		frameTimeStamp = getMicroseconds();
@@ -233,6 +236,17 @@ int main(int argc, char **argv) {
 				exit(1);
 			}
 		}
+		
+		if (videoEnabled) {
+			while (running) {
+				if (SDL_AtomicGet(&videoPunch)) {
+					renderVideoOut();
+					SDL_AtomicDecRef(&videoPunch);// from 1 to 0
+				}
+				_threadWait_
+			}
+		}
+		
 		for (int i = 0; i < threadCount; i++) {
 			SDL_WaitThread(threads[i], NULL);
 		}

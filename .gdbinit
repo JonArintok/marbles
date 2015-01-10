@@ -6,6 +6,7 @@ define test
 	run test/fibonacciX16.mrbl
 end
 
+break betweenFrames
 
 define snp
 	step
