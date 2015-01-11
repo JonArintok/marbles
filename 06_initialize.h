@@ -62,9 +62,6 @@ void initializeNodes(void) {
 
 
 
-SDL_Window   *window   = NULL;
-SDL_Renderer *renderer = NULL;
-SDL_Texture  *texture  = NULL;
 
 void initializeVideo() {
 	if (videoWidth < 1) {

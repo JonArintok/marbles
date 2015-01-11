@@ -277,11 +277,7 @@ outType eval_mapInN1D2(_evalargs_) {
 	if (rectY + rectH  >  toBeReturned.N.dimenY)
 		rectH = toBeReturned.N.dimenY - rectY;
 	
-	//filler arguments:
-	//	xPos
-	//	yPos
-	//	sourceWidth
-	//	sourceHeight
+	//filler arguments: x, y, width, height
 	outType fillerCallArgs[maxChildren];
 	fillerCallArgs[2].n = rectW;
 	fillerCallArgs[3].n = rectH;

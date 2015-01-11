@@ -158,7 +158,7 @@ void setLoadedNode(nodeIndex self, size_t newDataSize) {
 }
 
 
-void cleanUp(void) {
+void calledAtExit(void) {
 	
 	for (int lnPos = 0; lnPos <= curLoadedNode; lnPos++)
 		free( (void*) nodes[ loadedNodes[lnPos] ].cache.B.data );
@@ -180,5 +180,7 @@ void cleanUp(void) {
 	
 	free(nodesInfo);
 	free(nodes);
+	
+	puts("finished.");
 }
 
