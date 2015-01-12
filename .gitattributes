@@ -1,4 +1,5 @@
 # workaround for linguist incorrectly detecting Objective-C
-*.c  linguist-language=C
-*.h  linguist-language=C
-*.sh linguist-language=Shell
+*.c    linguist-language=C
+*.h    linguist-language=C
+*.sh   linguist-language=Shell
+*.mrbl linguist-language=Marbles

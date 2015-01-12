@@ -163,7 +163,6 @@ const stdNode node_mapN1D2 = {
 };
 
 
-
 outType eval_mapInB4D2(_evalargs_) {
 	nodeIndex arg0 = nodes[self].children[0];
 	nodeIndex arg1 = nodes[self].children[1];
@@ -173,52 +172,57 @@ outType eval_mapInB4D2(_evalargs_) {
 	outType source = output(arg2, fnCallSource, fnCallArgs);
 	
 	outType toBeReturned = source;
-	size_t newDataSize = toBeReturned.B.dataSize;
 	
 	if (isReadOnly(arg2)) {
-		setLoadedNode(self, newDataSize);
-		toBeReturned.B.data = nodes[self].cache.B.data;
-		memcpy(toBeReturned.B.data, source.B.data, newDataSize);
+		setLoadedNode(self, toBeReturned.N.dataSize);
+		toBeReturned.N.data = nodes[self].cache.N.data;
+		memcpy(toBeReturned.N.data, source.N.data, toBeReturned.N.dataSize);
 	}
 	
-	double rectX = rect.nt[0];
-	double rectY = rect.nt[1];
-	double rectW = rect.nt[2];
-	double rectH = rect.nt[3];
+	const number rectX  = rect.nt[0];
+	const number rectY  = rect.nt[1];
+	const number rectW  = rect.nt[2];
+	const number rectH  = rect.nt[3];
+	const number dimenX = toBeReturned.B.dimenX;
+	const number dimenY = toBeReturned.B.dimenY;
 	
-	//clip the rectangle to prevent out-of-bounds access
 	if (
-		rectW < 1 || 
-		rectX > toBeReturned.B.dimenX ||
-		rectY > toBeReturned.B.dimenY
+		rectX >= dimenX   ||
+		rectY >= dimenY   ||
+		rectX + rectW < 0 ||
+		rectY + rectH < 0 ||
+		rectW < 1         ||
+		rectH < 1
 	) {
 		return toBeReturned;
 	}
-	if (rectX < 0)
-		rectX = 0;
-	if (rectY < 0)
-		rectY = 0;
-	if (rectH < 1)
-		rectH = 1;
-	if (rectX + rectW  >  toBeReturned.B.dimenX)
-		rectW = toBeReturned.B.dimenX - rectX;
-	if (rectY + rectH  >  toBeReturned.B.dimenY)
-		rectH = toBeReturned.B.dimenY - rectY;
 	
 	//filler arguments: x, y, width, height
 	outType fillerCallArgs[maxChildren];
 	fillerCallArgs[2].n = rectW;
 	fillerCallArgs[3].n = rectH;
+	
 	int selfArity = 3;
 	int fillerArity = 4;
 	_exargsToFillerArgs_
+	
 	byte *dataToBeReturned = toBeReturned.B.data;
-	for (int yPos = rectY; yPos  <  rectY + rectH; yPos++) {
+	for (
+		int yPos = rectY; 
+		yPos < rectY+rectH  &&  yPos < dimenY; 
+		yPos++
+	) {
+		if (yPos < 0) continue;
 		fillerCallArgs[1].n = yPos - rectY;
-		for (int xPos = rectX; xPos  <  rectX + rectW; xPos++) {
+		for (
+			int xPos = rectX; 
+			xPos < rectX+rectW  &&  xPos < dimenX; 
+			xPos++
+		) {
+			if (xPos < 0) continue;
 			fillerCallArgs[0].n = xPos - rectX;
 			outType value = output(filler.f + 1, fnCallSource, fillerCallArgs);
-			int dataPos = (yPos * toBeReturned.B.dimenX + xPos) * 4;
+			int dataPos = (yPos * dimenX + xPos) * 4;
 			dataToBeReturned[dataPos  ] = value.bt[0];
 			dataToBeReturned[dataPos+1] = value.bt[1];
 			dataToBeReturned[dataPos+2] = value.bt[2];
@@ -245,49 +249,54 @@ outType eval_mapInN1D2(_evalargs_) {
 	outType source = output(arg2, fnCallSource, fnCallArgs);
 	
 	outType toBeReturned = source;
-	size_t newDataSize = toBeReturned.N.dataSize;
 	
 	if (isReadOnly(arg2)) {
-		setLoadedNode(self, newDataSize);
+		setLoadedNode(self, toBeReturned.N.dataSize);
 		toBeReturned.N.data = nodes[self].cache.N.data;
-		memcpy(toBeReturned.N.data, source.N.data, newDataSize);
+		memcpy(toBeReturned.N.data, source.N.data, toBeReturned.N.dataSize);
 	}
 	
-	double rectX = rect.nt[0];
-	double rectY = rect.nt[1];
-	double rectW = rect.nt[2];
-	double rectH = rect.nt[3];
+	const number rectX  = rect.nt[0];
+	const number rectY  = rect.nt[1];
+	const number rectW  = rect.nt[2];
+	const number rectH  = rect.nt[3];
+	const number dimenX = toBeReturned.B.dimenX;
+	const number dimenY = toBeReturned.B.dimenY;
 	
-	//clip the rectangle to prevent out-of-bounds access
 	if (
-		rectW < 1 || 
-		rectX > toBeReturned.N.dimenX ||
-		rectY > toBeReturned.N.dimenY
+		rectX >= dimenX   ||
+		rectY >= dimenY   ||
+		rectX + rectW < 0 ||
+		rectY + rectH < 0 ||
+		rectW < 1         ||
+		rectH < 1
 	) {
 		return toBeReturned;
 	}
-	if (rectX < 0)
-		rectX = 0;
-	if (rectY < 0)
-		rectY = 0;
-	if (rectH < 1)
-		rectH = 1;
-	if (rectX + rectW  >  toBeReturned.N.dimenX)
-		rectW = toBeReturned.N.dimenX - rectX;
-	if (rectY + rectH  >  toBeReturned.N.dimenY)
-		rectH = toBeReturned.N.dimenY - rectY;
 	
 	//filler arguments: x, y, width, height
 	outType fillerCallArgs[maxChildren];
 	fillerCallArgs[2].n = rectW;
 	fillerCallArgs[3].n = rectH;
+	
 	int selfArity = 3;
 	int fillerArity = 4;
 	_exargsToFillerArgs_
+	
 	number *dataToBeReturned = toBeReturned.N.data;
-	for (int yPos = rectY; yPos  <  rectY + rectH; yPos++) {
+	for (
+		int yPos = rectY; 
+		yPos < rectY+rectH  &&  yPos < dimenY; 
+		yPos++
+	) {
+		if (yPos < 0) continue;
 		fillerCallArgs[1].n = yPos - rectY;
-		for (int xPos = rectX; xPos  <  rectX + rectW; xPos++) {
+		for (
+			int xPos = rectX; 
+			xPos < rectX+rectW  &&  xPos < dimenX; 
+			xPos++
+		) {
+			if (xPos < 0) continue;
 			fillerCallArgs[0].n = xPos - rectX;
 			outType value = output(filler.f + 1, fnCallSource, fillerCallArgs);
 			int dataPos = (yPos * toBeReturned.N.dimenX) + xPos;
