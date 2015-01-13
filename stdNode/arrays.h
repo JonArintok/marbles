@@ -206,20 +206,21 @@ outType eval_mapInB4D2(_evalargs_) {
 	int fillerArity = 4;
 	_exargsToFillerArgs_
 	
+	const int limitX = rectX+rectW < dimenX  ?  rectX+rectW  :  dimenX;
+	const int limitY = rectY+rectH < dimenY  ?  rectY+rectH  :  dimenY;
+	
 	byte *dataToBeReturned = toBeReturned.B.data;
 	for (
-		int yPos = rectY; 
-		yPos < rectY+rectH  &&  yPos < dimenY; 
+		int yPos  =  rectY < 0  ?  0  :  rectY; 
+		yPos < limitY; 
 		yPos++
 	) {
-		if (yPos < 0) continue;
 		fillerCallArgs[1].n = yPos - rectY;
 		for (
-			int xPos = rectX; 
-			xPos < rectX+rectW  &&  xPos < dimenX; 
+			int xPos  =  rectX < 0  ?  0  :  rectX; 
+			xPos < limitX; 
 			xPos++
 		) {
-			if (xPos < 0) continue;
 			fillerCallArgs[0].n = xPos - rectX;
 			outType value = output(filler.f + 1, fnCallSource, fillerCallArgs);
 			int dataPos = (yPos * dimenX + xPos) * 4;
@@ -283,20 +284,21 @@ outType eval_mapInN1D2(_evalargs_) {
 	int fillerArity = 4;
 	_exargsToFillerArgs_
 	
+	const int limitX = rectX+rectW < dimenX  ?  rectX+rectW  :  dimenX;
+	const int limitY = rectY+rectH < dimenY  ?  rectY+rectH  :  dimenY;
+	
 	number *dataToBeReturned = toBeReturned.N.data;
 	for (
-		int yPos = rectY; 
-		yPos < rectY+rectH  &&  yPos < dimenY; 
+		int yPos = rectY < 0  ?  0  :  rectY; 
+		yPos < limitY; 
 		yPos++
 	) {
-		if (yPos < 0) continue;
 		fillerCallArgs[1].n = yPos - rectY;
 		for (
-			int xPos = rectX; 
-			xPos < rectX+rectW  &&  xPos < dimenX; 
+			int xPos = rectX < 0  ?  0  :  rectX; 
+			xPos < limitX; 
 			xPos++
 		) {
-			if (xPos < 0) continue;
 			fillerCallArgs[0].n = xPos - rectX;
 			outType value = output(filler.f + 1, fnCallSource, fillerCallArgs);
 			int dataPos = (yPos * toBeReturned.N.dimenX) + xPos;
