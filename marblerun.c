@@ -100,6 +100,7 @@ int main(int argc, char **argv) {
 			}
 			_threadWait_
 		}
+		SDL_AtomicSet(&videoPunch, 0);// other threads aren't waiting
 		SDL_DestroyTexture(texture);
 		SDL_DestroyRenderer(renderer);
 		SDL_DestroyWindow(window);

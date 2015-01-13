@@ -87,7 +87,7 @@ state sqPosX N1
 	?
 		currentFrame
 		positioner sqVelX sqPosX videoWidth
-		20
+		200
 state sqPosY N1
 	?
 		currentFrame
@@ -103,11 +103,20 @@ state sqVelY N1
 	?
 		currentFrame
 		bouncer sqVelY sqPosY videoHeight
-		1
+		2
 
 videoOut
 	mapInB4D2
 		redFiller
 		N4 sqPosX sqPosY squareEdge squareEdge
 		wallpaper
+
+next
+	? (<= currentFrame lastFrame) enter exit
+
+@.
+
+
+var lastFrame N1
+	700
 

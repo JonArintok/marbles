@@ -91,3 +91,13 @@ videoOut
 			videoWidth
 			videoHeight
 
+next
+	? (<= currentFrame lastFrame) enter exit
+
+@.
+
+
+var lastFrame N1
+	700
+
+

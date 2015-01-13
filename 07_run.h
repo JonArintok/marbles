@@ -13,7 +13,6 @@ SDL_atomic_t videoPunch;
 
 #define _threadWait_ microSleep(threadCount*10);
 
-
 void betweenFrames(void) {
 	if (nextRoot <= curNode) {
 		outType nextRootOut = output(nextRoot+1, maxNodeIndex, nullFnCallArgs);
@@ -59,8 +58,8 @@ int stateThread(void *ti) {
 		}
 		
 		SDL_AtomicIncRef(&stateThreadPunch);
+		_stub_
 		while (SDL_AtomicGet(&stateThreadPunch) < threadCount) {
-			_stub_
 			_threadWait_
 		}
 		
@@ -82,15 +81,15 @@ int stateThread(void *ti) {
 		}
 		
 		SDL_AtomicIncRef(&stateThreadPunch);
+		_stub_
 		while (SDL_AtomicGet(&stateThreadPunch) < threadCount*2) {
-			_stub_
 			_threadWait_
 		}
 		
 		if (!threadIndex) {
 			if (videoEnabled) {
 				videoOut = output(videoRoot+1, maxNodeIndex, nullFnCallArgs);
-			}
+			}/*
 			else {
 				// this is temporary
 				for (int i = 0; i <= csn; i++) {
@@ -98,7 +97,7 @@ int stateThread(void *ti) {
 					printf("%d:\t%f\n", i, nodes[n].cache.n);
 				}
 				puts("");
-			}
+			}*/
 		}
 		
 		SDL_AtomicIncRef(&stateThreadPunch);
@@ -118,6 +117,7 @@ int stateThread(void *ti) {
 		}
 		
 		if (!running) {
+			_stub_
 			return 0;
 		}
 	}
