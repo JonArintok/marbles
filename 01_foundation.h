@@ -31,7 +31,6 @@ typedef union {
 	byte        bt[8];
 	byteArray   B;
 	nodeIndex   f;
-	nodeIndex   exargs[8];//held by fnCallWExargs
 } outType;
 #define _evalargs_  nodeIndex self, outType *fnCallArgs
 typedef outType (*evaluator) (_evalargs_);

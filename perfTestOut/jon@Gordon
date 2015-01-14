@@ -1,0 +1,108 @@
+Linux version 3.16.0-28-lowlatency (buildd@komainu) (gcc version 4.9.1 (Ubuntu 4.9.1-16ubuntu6) ) #38-Ubuntu SMP PREEMPT Fri Dec 12 18:06:05 UTC 2014
+Architecture:          x86_64
+CPU op-mode(s):        32-bit, 64-bit
+Byte Order:            Little Endian
+CPU(s):                4
+On-line CPU(s) list:   0-3
+Thread(s) per core:    2
+Core(s) per socket:    2
+Socket(s):             1
+NUMA node(s):          1
+Vendor ID:             AuthenticAMD
+CPU family:            21
+Model:                 48
+Model name:            AMD A10-7850K Radeon R7, 12 Compute Cores 4C+8G
+Stepping:              1
+CPU MHz:               1700.000
+CPU max MHz:           3700.0000
+CPU min MHz:           1700.0000
+BogoMIPS:              7386.95
+Virtualization:        AMD-V
+L1d cache:             16K
+L1i cache:             96K
+L2 cache:              2048K
+NUMA node0 CPU(s):     0-3
+
+
+
+
+cgol.mrbl
+reading...
+initializing...
+running...
+using 4 threads
+exiting...
+finished.
+
+ Performance counter stats for './marblerun test/cgol.mrbl':
+
+       8937.284950      task-clock (msec)         #    1.159 CPUs utilized          
+           308,262      context-switches          #    0.034 M/sec                  
+             4,287      cpu-migrations            #    0.480 K/sec                  
+             9,786      page-faults               #    0.001 M/sec                  
+    23,588,717,142      cycles                    #    2.639 GHz                     [83.27%]
+     2,352,338,584      stalled-cycles-frontend   #    9.97% frontend cycles idle    [83.52%]
+     8,484,226,695      stalled-cycles-backend    #   35.97% backend  cycles idle    [33.22%]
+    33,329,053,905      instructions              #    1.41  insns per cycle        
+                                                  #    0.25  stalled cycles per insn [49.66%]
+     3,654,234,577      branches                  #  408.875 M/sec                   [66.00%]
+        38,189,019      branch-misses             #    1.05% of all branches         [83.11%]
+
+       7.708536238 seconds time elapsed
+
+
+
+
+
+bouncingColors.mrbl
+reading...
+initializing...
+running...
+using 4 threads
+exiting...
+finished.
+
+ Performance counter stats for './marblerun test/bouncingColors.mrbl':
+
+       8856.600386      task-clock (msec)         #    0.742 CPUs utilized          
+           481,384      context-switches          #    0.054 M/sec                  
+             5,740      cpu-migrations            #    0.648 K/sec                  
+            10,504      page-faults               #    0.001 M/sec                  
+    13,864,769,777      cycles                    #    1.565 GHz                     [82.96%]
+     3,556,687,962      stalled-cycles-frontend   #   25.65% frontend cycles idle    [83.03%]
+     2,310,530,195      stalled-cycles-backend    #   16.66% backend  cycles idle    [34.01%]
+    17,481,779,542      instructions              #    1.26  insns per cycle        
+                                                  #    0.20  stalled cycles per insn [50.45%]
+     2,402,233,168      branches                  #  271.236 M/sec                   [67.64%]
+        20,756,595      branch-misses             #    0.86% of all branches         [84.90%]
+
+      11.928156658 seconds time elapsed
+
+
+
+
+
+fibonacciX16.mrbl
+reading...
+initializing...
+running...
+using 4 threads
+exiting...
+finished.
+
+ Performance counter stats for './marblerun test/fibonacciX16.mrbl':
+
+      26872.527754      task-clock (msec)         #    3.825 CPUs utilized          
+            37,703      context-switches          #    0.001 M/sec                  
+                33      cpu-migrations            #    0.001 K/sec                  
+               333      page-faults               #    0.012 K/sec                  
+   101,728,691,435      cycles                    #    3.786 GHz                     [83.34%]
+     3,490,075,744      stalled-cycles-frontend   #    3.43% frontend cycles idle    [83.34%]
+    35,711,760,310      stalled-cycles-backend    #   35.10% backend  cycles idle    [33.32%]
+   166,721,680,975      instructions              #    1.64  insns per cycle        
+                                                  #    0.21  stalled cycles per insn [50.00%]
+    17,758,140,995      branches                  #  660.829 M/sec                   [66.67%]
+       284,675,859      branch-misses             #    1.60% of all branches         [83.33%]
+
+       7.025564362 seconds time elapsed
+

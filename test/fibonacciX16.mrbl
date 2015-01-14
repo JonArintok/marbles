@@ -49,7 +49,7 @@ state fib15 N1
 	fibonacci fibit
 
 next
-	? (<= currentFrame lastFrame) enter exit
+	? (< currentFrame lastFrame) enter exit
 
 @.
 

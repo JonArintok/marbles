@@ -112,7 +112,7 @@ videoOut
 		wallpaper
 
 next
-	? (<= currentFrame lastFrame) enter exit
+	? (< currentFrame lastFrame) enter exit
 
 @.
 
