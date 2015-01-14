@@ -311,25 +311,17 @@ void initNodes(void) {
 			}
 		}
 		nodesInfo[curNode].arity = paramCount;
-		if (paramCount) {
-			//replace that \0 with a \n and read the parameters into the name
-			for (int i = 0; i < paramCount; i++) {
-				nodesInfo[curNode].name[namePos] = '\n';
-				getLine();
-				int bufPos = 0;//would be -1 if we weren't ignoring the tabs
-				while (lineBuf[bufPos]) {
-					inc_namePos();
-					bufPos++;
-					nodesInfo[curNode].name[namePos] = lineBuf[bufPos];
-				}
+		nodes[curNode].evaluate = paramCount ? eval_fnDef : eval_fnDefNullary;
+		//else replace that \0 with a \n and read the parameters into the name
+		for (int i = 0; i < paramCount; i++) {
+			nodesInfo[curNode].name[namePos] = '\n';
+			getLine();
+			int bufPos = 0;//would be -1 if we weren't ignoring the tabs
+			while (lineBuf[bufPos]) {
+				inc_namePos();
+				bufPos++;
+				nodesInfo[curNode].name[namePos] = lineBuf[bufPos];
 			}
-			if (strstr(nodesInfo[curNode].name, " ..."))
-				nodes[curNode].evaluate = eval_fnDefWExargs;
-			else
-				nodes[curNode].evaluate = eval_fnDef;
-		}
-		else {
-			nodes[curNode].evaluate = eval_fnDefNullary;
 		}
 	}
 	else if (matchStrWDelim(decTag_var, '\0', lineBuf, ' '))
@@ -363,8 +355,7 @@ void initNodes(void) {
 	else if (
 		nodes[curNode].evaluate == eval_varDef ||
 		nodes[curNode].evaluate == eval_fnDef  ||
-		nodes[curNode].evaluate == eval_fnDefNullary ||
-		nodes[curNode].evaluate == eval_fnDefWExargs
+		nodes[curNode].evaluate == eval_fnDefNullary
 	) {
 		if (inFrameform) {
 			inc_curRootNode();
@@ -377,8 +368,7 @@ void initNodes(void) {
 			gRootNodes[gCurRootNode] = curNode;
 		}
 	}
-	else
-		_shouldNotBeHere_
+	else _shouldNotBeHere_
 
 	//initialize the nodes in the body of the defNode
 	getBody();
@@ -511,14 +501,6 @@ void attachFnOrVarCall(nodeIndex def, nodeIndex call) {
 			nodes[call].evaluate = eval_fnCall;
 		}
 	}
-	else if (nodes[def].evaluate == eval_fnDefWExargs) {
-		nodes[call].evaluate = eval_fnCallWExargs;
-		int arity = nodesInfo[nodes[call].def].arity;
-		int exargCount = nodes[call].childCount - arity;
-		for (int i = 0; i < exargCount; i++) {
-			nodes[call].cache.exargs[i] = nodes[call].children[arity+i];
-		}
-	}
 	else if (nodes[def].evaluate == eval_fnDefNullary)
 		nodes[call].evaluate = eval_fnCallNullary;
 	else if (nodes[def].evaluate == eval_varDef) {
@@ -558,10 +540,7 @@ void resolveNode(nodeIndex nodePos) {
 	//check for argCall
 	for (int backNode = nodePos;; backNode--) {
 		if (nodesInfo[backNode].level == 0) {
-			if (
-				nodes[backNode].evaluate == eval_fnDef ||
-				nodes[backNode].evaluate == eval_fnDefWExargs
-			) {
+			if (nodes[backNode].evaluate == eval_fnDef) {
 				int   bnNamePos  = 1;
 				int   paramPos   = 0;
 				char *bnNodeName = nodesInfo[backNode].name;
@@ -585,8 +564,6 @@ void resolveNode(nodeIndex nodePos) {
 							) {
 								if (nodes[backNode].evaluate == eval_fnDef)
 									nodes[nodePos].evaluate = eval_fnArgCall;
-								else if (nodes[backNode].evaluate == eval_fnDefWExargs)
-									nodes[nodePos].evaluate = eval_fnArgCallWExargs;
 								else _shouldNotBeHere_
 								break;
 							}
@@ -810,15 +787,8 @@ char *getParentsInType(nodeIndex nodePos) {
 						break;
 					}
 				}
-				if (nodesInfo[parentsPos].name[i] == '\0') {
-					if (
-						nodes[parentsPos].evaluate == eval_fnCallWExargs || 
-						strstr(nodesInfo[parentsPos].name, " ...")
-					) {
-						return "...";
-					}
+				else if (!nodesInfo[parentsPos].name[i])
 					return NULL;
-				}
 			}
 			//find parentsInType in the line pointed to by argLine
 			parentsInType = WordAfterNthSpace(argLine, 1);
@@ -888,7 +858,6 @@ bool typesMatch(
 	//they don't match
 	if (
 		nodes[nodePos].evaluate != eval_fnArgCall && 
-		nodes[nodePos].evaluate != eval_fnArgCallWExargs && 
 		(strchr(iTypeWhole, '&') || strchr(oTypeWhole, '&'))
 	) {
 		//print whole type
@@ -913,10 +882,6 @@ bool typesMatch(
 	return false;
 }
 
-void checkExargType(nodeIndex nodePos) {
-	printf("checkExargType: %i\n", nodePos);
-}
-
 
 void checkType(nodeIndex nodePos) {
 	if (!nodesInfo[nodePos].level)
@@ -936,11 +901,6 @@ void checkType(nodeIndex nodePos) {
 	if (!strncmp(parentsInType, "any", 3))
 		return;
 	
-	//getParentsInType returns "..." when exargs are detected
-	if (!strcmp(parentsInType, "...")) {
-		checkExargType(nodePos);
-		return;
-	}
 	
 	//nodeOutType points to the first character of
 	//the type string output by nodePos
@@ -950,10 +910,7 @@ void checkType(nodeIndex nodePos) {
 	if (!strncmp(nodeOutType, "match", 5))
 		return;
 	
-	if (
-		nodes[nodePos].evaluate == eval_fnArgCall || 
-		nodes[nodePos].evaluate == eval_fnArgCallWExargs
-	) {
+	if (nodes[nodePos].evaluate == eval_fnArgCall) {
 		//just the beginning
 		if (!typesMatch(parentsInType, parentsInType, nodeOutType, nodeOutType, nodePos))
 			return;
@@ -976,8 +933,6 @@ void checkType(nodeIndex nodePos) {
 				argPos++;
 				innerParentsInType = &parentsInType[i];
 				innerNodeOutType   = &nodeOutType[i];
-				if (matchStrWDelim(innerParentsInType, '\n', "...", '\0'))
-					return; //type checking for exargs happens elsewhere
 				if (!typesMatch(innerParentsInType, parentsInType, innerNodeOutType, nodeOutType, nodePos))
 					return;
 			}

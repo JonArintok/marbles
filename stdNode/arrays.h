@@ -3,8 +3,8 @@
 outType eval_buildB4D2(_evalargs_) {
 	nodeIndex arg0 = nodes[self].children[0];
 	nodeIndex arg1 = nodes[self].children[1];
-	outType widthSource  = output(arg0, fnCallSource, fnCallArgs);
-	outType heightSource = output(arg1, fnCallSource, fnCallArgs);
+	outType widthSource  = output(arg0, fnCallArgs);
+	outType heightSource = output(arg1, fnCallArgs);
 	size_t newDataSize = sizeof(byte) * 4 * widthSource.n * heightSource.n;
 	
 	setLoadedNode(self, newDataSize);
@@ -23,8 +23,8 @@ const stdNode node_buildB4D2 = {
 outType eval_buildN1D2(_evalargs_) {
 	nodeIndex arg0 = nodes[self].children[0];
 	nodeIndex arg1 = nodes[self].children[1];
-	outType widthSource  = output(arg0, fnCallSource, fnCallArgs);
-	outType heightSource = output(arg1, fnCallSource, fnCallArgs);
+	outType widthSource  = output(arg0, fnCallArgs);
+	outType heightSource = output(arg1, fnCallArgs);
 	size_t newDataSize = sizeof(number) * widthSource.n * heightSource.n;
 	
 	setLoadedNode(self, newDataSize);
@@ -44,8 +44,8 @@ const stdNode node_buildN1D2 = {
 outType eval_fillB4D2(_evalargs_) {
 	nodeIndex arg0 = nodes[self].children[0];
 	nodeIndex arg1 = nodes[self].children[1];
-	outType value  = output(arg0, fnCallSource, fnCallArgs);
-	outType source = output(arg1, fnCallSource, fnCallArgs);
+	outType value  = output(arg0, fnCallArgs);
+	outType source = output(arg1, fnCallArgs);
 	
 	outType toBeReturned = source;
 	size_t newDataSize = toBeReturned.B.dataSize;
@@ -72,17 +72,11 @@ const stdNode node_fillB4D2 = {
 };
 
 
-#define _exargsToFillerArgs_ \
-	for (int i = 0; i + selfArity < nodes[self].childCount; i++) {\
-		nodeIndex arg = nodes[self].children[selfArity+i];\
-		fillerCallArgs[fillerArity+i] = output(arg, fnCallSource, fnCallArgs);\
-	}
-
 outType eval_mapB4D2(_evalargs_) {
 	nodeIndex arg0 = nodes[self].children[0];
 	nodeIndex arg1 = nodes[self].children[1];
-	outType filler = output(arg0, fnCallSource, fnCallArgs);
-	outType source = output(arg1, fnCallSource, fnCallArgs);
+	outType filler = output(arg0, fnCallArgs);
+	outType source = output(arg1, fnCallArgs);
 	
 	outType toBeReturned = source;
 	size_t newDataSize = toBeReturned.B.dataSize;
@@ -96,15 +90,12 @@ outType eval_mapB4D2(_evalargs_) {
 	outType fillerCallArgs[maxChildren];
 	fillerCallArgs[2].n = toBeReturned.B.dimenX;
 	fillerCallArgs[3].n = toBeReturned.B.dimenY;
-	int selfArity = 2;
-	int fillerArity = 4;//from type declared in name
-	_exargsToFillerArgs_
 	byte *dataToBeReturned = toBeReturned.B.data;
 	for (int yPos = 0; yPos < toBeReturned.B.dimenY; yPos++) {
 		fillerCallArgs[1].n = yPos;
 		for (int xPos = 0; xPos < toBeReturned.B.dimenX; xPos++) {
 			fillerCallArgs[0].n = xPos;
-			outType value = output(filler.f + 1, fnCallSource, fillerCallArgs);
+			outType value = output(filler.f + 1, fillerCallArgs);
 			int dataPos = (yPos * toBeReturned.B.dimenX + xPos) * 4;
 			dataToBeReturned[dataPos  ] = value.bt[0];
 			dataToBeReturned[dataPos+1] = value.bt[1];
@@ -125,8 +116,8 @@ const stdNode node_mapB4D2 = {
 outType eval_mapN1D2(_evalargs_) {
 	nodeIndex arg0 = nodes[self].children[0];
 	nodeIndex arg1 = nodes[self].children[1];
-	outType filler = output(arg0, fnCallSource, fnCallArgs);
-	outType source = output(arg1, fnCallSource, fnCallArgs);
+	outType filler = output(arg0, fnCallArgs);
+	outType source = output(arg1, fnCallArgs);
 	
 	outType toBeReturned = source;
 	size_t newDataSize = toBeReturned.N.dataSize;
@@ -140,15 +131,12 @@ outType eval_mapN1D2(_evalargs_) {
 	outType fillerCallArgs[maxChildren];
 	fillerCallArgs[2].n = toBeReturned.N.dimenX;
 	fillerCallArgs[3].n = toBeReturned.N.dimenY;
-	int selfArity = 2;
-	int fillerArity = 4;
-	_exargsToFillerArgs_
 	number *dataToBeReturned = toBeReturned.N.data;
 	for (int yPos = 0; yPos < toBeReturned.N.dimenY; yPos++) {
 		fillerCallArgs[1].n = yPos;
 		for (int xPos = 0; xPos < toBeReturned.N.dimenX; xPos++) {
 			fillerCallArgs[0].n = xPos;
-			outType value = output(filler.f + 1, fnCallSource, fillerCallArgs);
+			outType value = output(filler.f + 1, fillerCallArgs);
 			int dataPos = (yPos * toBeReturned.N.dimenX) + xPos;
 			dataToBeReturned[dataPos] = value.n;
 		}
@@ -167,9 +155,9 @@ outType eval_mapInB4D2(_evalargs_) {
 	nodeIndex arg0 = nodes[self].children[0];
 	nodeIndex arg1 = nodes[self].children[1];
 	nodeIndex arg2 = nodes[self].children[2];
-	outType filler = output(arg0, fnCallSource, fnCallArgs);
-	outType rect   = output(arg1, fnCallSource, fnCallArgs);
-	outType source = output(arg2, fnCallSource, fnCallArgs);
+	outType filler = output(arg0, fnCallArgs);
+	outType rect   = output(arg1, fnCallArgs);
+	outType source = output(arg2, fnCallArgs);
 	
 	outType toBeReturned = source;
 	
@@ -202,10 +190,6 @@ outType eval_mapInB4D2(_evalargs_) {
 	fillerCallArgs[2].n = rectW;
 	fillerCallArgs[3].n = rectH;
 	
-	int selfArity = 3;
-	int fillerArity = 4;
-	_exargsToFillerArgs_
-	
 	const int limitX = rectX+rectW < dimenX  ?  rectX+rectW  :  dimenX;
 	const int limitY = rectY+rectH < dimenY  ?  rectY+rectH  :  dimenY;
 	
@@ -222,7 +206,7 @@ outType eval_mapInB4D2(_evalargs_) {
 			xPos++
 		) {
 			fillerCallArgs[0].n = xPos - rectX;
-			outType value = output(filler.f + 1, fnCallSource, fillerCallArgs);
+			outType value = output(filler.f + 1, fillerCallArgs);
 			int dataPos = (yPos * dimenX + xPos) * 4;
 			dataToBeReturned[dataPos  ] = value.bt[0];
 			dataToBeReturned[dataPos+1] = value.bt[1];
@@ -245,9 +229,9 @@ outType eval_mapInN1D2(_evalargs_) {
 	nodeIndex arg0 = nodes[self].children[0];
 	nodeIndex arg1 = nodes[self].children[1];
 	nodeIndex arg2 = nodes[self].children[2];
-	outType filler = output(arg0, fnCallSource, fnCallArgs);
-	outType rect   = output(arg1, fnCallSource, fnCallArgs);
-	outType source = output(arg2, fnCallSource, fnCallArgs);
+	outType filler = output(arg0, fnCallArgs);
+	outType rect   = output(arg1, fnCallArgs);
+	outType source = output(arg2, fnCallArgs);
 	
 	outType toBeReturned = source;
 	
@@ -280,10 +264,6 @@ outType eval_mapInN1D2(_evalargs_) {
 	fillerCallArgs[2].n = rectW;
 	fillerCallArgs[3].n = rectH;
 	
-	int selfArity = 3;
-	int fillerArity = 4;
-	_exargsToFillerArgs_
-	
 	const int limitX = rectX+rectW < dimenX  ?  rectX+rectW  :  dimenX;
 	const int limitY = rectY+rectH < dimenY  ?  rectY+rectH  :  dimenY;
 	
@@ -300,7 +280,7 @@ outType eval_mapInN1D2(_evalargs_) {
 			xPos++
 		) {
 			fillerCallArgs[0].n = xPos - rectX;
-			outType value = output(filler.f + 1, fnCallSource, fillerCallArgs);
+			outType value = output(filler.f + 1, fillerCallArgs);
 			int dataPos = (yPos * toBeReturned.N.dimenX) + xPos;
 			dataToBeReturned[dataPos] = value.n;
 		}
@@ -317,7 +297,7 @@ const stdNode node_mapInN1D2 = {
 
 outType eval_randomBoolFillN1D2(_evalargs_) {
 	nodeIndex arg0 = nodes[self].children[0];
-	outType source = output(arg0, fnCallSource, fnCallArgs);
+	outType source = output(arg0, fnCallArgs);
 	
 	outType toBeReturned = source;
 	size_t newDataSize = toBeReturned.N.dataSize;
@@ -346,9 +326,9 @@ outType eval_fromN1D2(_evalargs_) {
 	nodeIndex arg0 = nodes[self].children[0];
 	nodeIndex arg1 = nodes[self].children[1];
 	nodeIndex arg2 = nodes[self].children[2];
-	outType x      = output(arg0, fnCallSource, fnCallArgs);
-	outType y      = output(arg1, fnCallSource, fnCallArgs);
-	outType source = output(arg2, fnCallSource, fnCallArgs);
+	outType x      = output(arg0, fnCallArgs);
+	outType y      = output(arg1, fnCallArgs);
+	outType source = output(arg2, fnCallArgs);
 	outType toBeReturned;
 	if      (x.n >= source.N.dimenX  ||  x.n < 0)
 		toBeReturned.n = 0;
@@ -370,7 +350,7 @@ const stdNode node_fromN1D2 = {
 
 outType eval_widthOf(_evalargs_) {
 	nodeIndex arg = nodes[self].children[0];
-	outType argOut = output(arg, fnCallSource, fnCallArgs);
+	outType argOut = output(arg, fnCallArgs);
 	outType toBeReturned;
 	toBeReturned.n = argOut.B.dimenX;
 	return toBeReturned;
@@ -383,7 +363,7 @@ const stdNode node_widthOf = {
 
 outType eval_heightOf(_evalargs_) {
 	nodeIndex arg = nodes[self].children[0];
-	outType argOut = output(arg, fnCallSource, fnCallArgs);
+	outType argOut = output(arg, fnCallArgs);
 	outType toBeReturned;
 	toBeReturned.n = argOut.B.dimenY;
 	return toBeReturned;

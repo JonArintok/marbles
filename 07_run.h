@@ -15,7 +15,7 @@ SDL_atomic_t videoPunch;
 
 void betweenFrames(void) {
 	if (nextRoot <= curNode) {
-		outType nextRootOut = output(nextRoot+1, maxNodeIndex, nullFnCallArgs);
+		outType nextRootOut = output(nextRoot+1, nullFnCallArgs);
 		activeFrameform = nextRootOut.n;
 		if (activeFrameform > curFrameform) {
 			running = false;
@@ -54,7 +54,7 @@ int stateThread(void *ti) {
 		for (int i = threadIndex; i <= csn; i += threadCount) {
 			const nodeIndex n = frameforms[activeFrameform].stateNodes[i] + 1;
 			frameforms[activeFrameform].hotState[i] = 
-				output(n, maxNodeIndex, nullFnCallArgs);
+				output(n, nullFnCallArgs);
 		}
 		
 		SDL_AtomicIncRef(&stateThreadPunch);
@@ -88,7 +88,7 @@ int stateThread(void *ti) {
 		
 		if (!threadIndex) {
 			if (videoEnabled) {
-				videoOut = output(videoRoot+1, maxNodeIndex, nullFnCallArgs);
+				videoOut = output(videoRoot+1, nullFnCallArgs);
 			}/*
 			else {
 				// this is temporary

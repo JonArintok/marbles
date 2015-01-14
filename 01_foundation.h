@@ -25,7 +25,7 @@ typedef struct {
 
 typedef union {
 	number      n;
-	number      nt[4];
+	number      nt[8];
 	numArray    N;
 	byte        b;
 	byte        bt[8];
@@ -33,7 +33,7 @@ typedef union {
 	nodeIndex   f;
 	nodeIndex   exargs[8];//held by fnCallWExargs
 } outType;
-#define _evalargs_  nodeIndex self, nodeIndex fnCallSource, outType *fnCallArgs
+#define _evalargs_  nodeIndex self, outType *fnCallArgs
 typedef outType (*evaluator) (_evalargs_);
 typedef struct {
 	nodeIndex  children[maxChildren];
@@ -114,8 +114,8 @@ char *windowWidthName  = "windowWidth N1";
 char *windowHeightName = "windowHeight N1";
 
 
-#define output(self, fnCallSource, fnCallArgs)\
-	nodes[self].evaluate(self, fnCallSource, fnCallArgs);
+#define output(self, fnCallArgs)\
+	nodes[self].evaluate(self, fnCallArgs);
 
 
 outType eval_varDef(_evalargs_) {
@@ -126,33 +126,25 @@ outType eval_varCall(_evalargs_) {
 }
 
 outType eval_fnDef(_evalargs_) {
-	return output(self+1, fnCallSource, fnCallArgs);
+	return output(self+1, fnCallArgs);
 }
 outType eval_fnDefWExargs(_evalargs_) {
-	return output(self+1, fnCallSource, fnCallArgs);
+	return output(self+1, fnCallArgs);
 }
 outType eval_fnDefNullary(_evalargs_) {
-	return output(self+1, fnCallSource, fnCallArgs);
+	return output(self+1, fnCallArgs);
 }
 
 outType eval_fnCall(_evalargs_) {
 	outType newFnCallArgs[maxChildren];
 	for (int i = 0; i < nodes[self].childCount; i++) {
 		nodeIndex arg = nodes[self].children[i];
-		newFnCallArgs[i] = nodes[arg].evaluate(arg, fnCallSource, fnCallArgs);
+		newFnCallArgs[i] = nodes[arg].evaluate(arg, fnCallArgs);
 	}
-	return output(nodes[self].def + 1, self, newFnCallArgs);
-}
-outType eval_fnCallWExargs(_evalargs_) {
-	outType newFnCallArgs[maxChildren];
-	for (int i = 0; i < nodes[self].childCount; i++) {
-		nodeIndex arg = nodes[self].children[i];
-		newFnCallArgs[i] = nodes[arg].evaluate(arg, fnCallSource, fnCallArgs);
-	}
-	return output(nodes[self].def + 1, self, newFnCallArgs);
+	return output(nodes[self].def + 1, newFnCallArgs);
 }
 outType eval_fnCallNullary(_evalargs_) {
-	return output(nodes[self].def + 1, self, fnCallArgs);
+	return output(nodes[self].def + 1, fnCallArgs);
 }
 
 
@@ -164,52 +156,19 @@ outType eval_fnArgCall(_evalargs_) {
 	
 	//std fn
 	if (nodePassed > curNode)
-		return stdNodeTable[nodePassed-curNode-1]->evaluate(self, fnCallSource, fnCallArgs);
+		return stdNodeTable[nodePassed-curNode-1]->evaluate(self, fnCallArgs);
 	
 	//user-defined fn
 	outType newFnCallArgs[maxChildren];
 	for (int i = 0; i < nodes[self].childCount; i++) {
 		nodeIndex arg = nodes[self].children[i];
-		newFnCallArgs[i] = nodes[arg].evaluate(arg, fnCallSource, fnCallArgs);
+		newFnCallArgs[i] = nodes[arg].evaluate(arg, fnCallArgs);
 	}
-	return output(nodePassed+1, fnCallSource, newFnCallArgs);
+	return output(nodePassed+1, newFnCallArgs);
 }
 outType eval_fnPass(_evalargs_) {
 	return nodes[self].cache;
 }
-
-outType eval_fnArgCallWExargs(_evalargs_) {
-	nodeIndex nodePassed = fnCallArgs[ nodes[self].argRefIndex ].f;
-	
-	//std fn
-	if (nodePassed > curNode) {
-		outType toBeReturned;
-		nodeIndex stdNodeIndex = nodePassed - curNode - 1;
-		nodeIndex origChildren[maxChildren];
-		memcpy(origChildren, nodes[self].children, sizeof(nodeIndex[maxChildren]));
-		int curChild = nodes[self].childCount;
-		for (int curExarg = 0; nodes[fnCallSource].cache.exargs[curExarg]; curExarg++)
-			nodes[self].children[curChild+curExarg] = nodes[fnCallSource].cache.exargs[curExarg];
-		toBeReturned = stdNodeTable[stdNodeIndex]->evaluate(self, fnCallSource, fnCallArgs);
-		memcpy(nodes[self].children, origChildren, sizeof(nodeIndex[maxChildren]));
-		return toBeReturned;
-	}
-	
-	//user-defined fn
-	outType newFnCallArgs[maxChildren];
-	int curArg = 0;
-	for (; curArg < nodes[self].childCount; curArg++) {
-		nodeIndex arg = nodes[self].children[curArg];
-		newFnCallArgs[curArg] = output(arg, fnCallSource, fnCallArgs);
-	}
-	for (int curExarg = 0; nodes[fnCallSource].cache.exargs[curExarg]; curExarg++) {
-		nodeIndex arg = nodes[fnCallSource].cache.exargs[curExarg];
-		newFnCallArgs[curArg+curExarg] = output(arg, fnCallSource, fnCallArgs);
-	}
-	return output(nodePassed+1, fnCallSource, newFnCallArgs);
-}
-
-
 
 outType eval_stateDef(_evalargs_) {
 	return nodes[self].cache;
