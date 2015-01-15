@@ -1,0 +1,62 @@
+
+videoWidth
+	512
+videoHeight
+	512
+
+
+fn sinePixels N1
+	xPos N1
+	yPos N1
+	width N1
+	height N1
+	abs
+		-
+			* -2.2 (- (/ yPos height) 0.5)
+			sin (/ xPos width)
+
+fn hardFiller B4
+	xPos N1
+	yPos N1
+	width N1
+	height N1
+	B4from01
+		?
+			<
+				sinePixels xPos yPos width height
+				0.02 |increase to make line thicker
+			1
+			0
+		0
+		0
+		1
+
+fn softFiller B4
+	xPos N1
+	yPos N1
+	width N1
+	height N1
+	B4from01
+		-
+			1
+			*
+				30 |increase to make line thinner
+				sinePixels xPos yPos width height
+		0
+		0
+		1
+
+
+@enter
+
+videoOut
+	mapInB4D2
+		softFiller
+		N4 0 (/ videoHeight 2) videoWidth (/ videoHeight 2)
+		mapInB4D2
+			hardFiller
+			N4 0 0 videoWidth (/ videoHeight 2)
+			buildB4D2 videoWidth videoHeight
+
+
+

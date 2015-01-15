@@ -1,12 +1,11 @@
 
 
 define test
-	echo running test/fibonacciX16.mrbl...
+	echo running test/recarray.mrbl...
 	echo \n
-	run test/fibonacciX16.mrbl
+	run test/recarray.mrbl
 end
 
-break betweenFrames
 
 define snp
 	step

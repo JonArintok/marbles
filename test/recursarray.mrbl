@@ -1,0 +1,51 @@
+
+videoWidth
+	512
+videoHeight
+	512
+
+
+fn filler B4
+	xPos N1
+	yPos N1
+	sourceWidth  N1
+	sourceHeight N1
+	B4from01
+		/
+			/ (+ xPos        yPos        ) 2
+			/ (+ sourceWidth sourceHeight) 2
+		/ xPos sourceWidth
+		/ yPos sourceHeight
+		1
+
+
+fn XandY N1
+	* 8 (sin (/ (% currentFrame 100) 100))
+
+fn recarray B4D2
+	x N1
+	y N1
+	w N1
+	h N1
+	i N1
+	mapInB4D2
+		filler
+		N4 x y w h
+		?
+			> i 16
+			buildB4D2 videoWidth videoHeight
+			recarray
+				+ x XandY
+				+ y XandY
+				w
+				h
+				+ 1 i
+
+
+@enter
+
+videoOut
+	recarray 200 200 100 100 1
+
+
+

@@ -147,7 +147,6 @@ void setLoadedNode(nodeIndex self, size_t newDataSize) {
 	if (!nodes[self].cache.B.data) {
 		nodes[self].cache.B.data = malloc(newDataSize);
 		nodes[self].cache.B.dataSize = newDataSize;
-		memset(nodes[self].cache.B.data, 0, newDataSize);
 		addLoadedNode(self);
 	}
 	else if (nodes[self].cache.B.dataSize < newDataSize) {
@@ -155,6 +154,7 @@ void setLoadedNode(nodeIndex self, size_t newDataSize) {
 			realloc(nodes[self].cache.B.data, newDataSize);
 		nodes[self].cache.B.dataSize = newDataSize;
 	}
+	memset(nodes[self].cache.B.data, 0, newDataSize);
 }
 
 

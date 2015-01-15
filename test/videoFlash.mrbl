@@ -22,7 +22,7 @@ state lightPhase N1
 		+ lightPhase phaseIncrem
 
 
-videoOut               |of type B4D2
+videoOut            |of type B4D2
 	fillB4D2
 		B4from01        |from N1 0-1 to B1 0-255
 			0

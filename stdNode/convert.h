@@ -2,6 +2,8 @@
 outType eval_B1from01(_evalargs_) {
 	nodeIndex arg = nodes[self].children[0];
 	outType argOut = output(arg, fnCallArgs);
+	if      (argOut.n < 0) argOut.n = 0;
+	else if (argOut.n > 1) argOut.n = 1;
 	outType toBeReturned;
 	toBeReturned.b = argOut.n * 255;
 	return toBeReturned;
@@ -23,6 +25,14 @@ outType eval_B4from01(_evalargs_) {
 	outType argOut1 = output(arg1, fnCallArgs);
 	outType argOut2 = output(arg2, fnCallArgs);
 	outType argOut3 = output(arg3, fnCallArgs);
+	if      (argOut0.n < 0) argOut0.n = 0;
+	else if (argOut0.n > 1) argOut0.n = 1;
+	if      (argOut1.n < 0) argOut0.n = 0;
+	else if (argOut1.n > 1) argOut0.n = 1;
+	if      (argOut2.n < 0) argOut0.n = 0;
+	else if (argOut2.n > 1) argOut0.n = 1;
+	if      (argOut3.n < 0) argOut0.n = 0;
+	else if (argOut3.n > 1) argOut0.n = 1;
 	outType toBeReturned;
 	toBeReturned.bt[0] = argOut0.n * 255;
 	toBeReturned.bt[1] = argOut1.n * 255;

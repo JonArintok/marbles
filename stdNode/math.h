@@ -11,7 +11,9 @@ outType eval_mod(_evalargs_) {
 	outType a = output(arg0, fnCallArgs);
 	outType b = output(arg1, fnCallArgs);
 	outType toBeReturned;
-	toBeReturned.n = (int)a.n % (int)b.n;
+	const int A = a.n;
+	const int B = b.n;
+	toBeReturned.n = A % B;
 	return toBeReturned;
 }
 const stdNode node_mod = {
@@ -32,6 +34,20 @@ const stdNode node_sqr = {
 	.name = "sqr N1\ninput N1",
 	.arity = 1,
 	.evaluate = eval_sqr
+};
+
+
+outType eval_abs(_evalargs_) {
+	nodeIndex arg = nodes[self].children[0];
+	outType tbr = output(arg, fnCallArgs);
+	if (tbr.n < 0)
+		tbr.n *= -1;
+	return tbr;
+}
+const stdNode node_abs = {
+	.name = "abs N1\ninput N1",
+	.arity = 1,
+	.evaluate = eval_abs
 };
 
 
