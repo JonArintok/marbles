@@ -51,6 +51,19 @@ const stdNode node_abs = {
 };
 
 
+outType eval_floor(_evalargs_) {
+	nodeIndex arg = nodes[self].children[0];
+	outType tbr = output(arg, fnCallArgs);
+	const int tbri = tbr.n;
+	tbr.n = tbri;
+	return tbr;
+}
+const stdNode node_floor = {
+	.name = "floor N1\ninput N1",
+	.arity = 1,
+	.evaluate = eval_floor
+};
+
 
 outType eval_add4(_evalargs_) {
 	nodeIndex arg0 = nodes[self].children[0];

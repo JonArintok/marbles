@@ -1,11 +1,12 @@
 
 
 define test
-	echo running test/recarray.mrbl...
+	echo running test/recursarray.mrbl...
 	echo \n
-	run test/recarray.mrbl
+	run test/recursarray.mrbl
 end
 
+break stdNode/arrays.h:211
 
 define snp
 	step

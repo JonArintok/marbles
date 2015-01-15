@@ -167,12 +167,12 @@ outType eval_mapInB4D2(_evalargs_) {
 		memcpy(toBeReturned.N.data, source.N.data, toBeReturned.N.dataSize);
 	}
 	
-	const number rectX  = rect.nt[0];
-	const number rectY  = rect.nt[1];
-	const number rectW  = rect.nt[2];
-	const number rectH  = rect.nt[3];
-	const number dimenX = toBeReturned.B.dimenX;
-	const number dimenY = toBeReturned.B.dimenY;
+	const int rectX  = rect.nt[0];
+	const int rectY  = rect.nt[1];
+	const int rectW  = rect.nt[2];
+	const int rectH  = rect.nt[3];
+	const int dimenX = toBeReturned.B.dimenX;
+	const int dimenY = toBeReturned.B.dimenY;
 	
 	if (
 		rectX >= dimenX   ||
@@ -205,6 +205,13 @@ outType eval_mapInB4D2(_evalargs_) {
 			xPos < limitX; 
 			xPos++
 		) {
+			
+			
+			//if (curFrame > 0) {
+			//	puts("yo");
+			//}
+			
+			
 			fillerCallArgs[0].n = xPos - rectX;
 			outType value = output(filler.f + 1, fillerCallArgs);
 			int dataPos = (yPos * dimenX + xPos) * 4;
@@ -241,12 +248,12 @@ outType eval_mapInN1D2(_evalargs_) {
 		memcpy(toBeReturned.N.data, source.N.data, toBeReturned.N.dataSize);
 	}
 	
-	const number rectX  = rect.nt[0];
-	const number rectY  = rect.nt[1];
-	const number rectW  = rect.nt[2];
-	const number rectH  = rect.nt[3];
-	const number dimenX = toBeReturned.B.dimenX;
-	const number dimenY = toBeReturned.B.dimenY;
+	const int rectX  = rect.nt[0];
+	const int rectY  = rect.nt[1];
+	const int rectW  = rect.nt[2];
+	const int rectH  = rect.nt[3];
+	const int dimenX = toBeReturned.B.dimenX;
+	const int dimenY = toBeReturned.B.dimenY;
 	
 	if (
 		rectX >= dimenX   ||

@@ -18,6 +18,10 @@ runAndPrint() {
 	>&2 echo "\n\n\n\nbouncingColors.mrbl"
 	>&2 perf stat ./marblerun test/bouncingColors.mrbl
 	
+	echo "recursarray.mrbl"
+	>&2 echo "\n\n\n\nrecursarray.mrbl.mrbl"
+	>&2 perf stat ./marblerun test/recursarray.mrbl
+	
 	echo "fibonacciX16.mrbl"
 	>&2 echo "\n\n\n\nfibonacciX16.mrbl"
 	>&2 perf stat ./marblerun test/fibonacciX16.mrbl
