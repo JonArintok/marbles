@@ -1,0 +1,123 @@
+
+frameRate
+	10
+videoWidth
+	512
+videoHeight
+	512
+
+
+fn cyanFiller B4
+	xPos N1
+	yPos N1
+	sourceWidth  N1
+	sourceHeight N1
+	B4from01
+		0
+		/ xPos sourceWidth
+		/ yPos sourceHeight
+		1
+
+fn wallpaper B4D2
+	filler B4 & N1 N1 N1 N1
+	mapB4D2
+		filler
+		buildB4D2
+			videoWidth
+			videoHeight
+
+
+fn redFiller B4
+	xPos N1
+	yPos N1
+	sourceWidth  N1
+	sourceHeight N1
+	B4from01
+		1
+		-
+			1
+			/
+				+
+					/ xPos sourceWidth
+					/ yPos sourceHeight
+				2
+		-
+			1
+			/
+				+
+					/ xPos sourceWidth
+					/ yPos sourceHeight
+				2
+		1
+
+
+var squareEdge N1
+	80
+var overshoot N1
+	100
+
+fn outOfBounds N1
+	pos N1
+	visibleRange N1
+	either
+		<= pos (- 0 overshoot)
+		>= (+ pos squareEdge) (+ visibleRange overshoot)
+
+fn positioner N1
+	vel N1
+	pos N1
+	visibleRange N1
+	?
+		outOfBounds pos visibleRange
+		- pos vel
+		+ pos vel
+
+fn bouncer N1
+	vel N1
+	pos N1
+	visibleRange N1
+	?
+		outOfBounds pos visibleRange
+		* vel -1
+		vel
+
+
+@enter
+
+state sqPosX N1
+	?
+		currentFrame
+		positioner sqVelX sqPosX videoWidth
+		200
+state sqPosY N1
+	?
+		currentFrame
+		positioner sqVelY sqPosY videoHeight
+		20
+
+state sqVelX N1
+	?
+		currentFrame
+		bouncer sqVelX sqPosX videoWidth
+		2
+state sqVelY N1
+	?
+		currentFrame
+		bouncer sqVelY sqPosY videoHeight
+		2
+
+videoOut
+	mapInB4D2
+		redFiller
+		N4 sqPosX sqPosY squareEdge squareEdge
+		wallpaper cyanFiller
+
+next
+	? (< currentFrame lastFrame) enter exit
+
+@.
+
+
+var lastFrame N1
+	700
+

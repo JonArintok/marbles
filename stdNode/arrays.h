@@ -107,7 +107,7 @@ outType eval_mapB4D2(_evalargs_) {
 	return toBeReturned;
 }
 const stdNode node_mapB4D2 = {
-	.name = "mapB4D2 B4D2\nfiller B4 & N1 N1 N1 N1 ...\nsource B4D2",
+	.name = "mapB4D2 B4D2\nfiller B4 & N1 N1 N1 N1\nsource B4D2",
 	.arity = 2,
 	.evaluate = eval_mapB4D2
 };
@@ -145,7 +145,7 @@ outType eval_mapN1D2(_evalargs_) {
 	return toBeReturned;
 }
 const stdNode node_mapN1D2 = {
-	.name = "mapN1D2 N1D2\nfiller N1 & N1 N1 N1 N1 ...\nsource N1D2",
+	.name = "mapN1D2 N1D2\nfiller N1 & N1 N1 N1 N1\nsource N1D2",
 	.arity = 2,
 	.evaluate = eval_mapN1D2
 };
@@ -218,7 +218,7 @@ outType eval_mapInB4D2(_evalargs_) {
 	return toBeReturned;
 }
 const stdNode node_mapInB4D2 = {
-	.name = "mapInB4D2 B4D2\nfiller B4 & N1 N1 N1 N1 ...\nrect N4\nsource B4D2",
+	.name = "mapInB4D2 B4D2\nfiller B4 & N1 N1 N1 N1\nrect N4\nsource B4D2",
 	.arity = 3,
 	.evaluate = eval_mapInB4D2
 };
@@ -289,7 +289,7 @@ outType eval_mapInN1D2(_evalargs_) {
 	return toBeReturned;
 }
 const stdNode node_mapInN1D2 = {
-	.name = "mapInN1D2 N1D2\nfiller N1 & N1 N1 N1 N1 ...\nrect N4\nsource N1D2",
+	.name = "mapInN1D2 N1D2\nfiller N1 & N1 N1 N1 N1\nrect N4\nsource N1D2",
 	.arity = 3,
 	.evaluate = eval_mapInN1D2
 };
