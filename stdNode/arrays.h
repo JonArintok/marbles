@@ -8,6 +8,7 @@ outType eval_buildB4D2(_evalargs_) {
 	size_t newDataSize = sizeof(byte) * 4 * widthSource.n * heightSource.n;
 	
 	setLoadedNode(self, newDataSize);
+	memset(nodes[self].cache.B.data, 0, newDataSize);
 	nodes[self].cache.B.dimenX = widthSource.n;
 	nodes[self].cache.B.dimenY = heightSource.n;
 	nodes[self].cache.B.dimenZ = 1;
@@ -28,6 +29,7 @@ outType eval_buildN1D2(_evalargs_) {
 	size_t newDataSize = sizeof(number) * widthSource.n * heightSource.n;
 	
 	setLoadedNode(self, newDataSize);
+	memset(nodes[self].cache.B.data, 0, newDataSize);
 	nodes[self].cache.N.dimenX = widthSource.n;
 	nodes[self].cache.N.dimenY = heightSource.n;
 	nodes[self].cache.B.dimenZ = 1;

@@ -20,7 +20,8 @@ fn filler B4
 
 
 fn XandY N1
-	* 12 (sin (/ (% currentFrame 100) 100))
+	n N1
+	- n (* 12 (sin (/ (% currentFrame 100) 100)))
 
 fn recarray B4D2
 	x N1
@@ -32,24 +33,25 @@ fn recarray B4D2
 		filler
 		N4 x y w h
 		?
-			> i 16
+			>= i 16
 			buildB4D2 videoWidth videoHeight
 			recarray
-				- x XandY
-				- y XandY
+				XandY x
+				XandY y
 				w
 				h
 				+ 1 i
+
 
 
 @enter
 
 videoOut
 	recarray
-		- (/ videoWidth  2) 16
-		- (/ videoHeight 2) 16
-		32
-		32
+		- (/ videoWidth  2) 32
+		- (/ videoHeight 2) 32
+		64
+		64
 		1
 
 
@@ -61,5 +63,3 @@ next
 
 var lastFrame N1
 	700
-
-

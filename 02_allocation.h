@@ -154,7 +154,6 @@ void setLoadedNode(nodeIndex self, size_t newDataSize) {
 			realloc(nodes[self].cache.B.data, newDataSize);
 		nodes[self].cache.B.dataSize = newDataSize;
 	}
-	memset(nodes[self].cache.B.data, 0, newDataSize);
 }
 
 

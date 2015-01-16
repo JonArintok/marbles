@@ -25,7 +25,7 @@ typedef struct {
 
 typedef union {
 	number      n;
-	number      nt[8];
+	number      nt[4];
 	numArray    N;
 	byte        b;
 	byte        bt[8];
