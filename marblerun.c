@@ -9,9 +9,16 @@
 #include <math.h>
 #include <SDL2/SDL.h>
 
+#ifdef __linux__
+	#include <time.h>
+	#define microSleep usleep
+#elif __APPLE__
+#elif _WIN32
+#endif
+
 
 #define _shouldNotBeHere_ \
-	printf("\n!! Should not be here: line %d of %s !!\n", __LINE__, __FILE__);
+	printf("\n!! Should not be here: line %d of %s !!\n\n", __LINE__, __FILE__);
 
 #define defaultWindowWidth  640
 #define defaultWindowHeight 480
@@ -28,6 +35,7 @@ SDL_Renderer *renderer = NULL;
 SDL_Texture  *texture  = NULL;
 
 int threadCount;
+#define _threadWait_ microSleep(threadCount*10);
 
 
 #include "01_foundation.h"

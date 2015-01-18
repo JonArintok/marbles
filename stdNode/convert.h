@@ -1,7 +1,7 @@
 
 outType eval_B1from01(_evalargs_) {
 	nodeIndex arg = nodes[self].children[0];
-	outType argOut = output(arg, fnCallArgs);
+	outType argOut = output(arg, -1, fnCallArgs);
 	if      (argOut.n < 0) argOut.n = 0;
 	else if (argOut.n > 1) argOut.n = 1;
 	outType toBeReturned;
@@ -21,10 +21,10 @@ outType eval_B4from01(_evalargs_) {
 	nodeIndex arg1 = nodes[self].children[1];
 	nodeIndex arg2 = nodes[self].children[2];
 	nodeIndex arg3 = nodes[self].children[3];
-	outType argOut0 = output(arg0, fnCallArgs);
-	outType argOut1 = output(arg1, fnCallArgs);
-	outType argOut2 = output(arg2, fnCallArgs);
-	outType argOut3 = output(arg3, fnCallArgs);
+	outType argOut0 = output(arg0, -1, fnCallArgs);
+	outType argOut1 = output(arg1, -1, fnCallArgs);
+	outType argOut2 = output(arg2, -1, fnCallArgs);
+	outType argOut3 = output(arg3, -1, fnCallArgs);
 	if      (argOut0.n < 0) argOut0.n = 0;
 	else if (argOut0.n > 1) argOut0.n = 1;
 	if      (argOut1.n < 0) argOut0.n = 0;

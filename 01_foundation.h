@@ -3,7 +3,7 @@
 #define maxChildren 8
 
 typedef uint16_t nodeIndex;
-#define  maxNodeIndex  0xFFFF
+#define maxNodeIndex  0xFFFF
 
 typedef float   number;
 typedef uint8_t byte;
@@ -25,14 +25,14 @@ typedef struct {
 
 typedef union {
 	number      n;
-	number      nt[4];
+	number      nt[8];
 	numArray    N;
 	byte        b;
 	byte        bt[8];
 	byteArray   B;
 	nodeIndex   f;
 } outType;
-#define _evalargs_  nodeIndex self, outType *fnCallArgs
+#define _evalargs_  nodeIndex self, int16_t taskPiece, outType *fnCallArgs
 typedef outType (*evaluator) (_evalargs_);
 typedef struct {
 	nodeIndex  children[maxChildren];
@@ -113,8 +113,8 @@ char *windowWidthName  = "windowWidth N1";
 char *windowHeightName = "windowHeight N1";
 
 
-#define output(self, fnCallArgs)\
-	nodes[self].evaluate(self, fnCallArgs);
+#define output(self, taskPiece, fnCallArgs)\
+	nodes[self].evaluate(self, taskPiece, fnCallArgs);
 
 
 outType eval_varDef(_evalargs_) {
@@ -125,25 +125,25 @@ outType eval_varCall(_evalargs_) {
 }
 
 outType eval_fnDef(_evalargs_) {
-	return output(self+1, fnCallArgs);
+	return output(self+1, taskPiece, fnCallArgs);
 }
 outType eval_fnDefWExargs(_evalargs_) {
-	return output(self+1, fnCallArgs);
+	return output(self+1, taskPiece, fnCallArgs);
 }
 outType eval_fnDefNullary(_evalargs_) {
-	return output(self+1, fnCallArgs);
+	return output(self+1, taskPiece, fnCallArgs);
 }
 
 outType eval_fnCall(_evalargs_) {
 	outType newFnCallArgs[maxChildren];
 	for (int i = 0; i < nodes[self].childCount; i++) {
 		nodeIndex arg = nodes[self].children[i];
-		newFnCallArgs[i] = nodes[arg].evaluate(arg, fnCallArgs);
+		newFnCallArgs[i] = nodes[arg].evaluate(arg, -1, fnCallArgs);
 	}
-	return output(nodes[self].def + 1, newFnCallArgs);
+	return output(nodes[self].def+1, taskPiece, newFnCallArgs);
 }
 outType eval_fnCallNullary(_evalargs_) {
-	return output(nodes[self].def + 1, fnCallArgs);
+	return output(nodes[self].def+1, taskPiece, fnCallArgs);
 }
 
 
@@ -155,15 +155,15 @@ outType eval_fnArgCall(_evalargs_) {
 	
 	//std fn
 	if (nodePassed > curNode)
-		return stdNodeTable[nodePassed-curNode-1]->evaluate(self, fnCallArgs);
+		return stdNodeTable[nodePassed-curNode-1]->evaluate(self, -1, fnCallArgs);
 	
 	//user-defined fn
 	outType newFnCallArgs[maxChildren];
 	for (int i = 0; i < nodes[self].childCount; i++) {
 		nodeIndex arg = nodes[self].children[i];
-		newFnCallArgs[i] = nodes[arg].evaluate(arg, fnCallArgs);
+		newFnCallArgs[i] = nodes[arg].evaluate(arg, -1, fnCallArgs);
 	}
-	return output(nodePassed+1, newFnCallArgs);
+	return output(nodePassed+1, taskPiece, newFnCallArgs);
 }
 outType eval_fnPass(_evalargs_) {
 	return nodes[self].cache;
@@ -209,6 +209,99 @@ bool isReadOnly(nodeIndex n) {
 		nodes[n].evaluate == eval_varCall ||
 		nodes[n].evaluate == eval_stateCall;
 }
+
+
+
+
+
+
+
+
+
+
+typedef struct {
+	uint16_t  taken;   // how many threads have started working the task
+	uint16_t  finished;// how many threads have finished their piece
+	nodeIndex self;
+	outType  *fnCallArgs;
+} task;
+
+SDL_SpinLock task_lock;
+//always lock task_lock before doing anything 
+//with anything prefixed with 'task_'
+
+#define taskStackSize 1024
+task task_stack[taskStackSize];
+int  task_current = -1;
+
+outType initTask(nodeIndex self, outType *fnCallargsIn) {
+	task toBeAdded = {
+		.taken      = 1,
+		.finished   = 0,
+		.self       = self,
+		.fnCallArgs = fnCallargsIn
+	};
+	int myTask;
+	SDL_AtomicLock(&task_lock);
+		task_current++;
+		myTask = task_current;
+		task_stack[task_current] = toBeAdded;
+	SDL_AtomicUnlock(&task_lock);
+	
+	outType toBeReturned = output(self, 0, fnCallargsIn);
+	
+	SDL_AtomicLock(&task_lock);
+		task_stack[myTask].finished++;
+	SDL_AtomicUnlock(&task_lock);
+	
+	while (true) {
+		SDL_AtomicLock(&task_lock);
+			if (task_stack[myTask].finished == threadCount) {
+				SDL_AtomicUnlock(&task_lock);
+				break;
+			}
+		SDL_AtomicUnlock(&task_lock);
+		//DoATask();
+		_threadWait_
+	}
+	
+	return toBeReturned;
+}
+
+void doATask(void) {
+	int       myTask;
+	int       taskPiece = -1;
+	nodeIndex self;
+	outType  *fnCallArgs;
+	
+	SDL_AtomicLock(&task_lock);
+		myTask = task_current;
+		for (;; myTask--) {
+			if (myTask == -1) {
+				SDL_AtomicUnlock(&task_lock);
+				return;
+			}
+			if (task_stack[myTask].finished == threadCount)
+				task_current--;
+			else if (task_stack[myTask].taken < threadCount) {
+				taskPiece  = task_stack[myTask].taken;
+				self       = task_stack[myTask].self;
+				fnCallArgs = task_stack[myTask].fnCallArgs;
+				task_stack[myTask].taken++;
+				break;
+			}
+		}
+	SDL_AtomicUnlock(&task_lock);
+	
+	output(self, taskPiece, fnCallArgs);
+	
+	SDL_AtomicLock(&task_lock);
+		task_stack[myTask].finished++;
+	SDL_AtomicUnlock(&task_lock);
+}
+
+
+
 
 
 

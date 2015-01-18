@@ -8,8 +8,8 @@ _biop_(eval_div, node_div, "/", /, n)
 outType eval_mod(_evalargs_) {
 	nodeIndex arg0 = nodes[self].children[0];
 	nodeIndex arg1 = nodes[self].children[1];
-	outType a = output(arg0, fnCallArgs);
-	outType b = output(arg1, fnCallArgs);
+	outType a = output(arg0, -1, fnCallArgs);
+	outType b = output(arg1, -1, fnCallArgs);
 	outType toBeReturned;
 	const int A = a.n;
 	const int B = b.n;
@@ -25,7 +25,7 @@ const stdNode node_mod = {
 
 outType eval_sqr(_evalargs_) {
 	nodeIndex arg = nodes[self].children[0];
-	outType argOut = output(arg, fnCallArgs);
+	outType argOut = output(arg, -1, fnCallArgs);
 	outType toBeReturned;
 	toBeReturned.n = argOut.n * argOut.n;
 	return toBeReturned;
@@ -39,7 +39,7 @@ const stdNode node_sqr = {
 
 outType eval_abs(_evalargs_) {
 	nodeIndex arg = nodes[self].children[0];
-	outType tbr = output(arg, fnCallArgs);
+	outType tbr = output(arg, -1, fnCallArgs);
 	if (tbr.n < 0)
 		tbr.n *= -1;
 	return tbr;
@@ -53,7 +53,7 @@ const stdNode node_abs = {
 
 outType eval_floor(_evalargs_) {
 	nodeIndex arg = nodes[self].children[0];
-	outType tbr = output(arg, fnCallArgs);
+	outType tbr = output(arg, -1, fnCallArgs);
 	const int tbri = tbr.n;
 	tbr.n = tbri;
 	return tbr;
@@ -70,10 +70,10 @@ outType eval_add4(_evalargs_) {
 	nodeIndex arg1 = nodes[self].children[1];
 	nodeIndex arg2 = nodes[self].children[2];
 	nodeIndex arg3 = nodes[self].children[3];
-	outType argOut0 = output(arg0, fnCallArgs);
-	outType argOut1 = output(arg1, fnCallArgs);
-	outType argOut2 = output(arg2, fnCallArgs);
-	outType argOut3 = output(arg3, fnCallArgs);
+	outType argOut0 = output(arg0, -1, fnCallArgs);
+	outType argOut1 = output(arg1, -1, fnCallArgs);
+	outType argOut2 = output(arg2, -1, fnCallArgs);
+	outType argOut3 = output(arg3, -1, fnCallArgs);
 	outType toBeReturned;
 	toBeReturned.n = 
 		argOut0.n +
@@ -97,14 +97,14 @@ outType eval_add8(_evalargs_) {
 	nodeIndex arg5 = nodes[self].children[5];
 	nodeIndex arg6 = nodes[self].children[6];
 	nodeIndex arg7 = nodes[self].children[7];
-	outType argOut0 = output(arg0, fnCallArgs);
-	outType argOut1 = output(arg1, fnCallArgs);
-	outType argOut2 = output(arg2, fnCallArgs);
-	outType argOut3 = output(arg3, fnCallArgs);
-	outType argOut4 = output(arg4, fnCallArgs);
-	outType argOut5 = output(arg5, fnCallArgs);
-	outType argOut6 = output(arg6, fnCallArgs);
-	outType argOut7 = output(arg7, fnCallArgs);
+	outType argOut0 = output(arg0, -1, fnCallArgs);
+	outType argOut1 = output(arg1, -1, fnCallArgs);
+	outType argOut2 = output(arg2, -1, fnCallArgs);
+	outType argOut3 = output(arg3, -1, fnCallArgs);
+	outType argOut4 = output(arg4, -1, fnCallArgs);
+	outType argOut5 = output(arg5, -1, fnCallArgs);
+	outType argOut6 = output(arg6, -1, fnCallArgs);
+	outType argOut7 = output(arg7, -1, fnCallArgs);
 	outType toBeReturned;
 	toBeReturned.n = 
 		argOut0.n +
@@ -127,7 +127,7 @@ const stdNode node_add8 = {
 
 outType eval_sin(_evalargs_) {
 	nodeIndex arg = nodes[self].children[0];
-	outType argOut = output(arg, fnCallArgs);
+	outType argOut = output(arg, -1, fnCallArgs);
 	outType toBeReturned;
 	toBeReturned.n = sin(tao * argOut.n);
 	return toBeReturned;

@@ -11,11 +11,10 @@ long frameTimeStamp;
 SDL_atomic_t stateThreadPunch;
 SDL_atomic_t videoPunch;
 
-#define _threadWait_ microSleep(threadCount*10);
 
 void betweenFrames(void) {
 	if (nextRoot <= curNode) {
-		outType nextRootOut = output(nextRoot+1, nullFnCallArgs);
+		outType nextRootOut = output(nextRoot+1, -1, nullFnCallArgs);
 		activeFrameform = nextRootOut.n;
 		if (activeFrameform > curFrameform) {
 			running = false;
@@ -54,12 +53,13 @@ int stateThread(void *ti) {
 		for (int i = threadIndex; i <= csn; i += threadCount) {
 			const nodeIndex n = frameforms[activeFrameform].stateNodes[i] + 1;
 			frameforms[activeFrameform].hotState[i] = 
-				output(n, nullFnCallArgs);
+				output(n, -1, nullFnCallArgs);
 		}
 		
 		SDL_AtomicIncRef(&stateThreadPunch);
 		_stub_
 		while (SDL_AtomicGet(&stateThreadPunch) < threadCount) {
+			doATask();
 			_threadWait_
 		}
 		
@@ -88,7 +88,7 @@ int stateThread(void *ti) {
 		
 		if (!threadIndex) {
 			if (videoEnabled) {
-				videoOut = output(videoRoot+1, nullFnCallArgs);
+				videoOut = output(videoRoot+1, -1, nullFnCallArgs);
 			}/*
 			else {
 				// this is temporary
@@ -112,6 +112,7 @@ int stateThread(void *ti) {
 		if (threadIndex) {
 			_stub_
 			while (SDL_AtomicGet(&stateThreadPunch) > threadCount) {
+				doATask();
 				_threadWait_
 			}
 		}

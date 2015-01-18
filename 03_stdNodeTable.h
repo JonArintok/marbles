@@ -5,8 +5,8 @@
 outType eval_name(_evalargs_) {\
 	nodeIndex arg0 = nodes[self].children[0];\
 	nodeIndex arg1 = nodes[self].children[1];\
-	outType a = output(arg0, fnCallArgs);\
-	outType b = output(arg1, fnCallArgs);\
+	outType a = output(arg0, -1, fnCallArgs);\
+	outType b = output(arg1, -1, fnCallArgs);\
 	outType toBeReturned;\
 	toBeReturned.type = a.type op b.type;\
 	return toBeReturned;\
