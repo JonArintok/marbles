@@ -47,7 +47,28 @@ void betweenFrames(void) {
 
 int stateThread(void *ti) {
 	const int threadIndex = *(int*)ti;
-	while (true) {
+	
+	if (!threadIndex) {
+		puts("initializing...");
+		initializeNodes();
+		if (videoEnabled) {
+			SDL_AtomicIncRef(&videoPunch);// from 0 to 1
+			while (SDL_AtomicGet(&videoPunch)) {
+				_threadWait_
+			}
+		}
+		puts("running...");
+		SDL_AtomicSet(&stateThreadPunch, 0);
+	}
+	else {
+		_stub_
+		while (SDL_AtomicGet(&stateThreadPunch) > threadCount) {
+			doATask();
+			_threadWait_
+		}
+	}
+	
+	while (running) {
 		
 		//evaluate the bodies, results written to .hotState
 		for (int i = threadIndex; i <= csn; i += threadCount) {
@@ -109,19 +130,15 @@ int stateThread(void *ti) {
 			betweenFrames();
 			SDL_AtomicSet(&stateThreadPunch, 0);
 		}
-		if (threadIndex) {
+		else {
 			_stub_
 			while (SDL_AtomicGet(&stateThreadPunch) > threadCount) {
 				doATask();
 				_threadWait_
 			}
 		}
-		
-		if (!running) {
-			_stub_
-			return 0;
-		}
 	}
+	return 0;
 }
 
 //this function needs to be called from the main thread

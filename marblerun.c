@@ -60,33 +60,27 @@ int main(int argc, char **argv) {
 		return 2;
 	}
 	
-	puts("reading...");
 	
 	atexit(calledAtExit);
 	init_Allocation();
+	puts("reading...");
 	parse();
 	fclose(fileStream);
 	
 	if (errorCount)
 		exit(3);
 	
-	puts("initializing...");
-	initializeNodes();
-	if (videoEnabled)
-		initializeVideo();
-	puts("running...");
-	
 	csn       = frameforms[activeFrameform].curStateNode;
 	nextRoot  = frameforms[activeFrameform].nextFrameform;
 	videoRoot = frameforms[activeFrameform].videoOut;
 	//audioRoot = frameforms[activeFrameform].audioOut;
-	running = true;
-	threadCount = SDL_GetCPUCount();
-	SDL_AtomicSet(&stateThreadPunch, 0);
+	SDL_AtomicSet(&stateThreadPunch, 10000);
 	SDL_AtomicSet(&videoPunch, 0);
 
+	threadCount = SDL_GetCPUCount();
 	printf("using %i threads\n", threadCount);
 
+	running = true;
 	frameTimeStamp = getMicroseconds();
 	
 	SDL_Thread *threads[threadCount];
@@ -101,6 +95,10 @@ int main(int argc, char **argv) {
 	}
 	
 	if (videoEnabled) {
+		while (!SDL_AtomicGet(&videoPunch))
+			_threadWait_
+		initializeVideo();
+		SDL_AtomicDecRef(&videoPunch);// from 1 to 0
 		while (running) {
 			if (SDL_AtomicGet(&videoPunch)) {
 				renderVideoOut();
