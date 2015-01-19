@@ -35,27 +35,27 @@ int isNumeric(char in) {
 
 void getLine(void) {
 	curLine++;
-
+	
 	//read the next line from the file one character at a time
 	for (int bufPos = 0;; bufPos++) {
 		char fileChar;
-
+		
 		//check to be sure we are not overflowing the buffer
 		if (bufPos == maxLineLength) {
 			putError(curLine, "line is too long\n");
 			return;
 		}
-
+		
 		//get character from file
 		fileChar = fgetc(fileStream);
-
+		
 		//check for EOF
 		if (fileChar == EOF) {
 			reachedEOF = true;
 			lineBuf[0] = '\0';
 			break;
 		}
-
+		
 		//homogenize formatting:
 		//ignore redundant spaces,
 		//ignore spaces around parentheses
@@ -95,9 +95,9 @@ void getLine(void) {
 			putError(curLine, "unexpected tab character\n");
 			return;
 		}
-
+		
 		lineBuf[bufPos] = fileChar;
-
+		
 		//ignore comments
 		if (fileChar == charTag_comment) {
 			//read through to the newline character
@@ -105,7 +105,7 @@ void getLine(void) {
 				if (fileChar == EOF)
 					reachedEOF = true;
 		}
-
+		
 		//check for newline character
 		if (fileChar == '\n') {
 			//end of the line
@@ -177,7 +177,7 @@ void setBodyNode(int level) {
 	nodesInfo[curNode].level = level;
 	nodesInfo[curNode].line = curLine;
 	nodesInfo[curNode].frameform = inFrameform ? curFrameform : -1;
-
+	
 	//the nodes at levels 0 and 1 should already be connected
 	if (level < 2)
 		return;
@@ -254,7 +254,7 @@ void getBody(void) {
 					else
 						if (lineBuf[bufPos-1] != ')')
 							setBodyNode(level);
-					prevDelim = '\0';
+						prevDelim = '\0';
 					break;
 				default:
 					inc_namePos();
@@ -273,8 +273,8 @@ void initNodes(void) {
 	nodesInfo[curNode].level = 0;
 	if (inFrameform)
 		nodesInfo[curNode].frameform = curFrameform;
-
-
+	
+	
 	//read the first line into curNode.name
 	while (true) {
 		inc_namePos();
@@ -282,8 +282,8 @@ void initNodes(void) {
 		if (!nodesInfo[curNode].name[namePos])
 			break;
 	}
-
-
+	
+	
 	//determine what is being declared based on the decTag
 	if (matchStrWDelim(decTag_fn, '\0', lineBuf, ' ')) {
 		//find out how many parameters there are
@@ -334,10 +334,10 @@ void initNodes(void) {
 		putError(curLine, "decTag is not recognized\n");
 		return;
 	}
-
+	
 	//the decTag is no longer needed
 	strRemoveUpToIncl(nodesInfo[curNode].name, ' ');
-
+	
 	//update the relevant node reference array
 	if (
 		nodes[curNode].evaluate == eval_stateDef ||
@@ -349,7 +349,7 @@ void initNodes(void) {
 		}
 		inc_curStateNode();
 		frameforms[curFrameform].stateNodes[
-			frameforms[curFrameform].curStateNode
+		frameforms[curFrameform].curStateNode
 		] = curNode;
 	}
 	else if (
@@ -360,7 +360,7 @@ void initNodes(void) {
 		if (inFrameform) {
 			inc_curRootNode();
 			frameforms[curFrameform].rootNodes[
-				frameforms[curFrameform].curRootNode
+			frameforms[curFrameform].curRootNode
 			] = curNode;
 		}
 		else {
@@ -369,9 +369,9 @@ void initNodes(void) {
 		}
 	}
 	else _shouldNotBeHere_
-
-	//initialize the nodes in the body of the defNode
-	getBody();
+		
+		//initialize the nodes in the body of the defNode
+		getBody();
 }
 
 void initOutput(void) {
@@ -472,14 +472,14 @@ void initFrameform(void) {
 		printf("%s'\n", exitPointName);
 		return;
 	}
-
+	
 	inc_curFrameform();
 	inFrameform = true;
 	frameforms[curFrameform].line = curLine;
-
+	
 	if (!(strcmp(&lineBuf[1], entryPointName)))
 		activeFrameform = curFrameform;
-
+	
 	//copy from lineBuf to frameforms[curFrameform].name
 	strncpy(
 		&frameforms[curFrameform].name[0],
@@ -515,11 +515,11 @@ void resolveNode(nodeIndex nodePos) {
 	//skip defNodes
 	if (!nodesInfo[nodePos].level)
 		return;
-
+	
 	char *nodeName = nodesInfo[nodePos].name;
 	int   nodeLine = nodesInfo[nodePos].line;
 	int   nodeFf   = nodesInfo[nodePos].frameform;
-
+	
 	//check for number literal
 	if (isdigit(nodeName[0]) || (nodeName[0] == '-' && isdigit(nodeName[1]))) {
 		for (int namePos = 0; namePos; namePos++) {
@@ -536,7 +536,7 @@ void resolveNode(nodeIndex nodePos) {
 		free(nodeName);
 		return;
 	}
-
+	
 	//check for argCall
 	for (int backNode = nodePos;; backNode--) {
 		if (nodesInfo[backNode].level == 0) {
@@ -554,9 +554,9 @@ void resolveNode(nodeIndex nodePos) {
 						nodes[nodePos].evaluate = eval_argCall;
 						for (
 							int paramNamePos = 0;
-							nodesInfo[nodePos].name[paramNamePos] &&
-							nodesInfo[nodePos].name[paramNamePos] != '\n';
-							paramNamePos++
+						nodesInfo[nodePos].name[paramNamePos] &&
+						nodesInfo[nodePos].name[paramNamePos] != '\n';
+						paramNamePos++
 						) {
 							if (
 								nodesInfo[nodePos].name[paramNamePos] == charTag_paramType &&
@@ -565,7 +565,7 @@ void resolveNode(nodeIndex nodePos) {
 								if (nodes[backNode].evaluate == eval_fnDef)
 									nodes[nodePos].evaluate = eval_fnArgCall;
 								else _shouldNotBeHere_
-								break;
+									break;
 							}
 						}
 						return;
@@ -577,7 +577,7 @@ void resolveNode(nodeIndex nodePos) {
 			else break;
 		}
 	}
-
+	
 	//check for reference to std fn
 	for (int sntPos = 0; stdNodeTable[sntPos]; sntPos++) {
 		if (matchStrWDelim(nodeName, '\0', stdNodeTable[sntPos]->name, ' ')) {
@@ -593,7 +593,7 @@ void resolveNode(nodeIndex nodePos) {
 			return;
 		}
 	}
-
+	
 	//check for frameform index
 	for (int ffPos = 0; ffPos <= curFrameform; ffPos++) {
 		if (!(strcmp(nodeName, frameforms[ffPos].name))) {
@@ -612,7 +612,7 @@ void resolveNode(nodeIndex nodePos) {
 		free(nodeName);
 		return;
 	}
-
+	
 	//check for reference to local declaration
 	if (nodeFf > -1) {
 		//check for local state or share call
@@ -627,7 +627,7 @@ void resolveNode(nodeIndex nodePos) {
 				else if (nodes[sDef].evaluate == eval_shareDef)
 					nodes[nodePos].evaluate = eval_shareCall;
 				else _shouldNotBeHere_
-				return;
+					return;
 			}
 		}
 		//check for local fnCall or varCall
@@ -642,7 +642,7 @@ void resolveNode(nodeIndex nodePos) {
 			}
 		}
 	}
-
+	
 	//check for nonlocal share Call
 	for (int nnPos = 0; nodeName[nnPos]; nnPos++) {
 		if (nodeName[nnPos] == charTag_shareRead){
@@ -669,8 +669,8 @@ void resolveNode(nodeIndex nodePos) {
 				)) {
 					for (
 						int snPos = 0;
-						snPos <= frameforms[ffPos].curStateNode;
-						snPos++
+					snPos <= frameforms[ffPos].curStateNode;
+					snPos++
 					) {
 						nodeIndex sDef = frameforms[ffPos].stateNodes[snPos];
 						if (matchStrWDelim(
@@ -691,7 +691,7 @@ void resolveNode(nodeIndex nodePos) {
 							if (nodes[sDef].evaluate == eval_shareDef)
 								nodes[nodePos].evaluate = eval_shareCall;
 							else _shouldNotBeHere_
-							return;
+								return;
 						}
 					}
 					putError(nodeLine, "did not find '");
@@ -717,7 +717,7 @@ void resolveNode(nodeIndex nodePos) {
 			return;
 		}
 	}
-
+	
 	//check for global fnCall or varCall
 	for (int grnPos = 0; grnPos <= gCurRootNode; grnPos++) {
 		if (matchStrWDelim(
@@ -728,7 +728,7 @@ void resolveNode(nodeIndex nodePos) {
 			return;
 		}
 	}
-
+	
 	//none of the above
 	putError(nodeLine, "did not recognize ");
 	printf("'%s'\n", nodeName);
@@ -771,7 +771,7 @@ char *getParentsInType(nodeIndex nodePos) {
 				break;
 			}
 		}
-
+		
 		//argLine points to the first character of the
 		//(argRefIndex)th argument declaration in parent's name.
 		//The format of argument declarations is different for 
@@ -808,7 +808,7 @@ char *getParentsInType(nodeIndex nodePos) {
 	//if parentsInType is "match", then we want the parent's parentsInType
 	if (matchStrUpToNullOrNewline(parentsInType, "match"))
 		return getParentsInType(parentsPos);
-
+	
 	return parentsInType;
 }
 
@@ -946,15 +946,15 @@ void  parse(void) {
 	//go through the file(s) line by line
 	while (!errorCount) {
 		getLine();
-
+		
 		//if we reached the end of the file then we're done
 		if (reachedEOF)
 			break;
-
+		
 		//if the line is blank or commented then skip it
 		if (lineBuf[0] == '\0')
 			continue;
-
+		
 		//check for beginning or end of frameform
 		if (lineBuf[0] == charTag_frameform) {
 			if (lineBuf[1] == '.')
@@ -971,20 +971,20 @@ void  parse(void) {
 	}
 	if (errorCount)
 		return;
-
+	
 	//the exitFrameform is not actually a frameform, just a number
 	exitFrameform = curFrameform + 1;
-
+	
 	//resolve each node
 	for (int nodePos = 0; nodePos <= curNode; nodePos++)
 		resolveNode(nodePos);
 	if (errorCount)
 		return;
-
+	
 	//check types of each node
 	for (int nodePos = 0; nodePos <= curNode; nodePos++)
 		checkType(nodePos);
-
+	
 }
 
 

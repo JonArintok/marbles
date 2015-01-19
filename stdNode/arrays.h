@@ -80,21 +80,21 @@ outType eval_mapB4D2(_evalargs_) {
 	outType toBeReturned;
 	
 	if (taskPiece < 0) {
+		outType newFnCallArgs[maxChildren];
 		nodeIndex arg0 = nodes[self].children[0];
 		nodeIndex arg1 = nodes[self].children[1];
-		
-		outType newFnCallArgs[maxChildren];
 		newFnCallArgs[0] = output(arg0, -1, fnCallArgs); //filler
-		newFnCallArgs[1] = output(arg1, -1, fnCallArgs); //source
+		outType source   = output(arg1, -1, fnCallArgs);
 		
-		toBeReturned = newFnCallArgs[1];
-		size_t newDataSize = toBeReturned.B.dataSize;
+		toBeReturned = source;
+		size_t newDataSize = toBeReturned.N.dataSize;
 		
 		if (isReadOnly(arg1)) {
 			setLoadedNode(self, newDataSize);
-			toBeReturned.B.data = nodes[self].cache.B.data;
+			toBeReturned.N.data = nodes[self].cache.N.data;
 		}
 		
+		newFnCallArgs[1] = toBeReturned;
 		return initTask(self, newFnCallArgs);
 	}
 	else {
@@ -150,14 +150,13 @@ outType eval_mapN1D2(_evalargs_) {
 	outType toBeReturned;
 	
 	if (taskPiece < 0) {
+		outType newFnCallArgs[maxChildren];
 		nodeIndex arg0 = nodes[self].children[0];
 		nodeIndex arg1 = nodes[self].children[1];
-		
-		outType newFnCallArgs[maxChildren];
 		newFnCallArgs[0] = output(arg0, -1, fnCallArgs); //filler
-		newFnCallArgs[1] = output(arg1, -1, fnCallArgs); //source
+		outType source   = output(arg1, -1, fnCallArgs);
 		
-		toBeReturned = newFnCallArgs[1];
+		toBeReturned = source;
 		size_t newDataSize = toBeReturned.N.dataSize;
 		
 		if (isReadOnly(arg1)) {
@@ -165,6 +164,7 @@ outType eval_mapN1D2(_evalargs_) {
 			toBeReturned.N.data = nodes[self].cache.N.data;
 		}
 		
+		newFnCallArgs[1] = toBeReturned;
 		return initTask(self, newFnCallArgs);
 	}
 	else {

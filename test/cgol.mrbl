@@ -59,10 +59,10 @@ fn cellFlipper N1
 
 
 
-state cells N1D2
+state cells N1D2                         |112
 	?
 		currentFrame
-		mapN1D2 cellFlipper cells
+		mapN1D2 cellFlipper cells            |115
 		mapInN1D2
 			initialCellFiller
 			N4
@@ -70,7 +70,7 @@ state cells N1D2
 				* 3 (/ videoHeight 8)
 				/ videoWidth  4
 				/ videoHeight 4
-			buildN1D2 videoWidth videoHeight
+			buildN1D2 videoWidth videoHeight   |137
 
 
 fn cellsToVideo B4
@@ -87,7 +87,7 @@ fn cellsToVideo B4
 videoOut
 	mapB4D2
 		cellsToVideo
-		buildB4D2
+		buildB4D2                            |151
 			videoWidth
 			videoHeight
 
@@ -99,5 +99,4 @@ next
 
 var lastFrame N1
 	200
-
 

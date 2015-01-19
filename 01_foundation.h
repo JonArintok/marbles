@@ -206,8 +206,10 @@ outType eval_numLit(_evalargs_) {
 
 bool isReadOnly(nodeIndex n) {
 	return 
-		nodes[n].evaluate == eval_varCall ||
-		nodes[n].evaluate == eval_stateCall;
+		nodes[n].evaluate == eval_varCall   ||
+		nodes[n].evaluate == eval_stateCall ||
+		nodes[n].evaluate == eval_shareCall
+	;
 }
 
 
