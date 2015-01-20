@@ -63,8 +63,9 @@ int stateThread(void *ti) {
 	else {
 		_stub_
 		while (SDL_AtomicGet(&stateThreadPunch) > threadCount) {
-			doATask();
-			_threadWait_
+			if (doATask()) {
+				_threadWait_
+			}
 		}
 	}
 	
@@ -80,8 +81,9 @@ int stateThread(void *ti) {
 		SDL_AtomicIncRef(&stateThreadPunch);
 		_stub_
 		while (SDL_AtomicGet(&stateThreadPunch) < threadCount) {
-			doATask();
-			_threadWait_
+			if (doATask()) {
+				_threadWait_
+			}
 		}
 		
 		//copy the hotState to the stateNodes cache
@@ -125,7 +127,9 @@ int stateThread(void *ti) {
 		if (!threadIndex) {
 			_stub_
 			while (SDL_AtomicGet(&stateThreadPunch) < threadCount*3) {
-				_threadWait_
+				if (doATask()) {
+					_threadWait_
+				}
 			}
 			betweenFrames();
 			SDL_AtomicSet(&stateThreadPunch, 0);
@@ -133,8 +137,9 @@ int stateThread(void *ti) {
 		else {
 			_stub_
 			while (SDL_AtomicGet(&stateThreadPunch) > threadCount) {
-				doATask();
-				_threadWait_
+				if (doATask()) {
+					_threadWait_
+				}
 			}
 		}
 	}

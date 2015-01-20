@@ -236,6 +236,40 @@ SDL_SpinLock task_lock;
 task task_stack[taskStackSize];
 int  task_current = -1;
 
+int doATask(void) {
+	int       myTask;
+	int       taskPiece = -1;
+	nodeIndex self;
+	outType  *fnCallArgs;
+	
+	SDL_AtomicLock(&task_lock);
+		myTask = task_current;
+		for (;; myTask--) {
+			if (myTask == -1) {
+				SDL_AtomicUnlock(&task_lock);
+				return -1;
+			}
+			if (task_stack[myTask].finished == threadCount)
+				task_current--;
+			else if (task_stack[myTask].taken < threadCount) {
+				taskPiece  = task_stack[myTask].taken;
+				self       = task_stack[myTask].self;
+				fnCallArgs = task_stack[myTask].fnCallArgs;
+				task_stack[myTask].taken++;
+				break;
+			}
+		}
+	SDL_AtomicUnlock(&task_lock);
+	
+	output(self, taskPiece, fnCallArgs);
+	
+	SDL_AtomicLock(&task_lock);
+		task_stack[myTask].finished++;
+	SDL_AtomicUnlock(&task_lock);
+	
+	return 0;
+}
+
 outType initTask(nodeIndex self, outType *fnCallargsIn) {
 	task toBeAdded = {
 		.taken      = 1,
@@ -263,43 +297,12 @@ outType initTask(nodeIndex self, outType *fnCallargsIn) {
 				break;
 			}
 		SDL_AtomicUnlock(&task_lock);
-		//DoATask();
-		_threadWait_
+		if (doATask()) {
+			_threadWait_
+		}
 	}
 	
 	return toBeReturned;
-}
-
-void doATask(void) {
-	int       myTask;
-	int       taskPiece = -1;
-	nodeIndex self;
-	outType  *fnCallArgs;
-	
-	SDL_AtomicLock(&task_lock);
-		myTask = task_current;
-		for (;; myTask--) {
-			if (myTask == -1) {
-				SDL_AtomicUnlock(&task_lock);
-				return;
-			}
-			if (task_stack[myTask].finished == threadCount)
-				task_current--;
-			else if (task_stack[myTask].taken < threadCount) {
-				taskPiece  = task_stack[myTask].taken;
-				self       = task_stack[myTask].self;
-				fnCallArgs = task_stack[myTask].fnCallArgs;
-				task_stack[myTask].taken++;
-				break;
-			}
-		}
-	SDL_AtomicUnlock(&task_lock);
-	
-	output(self, taskPiece, fnCallArgs);
-	
-	SDL_AtomicLock(&task_lock);
-		task_stack[myTask].finished++;
-	SDL_AtomicUnlock(&task_lock);
 }
 
 
