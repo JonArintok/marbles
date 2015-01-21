@@ -104,10 +104,9 @@ outType eval_mapB4D2(_evalargs_) {
 	
 	int yPos = 0;
 	int yLimit = toBeReturned.B.dimenY;
-	int perThread;
 	
 	if (toBeReturned.B.dimenY >= threadCount) {
-		perThread = toBeReturned.B.dimenY / threadCount;//Program received signal SIGFPE, Arithmetic exception.
+		int perThread = toBeReturned.B.dimenY / threadCount;
 		yPos = taskPiece * perThread;
 		if (taskPiece == threadCount-1)
 			yLimit = toBeReturned.B.dimenY;
@@ -212,20 +211,49 @@ const stdNode node_mapN1D2 = {
 };
 
 
+bool outOfBounds(outType rect, int dimenX, int dimenY) {
+	return 
+		rect.nt[0] >= dimenX         ||
+		rect.nt[1] >= dimenY         ||
+		rect.nt[0] + rect.nt[2] <= 0 ||
+		rect.nt[1] + rect.nt[3] <= 0 ||
+		rect.nt[2] < 1               ||
+		rect.nt[3] < 1
+	;
+}
+
 outType eval_mapInB4D2(_evalargs_) {
-	nodeIndex arg0 = nodes[self].children[0];
-	nodeIndex arg1 = nodes[self].children[1];
-	nodeIndex arg2 = nodes[self].children[2];
-	outType filler = output(arg0, -1, fnCallArgs);
-	outType rect   = output(arg1, -1, fnCallArgs);
-	outType source = output(arg2, -1, fnCallArgs);
+	outType filler;
+	outType rect;
+	outType toBeReturned;
 	
-	outType toBeReturned = source;
-	
-	if (isReadOnly(arg2)) {
-		setLoadedNode(self, toBeReturned.N.dataSize);
-		toBeReturned.N.data = nodes[self].cache.N.data;
-		memcpy(toBeReturned.N.data, source.N.data, toBeReturned.N.dataSize);
+	if (taskPiece < 0) {
+		outType newFnCallArgs[maxChildren];
+		nodeIndex arg0 = nodes[self].children[0];
+		nodeIndex arg1 = nodes[self].children[1];
+		nodeIndex arg2 = nodes[self].children[2];
+		newFnCallArgs[0] = output(arg0, -1, fnCallArgs);
+		rect             = output(arg1, -1, fnCallArgs);
+		outType source   = output(arg2, -1, fnCallArgs);
+		
+		toBeReturned = source;
+		if (isReadOnly(arg2)) {
+			setLoadedNode(self, toBeReturned.N.dataSize);
+			toBeReturned.N.data = nodes[self].cache.N.data;
+			memcpy(toBeReturned.N.data, source.N.data, toBeReturned.N.dataSize);
+		}
+		newFnCallArgs[2] = toBeReturned;
+		
+		if (outOfBounds(rect, toBeReturned.B.dimenX, toBeReturned.B.dimenY))
+			return toBeReturned;
+		newFnCallArgs[1] = rect;
+		
+		return initTask(self, newFnCallArgs);
+	}
+	else {
+		filler       = fnCallArgs[0];
+		rect         = fnCallArgs[1];
+		toBeReturned = fnCallArgs[2];
 	}
 	
 	const int rectX  = rect.nt[0];
@@ -235,15 +263,30 @@ outType eval_mapInB4D2(_evalargs_) {
 	const int dimenX = toBeReturned.B.dimenX;
 	const int dimenY = toBeReturned.B.dimenY;
 	
-	if (
-		rectX >= dimenX   ||
-		rectY >= dimenY   ||
-		rectX + rectW < 0 ||
-		rectY + rectH < 0 ||
-		rectW < 1         ||
-		rectH < 1
-	) {
+	int yPos   = rectY;
+	int xStart = rectX < 0  ?  0  :  rectX;
+	int yLimit = rectY + rectH;
+	int xLimit = rectX + rectW;
+	
+	if (rectH <= taskPiece)
 		return toBeReturned;
+	else {
+		int perThread = rectH / threadCount;
+		yPos = rectY + taskPiece*perThread;
+		if (taskPiece == threadCount-1)
+			yLimit = rectY + rectH;
+		else
+			yLimit = rectY + (taskPiece+1)*perThread;
+	}
+	
+	if (xLimit > dimenX)
+		xLimit = dimenX;
+	if (yPos < 0)
+		yPos = 0;
+	if (yLimit > dimenY) {
+		if (yPos > dimenY)
+			return toBeReturned;
+		yLimit = dimenY;
 	}
 	
 	//filler arguments: x, y, width, height
@@ -251,24 +294,13 @@ outType eval_mapInB4D2(_evalargs_) {
 	fillerCallArgs[2].n = rectW;
 	fillerCallArgs[3].n = rectH;
 	
-	const int limitX = rectX+rectW < dimenX  ?  rectX+rectW  :  dimenX;
-	const int limitY = rectY+rectH < dimenY  ?  rectY+rectH  :  dimenY;
-	
 	byte *dataToBeReturned = toBeReturned.B.data;
-	for (
-		int yPos  =  rectY < 0  ?  0  :  rectY; 
-		yPos < limitY; 
-		yPos++
-	) {
+	for (; yPos < yLimit; yPos++) {
 		fillerCallArgs[1].n = yPos - rectY;
-		for (
-			int xPos  =  rectX < 0  ?  0  :  rectX; 
-			xPos < limitX; 
-			xPos++
-		) {
+		for (int xPos = xStart; xPos < xLimit; xPos++) {
 			fillerCallArgs[0].n = xPos - rectX;
-			outType value = output(filler.f+1, -1, fillerCallArgs);
-			int dataPos = (yPos * dimenX + xPos) * 4;
+			outType value   = output(filler.f+1, -1, fillerCallArgs);
+			int     dataPos = (yPos*dimenX + xPos)*4;
 			dataToBeReturned[dataPos  ] = value.bt[0];
 			dataToBeReturned[dataPos+1] = value.bt[1];
 			dataToBeReturned[dataPos+2] = value.bt[2];

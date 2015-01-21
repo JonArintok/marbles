@@ -204,23 +204,6 @@ outType eval_numLit(_evalargs_) {
 
 
 
-bool isReadOnly(nodeIndex n) {
-	return 
-		nodes[n].evaluate == eval_varCall   ||
-		nodes[n].evaluate == eval_stateCall ||
-		nodes[n].evaluate == eval_shareCall
-	;
-}
-
-
-
-
-
-
-
-
-
-
 typedef struct {
 	uint16_t  taken;   // how many threads have started working the task
 	uint16_t  finished;// how many threads have finished their piece
@@ -307,7 +290,13 @@ outType initTask(nodeIndex self, outType *fnCallargsIn) {
 
 
 
-
+bool isReadOnly(nodeIndex n) {
+	return 
+		nodes[n].evaluate == eval_varCall   ||
+		nodes[n].evaluate == eval_stateCall ||
+		nodes[n].evaluate == eval_shareCall
+	;
+}
 
 
 
