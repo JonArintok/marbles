@@ -35,7 +35,7 @@ SDL_Renderer *renderer = NULL;
 SDL_Texture  *texture  = NULL;
 
 int threadCount;
-#define _threadWait_ microSleep(threadCount*10);
+#define _threadWait_ microSleep(threadCount*12);
 
 
 #include "01_foundation.h"

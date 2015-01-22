@@ -1,12 +1,12 @@
 
 
 define test
-	echo running test/bouncingColors.mrbl...
+	echo running test/cgolAndSeedsSplit.mrbl...
 	echo \n
-	run test/bouncingColors.mrbl
+	run test/cgolAndSeedsSplit.mrbl
 end
 
-break stdNode/arrays.h:382
+break stdNode/arrays.h:354
 
 define snp
 	step
