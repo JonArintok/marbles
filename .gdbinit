@@ -1,12 +1,12 @@
 
 
 define test
-	echo running test/cgolAndSeedsSplit.mrbl...
+	echo running test/functionPass.mrbl...
 	echo \n
-	run test/cgolAndSeedsSplit.mrbl
+	run test/functionPass.mrbl
 end
 
-break stdNode/arrays.h:354
+break 05_parse.h:getParentsInType
 
 define snp
 	step

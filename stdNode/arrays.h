@@ -55,15 +55,14 @@ outType eval_fillB4D2(_evalargs_) {
 	if (isReadOnly(arg1)) {
 		setLoadedNode(self, newDataSize);
 		toBeReturned.B.data = nodes[self].cache.B.data;
-		memcpy(toBeReturned.B.data, source.B.data, toBeReturned.B.dataSize);
 	}
 	
 	byte *dataToBeReturned = toBeReturned.B.data;
-	for (int i = 0; i < newDataSize; i += 4) {
-		dataToBeReturned[i  ] = value.bt[0];
-		dataToBeReturned[i+1] = value.bt[1];
-		dataToBeReturned[i+2] = value.bt[2];
-		dataToBeReturned[i+3] = value.bt[3];
+	for (int i = 0; i < newDataSize;) {
+		dataToBeReturned[i++] = value.bt[0];
+		dataToBeReturned[i++] = value.bt[1];
+		dataToBeReturned[i++] = value.bt[2];
+		dataToBeReturned[i++] = value.bt[3];
 	}
 	
 	return toBeReturned;
@@ -77,31 +76,25 @@ const stdNode node_fillB4D2 = {
 
 
 outType eval_mapB4D2(_evalargs_) {
-	outType filler;
-	outType toBeReturned;
-	
 	if (taskPiece < 0) {
 		outType newFnCallArgs[maxChildren];
 		nodeIndex arg0 = nodes[self].children[0];
 		nodeIndex arg1 = nodes[self].children[1];
 		newFnCallArgs[0] = output(arg0, -1, fnCallArgs); //filler
-		outType source   = output(arg1, -1, fnCallArgs);
+		newFnCallArgs[1] = output(arg1, -1, fnCallArgs); //source
 		
-		toBeReturned = source;
-		size_t newDataSize = toBeReturned.N.dataSize;
+		size_t newDataSize = newFnCallArgs[1].B.dataSize;
+		setLoadedNode(self, newDataSize);
+		nodes[self].cache.B.dimenX = newFnCallArgs[1].B.dimenX;
+		nodes[self].cache.B.dimenY = newFnCallArgs[1].B.dimenY;
+		nodes[self].cache.B.dimenZ = newFnCallArgs[1].B.dimenZ;
 		
-		if (isReadOnly(arg1)) {
-			setLoadedNode(self, newDataSize);
-			toBeReturned.N.data = nodes[self].cache.N.data;
-		}
-		
-		newFnCallArgs[1] = toBeReturned;
 		return initTask(self, newFnCallArgs);
 	}
-	else {
-		filler       = fnCallArgs[0];
-		toBeReturned = fnCallArgs[1];
-	}
+	
+	outType filler       = fnCallArgs[0];
+	outType source       = fnCallArgs[1];
+	outType toBeReturned = nodes[self].cache;
 	
 	int yPos = 0;
 	int yLimit = toBeReturned.B.dimenY;
@@ -122,6 +115,7 @@ outType eval_mapB4D2(_evalargs_) {
 	outType fillerCallArgs[maxChildren];
 	fillerCallArgs[2].n = toBeReturned.B.dimenX;
 	fillerCallArgs[3].n = toBeReturned.B.dimenY;
+	fillerCallArgs[4]   = source;
 	byte *dataToBeReturned = toBeReturned.B.data;
 	int dataPos = yPos * toBeReturned.B.dimenX * 4;
 	for (; yPos < yLimit; yPos++) {
@@ -139,7 +133,7 @@ outType eval_mapB4D2(_evalargs_) {
 	return toBeReturned;
 }
 const stdNode node_mapB4D2 = {
-	.name = "mapB4D2 B4D2\nfiller B4 & N1 N1 N1 N1\nsource B4D2",
+	.name = "mapB4D2 B4D2\nfiller B4 & N1 N1 N1 N1 B4D2\nsource B4D2",
 	.arity = 2,
 	.evaluate = eval_mapB4D2
 };
@@ -158,11 +152,6 @@ outType eval_mapN1D2(_evalargs_) {
 		nodes[self].cache.N.dimenX = newFnCallArgs[1].N.dimenX;
 		nodes[self].cache.N.dimenY = newFnCallArgs[1].N.dimenY;
 		nodes[self].cache.N.dimenZ = newFnCallArgs[1].N.dimenZ;
-		memcpy(
-			nodes[self].cache.N.data, 
-			newFnCallArgs[1].N.data, 
-			newDataSize
-		);
 		
 		return initTask(self, newFnCallArgs);
 	}
@@ -173,10 +162,9 @@ outType eval_mapN1D2(_evalargs_) {
 	
 	int yPos = 0;
 	int yLimit = toBeReturned.N.dimenY;
-	int perThread;
 	
 	if (toBeReturned.N.dimenY >= threadCount) {
-		perThread = toBeReturned.N.dimenY / threadCount;
+		int perThread = toBeReturned.N.dimenY / threadCount;
 		yPos = taskPiece * perThread;
 		if (taskPiece == threadCount-1)
 			yLimit = toBeReturned.N.dimenY;
@@ -298,14 +286,14 @@ outType eval_mapInB4D2(_evalargs_) {
 	byte *dataToBeReturned = toBeReturned.B.data;
 	for (; yPos < yLimit; yPos++) {
 		fillerCallArgs[1].n = yPos - rectY;
+		int dataPos = (yPos*dimenX + xStart)*4;
 		for (int xPos = xStart; xPos < xLimit; xPos++) {
 			fillerCallArgs[0].n = xPos - rectX;
 			outType value   = output(filler.f+1, -1, fillerCallArgs);
-			int     dataPos = (yPos*dimenX + xPos)*4;
-			dataToBeReturned[dataPos  ] = value.bt[0];
-			dataToBeReturned[dataPos+1] = value.bt[1];
-			dataToBeReturned[dataPos+2] = value.bt[2];
-			dataToBeReturned[dataPos+3] = value.bt[3];
+			dataToBeReturned[dataPos++] = value.bt[0];
+			dataToBeReturned[dataPos++] = value.bt[1];
+			dataToBeReturned[dataPos++] = value.bt[2];
+			dataToBeReturned[dataPos++] = value.bt[3];
 		}
 	}
 	
@@ -394,11 +382,11 @@ outType eval_mapInN1D2(_evalargs_) {
 	number *dataToBeReturned = toBeReturned.N.data;
 	for (; yPos < yLimit; yPos++) {
 		fillerCallArgs[1].n = yPos - rectY;
+		int dataPos = yPos*dimenX + xStart;
 		for (int xPos = xStart; xPos < xLimit; xPos++) {
 			fillerCallArgs[0].n = xPos - rectX;
-			outType value   = output(filler.f+1, -1, fillerCallArgs);
-			int dataPos = yPos*dimenX + xPos;
-			dataToBeReturned[dataPos] = value.n;
+			outType value = output(filler.f+1, -1, fillerCallArgs);
+			dataToBeReturned[dataPos++] = value.n;
 		}
 	}
 	

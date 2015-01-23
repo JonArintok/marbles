@@ -164,10 +164,12 @@ int strRemoveUpToIncl(char *s, char d) {
 }
 
 void printUpToThis(char *s, char d) {
+	if (!s) return;
 	for (int i = 0; s[i] && s[i] != d; putc(s[i++], stdout));
 }
 
-void printUpToThese(char *s, char* d) {
+void printUpToThese(char *s, char *d) {
+	if (!s) return;
 	for (int i = 0; !strchr(d, s[i]); putc(s[i++], stdout));
 }
 
@@ -746,7 +748,7 @@ char *WordAfterNthSpace(char *in, int n) {
 			if (spaceCount == n)
 				return &in[i+1];
 		}
-		if (in[i] == '\0')
+		if (in[i] == '\0' || in[i] == '\n')
 			return NULL;
 	}
 }
@@ -799,10 +801,12 @@ char *getParentsInType(nodeIndex nodePos) {
 			);
 			if (!childIndex)
 				parentsInType = fnArgCallArgs;
-			else
+			else {
 				parentsInType = WordAfterNthSpace(
 					fnArgCallArgs, childIndex
 				);
+				if (!parentsInType) return NULL;
+			}
 		}
 	}
 	//if parentsInType is "match", then we want the parent's parentsInType
@@ -843,11 +847,15 @@ bool typesMatch(
 	//Ignore array dimensionality differences.
 	//For arrays of tuples, the tuple length must match,
 	//otherwise ignore tuple length differences.
-	if (iTypePart[0] == oTypePart[0]) {
+	if (
+		iTypePart && iTypePart[1] &&
+		oTypePart && oTypePart[1] &&
+		iTypePart[0] == oTypePart[0]
+	) {
 		if (iTypePart[2] != 'D' && oTypePart[2] != 'D')
 			return true;
 		if (
-			iTypePart[2]  == 'D' && 
+			iTypePart[2] == 'D' && 
 			oTypePart[2] == 'D' && 
 			iTypePart[1] == oTypePart[1]
 		) {
@@ -912,31 +920,37 @@ void checkType(nodeIndex nodePos) {
 	
 	if (nodes[nodePos].evaluate == eval_fnArgCall) {
 		//just the beginning
-		if (!typesMatch(parentsInType, parentsInType, nodeOutType, nodeOutType, nodePos))
-			return;
+		typesMatch(
+			parentsInType, 
+			parentsInType, 
+			nodeOutType, 
+			nodeOutType, 
+			nodePos
+		);
+		return;
 	}
-	else {
-		if (nodes[nodePos].evaluate == eval_fnPass) {
-			//convert long form to short form
-			char shortDec[maxLineLength];
-			longDecToShortDec(shortDec, nodeOutType);
-			nodeOutType = shortDec;
-		}
-		if (!typesMatch(parentsInType, parentsInType, nodeOutType, nodeOutType, nodePos))
-			return;
-		char *innerParentsInType;
-		char *innerNodeOutType;
-		int   argPos = 0;
-		for (int i = 0; nodeOutType[i] != '\n' && nodeOutType[i] != '\0'; i++) {
-			if (nodeOutType[i] == ' ') {
-				i++;
-				argPos++;
-				innerParentsInType = &parentsInType[i];
-				innerNodeOutType   = &nodeOutType[i];
-				if (!typesMatch(innerParentsInType, parentsInType, innerNodeOutType, nodeOutType, nodePos))
-					return;
-			}
-		}
+	if (nodes[nodePos].evaluate == eval_fnPass) {
+		//convert long form to short form
+		char shortDec[maxLineLength];
+		longDecToShortDec(shortDec, nodeOutType);
+		nodeOutType = shortDec;
+	}
+	char *innerParentsInType = parentsInType;
+	char *innerNodeOutType   = nodeOutType; 
+	for (
+		int argPos = 1;
+		typesMatch(
+			innerParentsInType, 
+			parentsInType, 
+			innerNodeOutType, 
+			nodeOutType, 
+			nodePos
+		);
+		argPos++
+	) {
+		innerParentsInType = WordAfterNthSpace(parentsInType, argPos);
+		innerNodeOutType = WordAfterNthSpace(nodeOutType, argPos);
+		if (!innerParentsInType || !innerNodeOutType) break;
 	}
 }
 
