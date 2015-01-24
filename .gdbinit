@@ -1,12 +1,12 @@
 
 
 define test
-	echo running test/functionPass.mrbl...
+	echo running test/cgol.mrbl...
 	echo \n
-	run test/functionPass.mrbl
+	run test/cgol.mrbl
 end
 
-break 05_parse.h:getParentsInType
+break 05_parse.h:975
 
 define snp
 	step

@@ -6,7 +6,7 @@ fn add N1
 	+ addendA addendB
 
 fn applyBiop N1
-	biop N1 & N1 N1
+	biop N1 & N1 N1 N1
 	a N1
 	b N1
 	biop a b

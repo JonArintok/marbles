@@ -753,6 +753,14 @@ char *WordAfterNthSpace(char *in, int n) {
 	}
 }
 
+int chrCountUpTo(char *str, char chr, char stop) {
+	if (!str) return 0;
+	int count = 0;
+	for (int i = 0; str[i] && str[i] != stop; i++)
+		if (str[i] == chr) count++;
+	return count;
+}
+
 
 char *getParentsInType(nodeIndex nodePos) {
 	char *parentsInType;
@@ -927,6 +935,18 @@ void checkType(nodeIndex nodePos) {
 			nodeOutType, 
 			nodePos
 		);
+		
+		//count arguments, should match childCount
+		int argCount = chrCountUpTo(nodeOutType, ' ', '\n') - 1;
+		if (argCount > nodes[nodePos].childCount) {
+			putError(nodesInfo[nodePos].line, "'");
+			printUpToThis(nodesInfo[nodePos].name, ' ');
+			printf(
+				"' expects %i arguments but only has %i\n",
+				argCount, nodes[nodePos].childCount
+			);
+		}
+		
 		return;
 	}
 	if (nodes[nodePos].evaluate == eval_fnPass) {
@@ -950,7 +970,17 @@ void checkType(nodeIndex nodePos) {
 	) {
 		innerParentsInType = WordAfterNthSpace(parentsInType, argPos);
 		innerNodeOutType = WordAfterNthSpace(nodeOutType, argPos);
-		if (!innerParentsInType || !innerNodeOutType) break;
+		if (!innerParentsInType || !innerNodeOutType) {
+			if (!innerParentsInType && !innerNodeOutType)
+				break;
+			putError(nodesInfo[nodePos].line, "expected type '");
+			printUpToThis(parentsInType, '\n');
+			printf("' but '");
+			printUpToThis(nodesInfo[nodePos].name, ' ');
+			printf("' is of type '");
+			printUpToThis(nodeOutType, '\n');
+			puts("'");
+		}
 	}
 }
 
