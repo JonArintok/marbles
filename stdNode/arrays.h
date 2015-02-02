@@ -29,10 +29,10 @@ outType eval_buildN1D2(_evalargs_) {
 	size_t newDataSize = sizeof(number) * widthSource.n * heightSource.n;
 	
 	setLoadedNode(self, newDataSize);
-	memset(nodes[self].cache.B.data, 0, newDataSize);
+	memset(nodes[self].cache.N.data, 0, newDataSize);
 	nodes[self].cache.N.dimenX = widthSource.n;
 	nodes[self].cache.N.dimenY = heightSource.n;
-	nodes[self].cache.B.dimenZ = 1;
+	nodes[self].cache.N.dimenZ = 1;
 	
 	return nodes[self].cache;
 }
@@ -76,6 +76,139 @@ const stdNode node_fillB4D2 = {
 
 
 outType eval_mapB4D2(_evalargs_) {
+	outType filler;
+	outType toBeReturned;
+	
+	if (taskPiece < 0) {
+		outType newFnCallArgs[maxChildren];
+		nodeIndex arg0 = nodes[self].children[0];
+		nodeIndex arg1 = nodes[self].children[1];
+		newFnCallArgs[0] = output(arg0, -1, fnCallArgs); //filler
+		outType source   = output(arg1, -1, fnCallArgs);
+		
+		toBeReturned = source;
+		size_t newDataSize = toBeReturned.N.dataSize;
+		
+		if (isReadOnly(arg1)) {
+			setLoadedNode(self, newDataSize);
+			toBeReturned.N.data = nodes[self].cache.N.data;
+		}
+		
+		newFnCallArgs[1] = toBeReturned;
+		return initTask(self, newFnCallArgs);
+	}
+	else {
+		filler       = fnCallArgs[0];
+		toBeReturned = fnCallArgs[1];
+	}
+	
+	int yPos = 0;
+	int yLimit = toBeReturned.B.dimenY;
+	
+	if (toBeReturned.B.dimenY >= threadCount) {
+		int perThread = toBeReturned.B.dimenY / threadCount;
+		yPos = taskPiece * perThread;
+		if (taskPiece == threadCount-1)
+			yLimit = toBeReturned.B.dimenY;
+		else
+			yLimit = (taskPiece+1) * perThread;
+	}
+	else if (taskPiece) {
+		return toBeReturned;
+	}
+	
+	//filler arguments: x, y, width, height
+	outType fillerCallArgs[maxChildren];
+	fillerCallArgs[2].n = toBeReturned.B.dimenX;
+	fillerCallArgs[3].n = toBeReturned.B.dimenY;
+	byte *dataToBeReturned = toBeReturned.B.data;
+	int dataPos = yPos * toBeReturned.B.dimenX * 4;
+	for (; yPos < yLimit; yPos++) {
+		fillerCallArgs[1].n = yPos;
+		for (int xPos = 0; xPos < toBeReturned.B.dimenX; xPos++) {
+			fillerCallArgs[0].n = xPos;
+			outType value = output(filler.f+1, -1, fillerCallArgs);
+			dataToBeReturned[dataPos++] = value.bt[0];
+			dataToBeReturned[dataPos++] = value.bt[1];
+			dataToBeReturned[dataPos++] = value.bt[2];
+			dataToBeReturned[dataPos++] = value.bt[3];
+		}
+	}
+	
+	return toBeReturned;
+}
+const stdNode node_mapB4D2 = {
+	.name = "mapB4D2 B4D2\nfiller B4 & N1 N1 N1 N1\nsource B4D2",
+	.arity = 2,
+	.evaluate = eval_mapB4D2
+};
+
+outType eval_mapN1D2(_evalargs_) {
+	outType filler;
+	outType toBeReturned;
+	
+	if (taskPiece < 0) {
+		outType newFnCallArgs[maxChildren];
+		nodeIndex arg0 = nodes[self].children[0];
+		nodeIndex arg1 = nodes[self].children[1];
+		newFnCallArgs[0] = output(arg0, -1, fnCallArgs); //filler
+		outType source   = output(arg1, -1, fnCallArgs);
+		
+		toBeReturned = source;
+		size_t newDataSize = toBeReturned.N.dataSize;
+		
+		if (isReadOnly(arg1)) {
+			setLoadedNode(self, newDataSize);
+			toBeReturned.N.data = nodes[self].cache.N.data;
+		}
+		
+		newFnCallArgs[1] = toBeReturned;
+		return initTask(self, newFnCallArgs);
+	}
+	else {
+		filler       = fnCallArgs[0];
+		toBeReturned = fnCallArgs[1];
+	}
+	
+	int yPos = 0;
+	int yLimit = toBeReturned.N.dimenY;
+	
+	if (toBeReturned.N.dimenY >= threadCount) {
+		int perThread = toBeReturned.N.dimenY / threadCount;
+		yPos = taskPiece * perThread;
+		if (taskPiece == threadCount-1)
+			yLimit = toBeReturned.N.dimenY;
+		else
+			yLimit = (taskPiece+1) * perThread;
+	}
+	else if (taskPiece) {
+		return toBeReturned;
+	}
+	
+	//filler arguments: x, y, width, height
+	outType fillerCallArgs[maxChildren];
+	fillerCallArgs[2].n = toBeReturned.N.dimenX;
+	fillerCallArgs[3].n = toBeReturned.N.dimenY;
+	number *dataToBeReturned = toBeReturned.N.data;
+	int     dataPos          = yPos * toBeReturned.N.dimenX;
+	for (; yPos < yLimit; yPos++) {
+		fillerCallArgs[1].n = yPos;
+		for (int xPos = 0; xPos < toBeReturned.N.dimenX; xPos++) {
+			fillerCallArgs[0].n = xPos;
+			outType value   = output(filler.f+1, -1, fillerCallArgs);
+			dataToBeReturned[dataPos++] = value.n;
+		}
+	}
+	
+	return toBeReturned;
+}
+const stdNode node_mapN1D2 = {
+	.name = "mapN1D2 N1D2\nfiller N1 & N1 N1 N1 N1\nsource N1D2",
+	.arity = 2,
+	.evaluate = eval_mapN1D2
+};
+
+outType eval_mapThruB4D2(_evalargs_) {
 	if (taskPiece < 0) {
 		outType newFnCallArgs[maxChildren];
 		nodeIndex arg0 = nodes[self].children[0];
@@ -122,7 +255,7 @@ outType eval_mapB4D2(_evalargs_) {
 		fillerCallArgs[1].n = yPos;
 		for (int xPos = 0; xPos < toBeReturned.B.dimenX; xPos++) {
 			fillerCallArgs[0].n = xPos;
-			outType value   = output(filler.f+1, -1, fillerCallArgs);
+			outType value = output(filler.f+1, -1, fillerCallArgs);
 			dataToBeReturned[dataPos++] = value.bt[0];
 			dataToBeReturned[dataPos++] = value.bt[1];
 			dataToBeReturned[dataPos++] = value.bt[2];
@@ -132,14 +265,14 @@ outType eval_mapB4D2(_evalargs_) {
 	
 	return toBeReturned;
 }
-const stdNode node_mapB4D2 = {
-	.name = "mapB4D2 B4D2\nfiller B4 & N1 N1 N1 N1 B4D2\nsource B4D2",
+const stdNode node_mapThruB4D2 = {
+	.name = "mapThruB4D2 B4D2\nfiller B4 & N1 N1 N1 N1 B4D2\nsource B4D2",
 	.arity = 2,
-	.evaluate = eval_mapB4D2
+	.evaluate = eval_mapThruB4D2
 };
 
 
-outType eval_mapN1D2(_evalargs_) {
+outType eval_mapThruN1D2(_evalargs_) {
 	if (taskPiece < 0) {
 		outType newFnCallArgs[maxChildren];
 		nodeIndex arg0 = nodes[self].children[0];
@@ -181,22 +314,22 @@ outType eval_mapN1D2(_evalargs_) {
 	fillerCallArgs[3].n = toBeReturned.N.dimenY;
 	fillerCallArgs[4]   = source;
 	number *dataToBeReturned = toBeReturned.N.data;
-	int dataPos = yPos * toBeReturned.N.dimenX;
+	int     dataPos          = yPos * toBeReturned.N.dimenX;
 	for (; yPos < yLimit; yPos++) {
 		fillerCallArgs[1].n = yPos;
-		for (int xPos = 0; xPos < toBeReturned.N.dimenX; xPos++, dataPos++) {
+		for (int xPos = 0; xPos < toBeReturned.N.dimenX; xPos++) {
 			fillerCallArgs[0].n = xPos;
 			outType value = output(filler.f+1, -1, fillerCallArgs);
-			dataToBeReturned[dataPos] = value.n;
+			dataToBeReturned[dataPos++] = value.n;
 		}
 	}
 	
 	return toBeReturned;
 }
-const stdNode node_mapN1D2 = {
-	.name = "mapN1D2 N1D2\nfiller N1 & N1 N1 N1 N1 N1D2\nsource N1D2",
+const stdNode node_mapThruN1D2 = {
+	.name = "mapThruN1D2 N1D2\nfiller N1 & N1 N1 N1 N1 N1D2\nsource N1D2",
 	.arity = 2,
-	.evaluate = eval_mapN1D2
+	.evaluate = eval_mapThruN1D2
 };
 
 

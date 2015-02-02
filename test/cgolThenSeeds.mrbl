@@ -34,8 +34,6 @@ var initialCells N1D2
 		buildN1D2 videoWidth videoHeight
 
 
-@enter
-
 fn neighborCount N1
 	x N1
 	y N1
@@ -69,7 +67,6 @@ fn cgol N1
 			1
 			0
 
-
 fn seeds N1
 	x N1
 	y N1
@@ -81,12 +78,15 @@ fn seeds N1
 		1
 		0
 
+
+@enter
+
 state cells N1D2
 	?
 		currentFrame
-		mapN1D2
+		mapThruN1D2
 			seeds
-			mapN1D2
+			mapThruN1D2
 				cgol
 				cells
 		initialCells

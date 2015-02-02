@@ -17,7 +17,7 @@ fn redFiller B4
 			+
 				/ xPos sourceWidth
 				/ yPos sourceHeight
-			3
+			2
 		0
 		0
 		1
@@ -36,7 +36,7 @@ fn cyanFiller B4
 var image B4D2
 	mapInB4D2
 		redFiller
-		N4 -40 -40 80 80
+		N4 40 40 80 80
 		mapB4D2
 			cyanFiller
 			buildB4D2
