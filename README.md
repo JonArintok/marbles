@@ -1,2 +1,7 @@
-Marbles is a hecka cool programming language named after 
-what has been lost by someone who has "lost their marbles".
+It's a hecka cool programming language.
+Why don't ya try it?
+Compile with `sh optimizedCompile.sh`.
+The only dependency is SDL2.
+run with `./marblerun helloworld.mrbl`.
+Guess what, the folder labeled "examples" is full of examples.
+Don't lose your marbles!

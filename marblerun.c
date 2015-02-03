@@ -56,7 +56,7 @@ int main(int argc, char **argv) {
 	}
 	fileStream = fopen(fileName, "r");
 	if (!fileStream) {
-		printf("could not open: %s\n", fileName);
+		printf("could not open '%s'\n", fileName);
 		return 2;
 	}
 	

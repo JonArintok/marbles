@@ -12,19 +12,19 @@ runAndPrint() {
 	
 	echo "cgol.mrbl"
 	>&2 echo "\n\n\n\ncgol.mrbl"
-	>&2 perf stat ./marblerun test/cgol.mrbl
+	>&2 perf stat ./marblerun examples/cgol.mrbl
 	
 	echo "bouncingColors.mrbl"
 	>&2 echo "\n\n\n\nbouncingColors.mrbl"
-	>&2 perf stat ./marblerun test/bouncingColors.mrbl
+	>&2 perf stat ./marblerun examples/bouncingColors.mrbl
 	
 	echo "recursarray.mrbl"
 	>&2 echo "\n\n\n\nrecursarray.mrbl.mrbl"
-	>&2 perf stat ./marblerun test/recursarray.mrbl
+	>&2 perf stat ./marblerun examples/recursarray.mrbl
 	
 	echo "fibonacciX16.mrbl"
 	>&2 echo "\n\n\n\nfibonacciX16.mrbl"
-	>&2 perf stat ./marblerun test/fibonacciX16.mrbl
+	>&2 perf stat ./marblerun examples/fibonacciX16.mrbl
 }
 
 printf "writing to $filename...\n"
