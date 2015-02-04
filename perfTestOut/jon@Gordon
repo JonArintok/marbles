@@ -13,7 +13,7 @@ CPU family:            21
 Model:                 48
 Model name:            AMD A10-7850K Radeon R7, 12 Compute Cores 4C+8G
 Stepping:              1
-CPU MHz:               3500.000
+CPU MHz:               1700.000
 CPU max MHz:           3700.0000
 CPU min MHz:           1700.0000
 BogoMIPS:              7386.94
@@ -36,19 +36,19 @@ finished.
 
  Performance counter stats for './marblerun examples/cgol.mrbl':
 
-       8720.394887      task-clock (msec)         #    1.881 CPUs utilized          
-           137,453      context-switches          #    0.016 M/sec                  
-             1,890      cpu-migrations            #    0.217 K/sec                  
-             9,782      page-faults               #    0.001 M/sec                  
-    21,793,542,999      cycles                    #    2.499 GHz                     [83.11%]
-     1,224,800,151      stalled-cycles-frontend   #    5.62% frontend cycles idle    [83.33%]
-     8,719,051,393      stalled-cycles-backend    #   40.01% backend  cycles idle    [33.59%]
-    33,375,047,733      instructions              #    1.53  insns per cycle        
-                                                  #    0.26  stalled cycles per insn [49.96%]
-     3,487,691,596      branches                  #  399.947 M/sec                   [66.58%]
-        11,667,123      branch-misses             #    0.33% of all branches         [83.52%]
+       8615.695049      task-clock (msec)         #    1.859 CPUs utilized          
+           136,871      context-switches          #    0.016 M/sec                  
+             1,881      cpu-migrations            #    0.218 K/sec                  
+             9,783      page-faults               #    0.001 M/sec                  
+    21,694,949,540      cycles                    #    2.518 GHz                     [82.95%]
+     1,221,357,422      stalled-cycles-frontend   #    5.63% frontend cycles idle    [83.74%]
+     8,626,333,876      stalled-cycles-backend    #   39.76% backend  cycles idle    [33.33%]
+    33,037,828,947      instructions              #    1.52  insns per cycle        
+                                                  #    0.26  stalled cycles per insn [49.95%]
+     3,463,645,439      branches                  #  402.016 M/sec                   [66.56%]
+        12,167,700      branch-misses             #    0.35% of all branches         [83.34%]
 
-       4.636167260 seconds time elapsed
+       4.633751865 seconds time elapsed
 
 
 
@@ -64,19 +64,19 @@ finished.
 
  Performance counter stats for './marblerun examples/bouncingColors.mrbl':
 
-       8747.378544      task-clock (msec)         #    0.735 CPUs utilized          
-           449,762      context-switches          #    0.051 M/sec                  
-             5,922      cpu-migrations            #    0.677 K/sec                  
-            10,550      page-faults               #    0.001 M/sec                  
-    13,804,287,084      cycles                    #    1.578 GHz                     [82.42%]
-     3,388,238,312      stalled-cycles-frontend   #   24.54% frontend cycles idle    [82.52%]
-     2,428,579,734      stalled-cycles-backend    #   17.59% backend  cycles idle    [35.09%]
-    16,958,639,199      instructions              #    1.23  insns per cycle        
-                                                  #    0.20  stalled cycles per insn [52.23%]
-     2,362,160,948      branches                  #  270.042 M/sec                   [69.30%]
-        20,952,005      branch-misses             #    0.89% of all branches         [85.81%]
+       8742.369704      task-clock (msec)         #    0.735 CPUs utilized          
+           449,621      context-switches          #    0.051 M/sec                  
+             6,772      cpu-migrations            #    0.775 K/sec                  
+            10,611      page-faults               #    0.001 M/sec                  
+    13,763,376,262      cycles                    #    1.574 GHz                     [82.04%]
+     3,407,561,293      stalled-cycles-frontend   #   24.76% frontend cycles idle    [82.41%]
+     2,332,611,006      stalled-cycles-backend    #   16.95% backend  cycles idle    [35.60%]
+    16,918,950,006      instructions              #    1.23  insns per cycle        
+                                                  #    0.20  stalled cycles per insn [52.69%]
+     2,363,816,356      branches                  #  270.386 M/sec                   [69.19%]
+        21,198,255      branch-misses             #    0.90% of all branches         [85.71%]
 
-      11.909212175 seconds time elapsed
+      11.893749232 seconds time elapsed
 
 
 
@@ -92,19 +92,19 @@ finished.
 
  Performance counter stats for './marblerun examples/recursarray.mrbl':
 
-      14655.855430      task-clock (msec)         #    1.230 CPUs utilized          
-           414,087      context-switches          #    0.028 M/sec                  
-             8,902      cpu-migrations            #    0.607 K/sec                  
-            10,340      page-faults               #    0.706 K/sec                  
-    27,914,864,805      cycles                    #    1.905 GHz                     [82.60%]
-     3,766,171,333      stalled-cycles-frontend   #   13.49% frontend cycles idle    [83.43%]
-     7,438,859,512      stalled-cycles-backend    #   26.65% backend  cycles idle    [33.98%]
-    40,637,029,603      instructions              #    1.46  insns per cycle        
-                                                  #    0.18  stalled cycles per insn [50.48%]
-     4,616,967,976      branches                  #  315.025 M/sec                   [66.91%]
-        70,524,482      branch-misses             #    1.53% of all branches         [83.41%]
+      14705.199279      task-clock (msec)         #    1.235 CPUs utilized          
+           413,735      context-switches          #    0.028 M/sec                  
+             8,822      cpu-migrations            #    0.600 K/sec                  
+            10,258      page-faults               #    0.698 K/sec                  
+    28,176,804,703      cycles                    #    1.916 GHz                     [82.94%]
+     3,829,792,575      stalled-cycles-frontend   #   13.59% frontend cycles idle    [83.38%]
+     7,779,966,031      stalled-cycles-backend    #   27.61% backend  cycles idle    [33.69%]
+    40,658,569,858      instructions              #    1.44  insns per cycle        
+                                                  #    0.19  stalled cycles per insn [50.10%]
+     4,635,473,894      branches                  #  315.227 M/sec                   [66.63%]
+        73,485,798      branch-misses             #    1.59% of all branches         [83.30%]
 
-      11.912462935 seconds time elapsed
+      11.904707093 seconds time elapsed
 
 
 
@@ -120,17 +120,17 @@ finished.
 
  Performance counter stats for './marblerun examples/fibonacciX16.mrbl':
 
-      28222.009084      task-clock (msec)         #    3.823 CPUs utilized          
-            38,500      context-switches          #    0.001 M/sec                  
-                11      cpu-migrations            #    0.000 K/sec                  
-               331      page-faults               #    0.012 K/sec                  
-   106,844,144,755      cycles                    #    3.786 GHz                     [83.33%]
-     4,190,837,381      stalled-cycles-frontend   #    3.92% frontend cycles idle    [83.35%]
-    35,321,171,923      stalled-cycles-backend    #   33.06% backend  cycles idle    [33.32%]
-   173,969,298,719      instructions              #    1.63  insns per cycle        
-                                                  #    0.20  stalled cycles per insn [50.00%]
-    17,757,760,583      branches                  #  629.217 M/sec                   [66.66%]
-       373,995,703      branch-misses             #    2.11% of all branches         [83.32%]
+      28112.509792      task-clock (msec)         #    3.810 CPUs utilized          
+            38,309      context-switches          #    0.001 M/sec                  
+                20      cpu-migrations            #    0.001 K/sec                  
+               336      page-faults               #    0.012 K/sec                  
+   106,547,349,509      cycles                    #    3.790 GHz                     [83.32%]
+     4,151,945,313      stalled-cycles-frontend   #    3.90% frontend cycles idle    [83.37%]
+    35,278,477,663      stalled-cycles-backend    #   33.11% backend  cycles idle    [33.31%]
+   174,056,058,772      instructions              #    1.63  insns per cycle        
+                                                  #    0.20  stalled cycles per insn [49.97%]
+    17,764,758,897      branches                  #  631.917 M/sec                   [66.65%]
+       368,730,634      branch-misses             #    2.08% of all branches         [83.33%]
 
-       7.382133836 seconds time elapsed
+       7.378112269 seconds time elapsed
 
