@@ -29,6 +29,7 @@ typedef union {
 	numArray    N;
 	byte        b;
 	byte        bt[8];
+	uint32_t    i;
 	byteArray   B;
 	nodeIndex   f;
 } outType;

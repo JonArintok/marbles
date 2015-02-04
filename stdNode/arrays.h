@@ -57,12 +57,9 @@ outType eval_fillB4D2(_evalargs_) {
 		toBeReturned.B.data = nodes[self].cache.B.data;
 	}
 	
-	byte *dataToBeReturned = toBeReturned.B.data;
+	uint32_t *dataToBeReturned = (uint32_t*)toBeReturned.B.data;
 	for (int i = 0; i < newDataSize;) {
-		dataToBeReturned[i++] = value.bt[0];
-		dataToBeReturned[i++] = value.bt[1];
-		dataToBeReturned[i++] = value.bt[2];
-		dataToBeReturned[i++] = value.bt[3];
+		dataToBeReturned[i++] = value.i;
 	}
 	
 	return toBeReturned;
@@ -121,17 +118,14 @@ outType eval_mapB4D2(_evalargs_) {
 	outType fillerCallArgs[maxChildren];
 	fillerCallArgs[2].n = toBeReturned.B.dimenX;
 	fillerCallArgs[3].n = toBeReturned.B.dimenY;
-	byte *dataToBeReturned = toBeReturned.B.data;
-	int dataPos = yPos * toBeReturned.B.dimenX * 4;
+	uint32_t *dataToBeReturned = (uint32_t*)toBeReturned.B.data;
+	int dataPos = yPos * toBeReturned.B.dimenX;
 	for (; yPos < yLimit; yPos++) {
 		fillerCallArgs[1].n = yPos;
 		for (int xPos = 0; xPos < toBeReturned.B.dimenX; xPos++) {
 			fillerCallArgs[0].n = xPos;
 			outType value = output(filler.f+1, -1, fillerCallArgs);
-			dataToBeReturned[dataPos++] = value.bt[0];
-			dataToBeReturned[dataPos++] = value.bt[1];
-			dataToBeReturned[dataPos++] = value.bt[2];
-			dataToBeReturned[dataPos++] = value.bt[3];
+			dataToBeReturned[dataPos++] = value.i;
 		}
 	}
 	
@@ -249,17 +243,14 @@ outType eval_mapThruB4D2(_evalargs_) {
 	fillerCallArgs[2].n = toBeReturned.B.dimenX;
 	fillerCallArgs[3].n = toBeReturned.B.dimenY;
 	fillerCallArgs[4]   = source;
-	byte *dataToBeReturned = toBeReturned.B.data;
-	int dataPos = yPos * toBeReturned.B.dimenX * 4;
+	uint32_t *dataToBeReturned = (uint32_t*)toBeReturned.B.data;
+	int dataPos = yPos * toBeReturned.B.dimenX;
 	for (; yPos < yLimit; yPos++) {
 		fillerCallArgs[1].n = yPos;
 		for (int xPos = 0; xPos < toBeReturned.B.dimenX; xPos++) {
 			fillerCallArgs[0].n = xPos;
 			outType value = output(filler.f+1, -1, fillerCallArgs);
-			dataToBeReturned[dataPos++] = value.bt[0];
-			dataToBeReturned[dataPos++] = value.bt[1];
-			dataToBeReturned[dataPos++] = value.bt[2];
-			dataToBeReturned[dataPos++] = value.bt[3];
+			dataToBeReturned[dataPos++] = value.i;
 		}
 	}
 	
@@ -416,17 +407,14 @@ outType eval_mapInB4D2(_evalargs_) {
 	fillerCallArgs[2].n = rectW;
 	fillerCallArgs[3].n = rectH;
 	
-	byte *dataToBeReturned = toBeReturned.B.data;
+	uint32_t *dataToBeReturned = (uint32_t*)toBeReturned.B.data;
 	for (; yPos < yLimit; yPos++) {
 		fillerCallArgs[1].n = yPos - rectY;
-		int dataPos = (yPos*dimenX + xStart)*4;
+		int dataPos = (yPos*dimenX + xStart);
 		for (int xPos = xStart; xPos < xLimit; xPos++) {
 			fillerCallArgs[0].n = xPos - rectX;
 			outType value   = output(filler.f+1, -1, fillerCallArgs);
-			dataToBeReturned[dataPos++] = value.bt[0];
-			dataToBeReturned[dataPos++] = value.bt[1];
-			dataToBeReturned[dataPos++] = value.bt[2];
-			dataToBeReturned[dataPos++] = value.bt[3];
+			dataToBeReturned[dataPos++] = value.i;
 		}
 	}
 	
