@@ -1,0 +1,20 @@
+
+
+fn fooArray N1D2
+	v N1
+	fillN1D2 v (buildN1D2 4 4)
+
+
+@enter
+
+state A N1D2
+	fooArray 32
+
+state B N1D2
+	fooArray -64
+
+state C N1D2
+	fooArray 128
+
+state D N1D2
+	fooArray -256

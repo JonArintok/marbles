@@ -73,6 +73,7 @@ const stdNode *stdNodeTable[] = {
 &node_buildB4D2,
 &node_buildN1D2,
 &node_fillB4D2,
+&node_fillN1D2,
 &node_mapB4D2,
 &node_mapThruB4D2,
 &node_mapN1D2,

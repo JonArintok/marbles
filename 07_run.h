@@ -112,15 +112,24 @@ int stateThread(void *ti) {
 		if (!threadIndex) {
 			if (videoEnabled) {
 				videoOut = output(videoRoot+1, -1, nullFnCallArgs);
-			}/*
+			}
 			else {
-				// this is temporary
+				//this is temporary
 				for (int i = 0; i <= csn; i++) {
 					nodeIndex n = frameforms[activeFrameform].stateNodes[i];
-					printf("%d:\t%f\n", i, nodes[n].cache.n);
+					if (isAnArray(n)) {
+						//this is only inteded for N1 arrays
+						int size = nodes[n].cache.N.dimenX*nodes[n].cache.N.dimenY;
+						for (int e = 0; e < size; e++) {
+							printf("%d: %f\n", i, nodes[n].cache.N.data[e]);
+						}
+					}
+					else {
+						printf("%d: %f\n", i, nodes[n].cache.n);
+					}
 				}
 				puts("");
-			}*/
+			}
 		}
 		
 		SDL_AtomicIncRef(&stateThreadPunch);

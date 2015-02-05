@@ -70,6 +70,33 @@ const stdNode node_fillB4D2 = {
 	.evaluate = eval_fillB4D2
 };
 
+outType eval_fillN1D2(_evalargs_) {
+	nodeIndex arg0 = nodes[self].children[0];
+	nodeIndex arg1 = nodes[self].children[1];
+	outType value  = output(arg0, -1, fnCallArgs);
+	outType source = output(arg1, -1, fnCallArgs);
+	
+	outType toBeReturned = source;
+	size_t newDataSize = toBeReturned.N.dataSize;
+	
+	if (isReadOnly(arg1)) {
+		setLoadedNode(self, newDataSize);
+		toBeReturned.N.data = nodes[self].cache.N.data;
+	}
+	
+	number *dataToBeReturned = toBeReturned.N.data;
+	for (int i = 0; i < newDataSize;) {
+		dataToBeReturned[i++] = value.n;
+	}
+	
+	return toBeReturned;
+}
+const stdNode node_fillN1D2 = {
+	.name = "fillN1D2 N1D2\nvalue N1\nsource N1D2",
+	.arity = 2,
+	.evaluate = eval_fillN1D2
+};
+
 
 
 outType eval_mapB4D2(_evalargs_) {
