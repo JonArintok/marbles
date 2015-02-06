@@ -52,12 +52,12 @@ int main(int argc, char **argv) {
 	fileName = argv[1];
 	if (!fileName) {
 		puts("usage: marblerun hello.mrbl");
-		return 1;
+		exit(1);
 	}
 	fileStream = fopen(fileName, "r");
 	if (!fileStream) {
 		printf("could not open '%s'\n", fileName);
-		return 2;
+		exit(2);
 	}
 	
 	

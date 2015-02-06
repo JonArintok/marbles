@@ -117,15 +117,17 @@ int stateThread(void *ti) {
 				//this is temporary
 				for (int i = 0; i <= csn; i++) {
 					nodeIndex n = frameforms[activeFrameform].stateNodes[i];
+					printf("%d:  ", i);
 					if (isAnArray(n)) {
 						//this is only inteded for N1 arrays
 						int size = nodes[n].cache.N.dimenX*nodes[n].cache.N.dimenY;
 						for (int e = 0; e < size; e++) {
-							printf("%d: %f\n", i, nodes[n].cache.N.data[e]);
+							printf("%6.1f  ", nodes[n].cache.N.data[e]);
 						}
+						puts("");
 					}
 					else {
-						printf("%d: %f\n", i, nodes[n].cache.n);
+						printf("%6.1f  ", nodes[n].cache.n);
 					}
 				}
 				puts("");

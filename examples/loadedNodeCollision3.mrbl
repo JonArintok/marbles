@@ -1,0 +1,41 @@
+
+fn filler N1
+	x N1
+	y N1
+	w N1
+	h N1
+	s N1D2
+	fromN1D2 x y s
+
+fn fooArray N1D2
+	v N1
+	mapThruN1D2
+		filler
+		copyB4D2
+			0
+			0
+			copyB4D2
+				0
+				0
+				fillN1D2 v (buildN1D2 4 4)
+				fillN1D2 v (buildN1D2 4 4)
+			copyB4D2
+				0
+				0
+				fillN1D2 v (buildN1D2 4 4)
+				fillN1D2 v (buildN1D2 4 4)
+
+
+@enter
+
+state A N1D2
+	fooArray 32
+
+state B N1D2
+	fooArray -64
+
+state C N1D2
+	fooArray 128
+
+state D N1D2
+	fooArray -256
