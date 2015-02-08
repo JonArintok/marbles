@@ -112,7 +112,7 @@ int stateThread(void *ti) {
 		if (!threadIndex) {
 			if (videoEnabled) {
 				videoOut = output(videoRoot+1, -1, nullFnCallArgs);
-			}
+			}/*
 			else {
 				//this is temporary
 				for (int i = 0; i <= csn; i++) {
@@ -131,7 +131,7 @@ int stateThread(void *ti) {
 					}
 				}
 				puts("");
-			}
+			}*/
 		}
 		
 		SDL_AtomicIncRef(&stateThreadPunch);
