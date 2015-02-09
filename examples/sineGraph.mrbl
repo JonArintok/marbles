@@ -13,35 +13,26 @@ fn sinePixels N1
 	abs
 		-
 			* -2.2 (- (/ yPos height) 0.5)
-			sin (/ xPos width)
+			sin (+ (/ xPos width) (/ (% currentFrame 100) 100))
 
 fn hardFiller B4
-	xPos N1
-	yPos N1
-	width N1
-	height N1
+	x N1
+	y N1
+	w N1
+	h N1
 	B4from01
-		?
-			<
-				sinePixels xPos yPos width height
-				0.02 |increase to make line thicker
-			1
-			0
+		? (< (sinePixels x y w h) 0.02) 1 0
 		0
 		0
 		1
 
 fn softFiller B4
-	xPos N1
-	yPos N1
-	width N1
-	height N1
+	x N1
+	y N1
+	w N1
+	h N1
 	B4from01
-		-
-			1
-			*
-				30 |increase to make line thinner
-				sinePixels xPos yPos width height
+		- 1 (* 30 (sinePixels x y w h))
 		0
 		0
 		1
