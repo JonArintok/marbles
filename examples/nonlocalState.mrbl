@@ -2,7 +2,7 @@
 
 @enter
 
-share foo N1
+vistate foo N1
 	2
 
 next

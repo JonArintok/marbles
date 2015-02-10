@@ -5,7 +5,7 @@
 state foo N1
 	+ varble (+ bar foo)
 
-share bar N1
+vistate bar N1
 	+ varble (+ foo bar)
 
 var varble N1

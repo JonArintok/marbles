@@ -3,11 +3,11 @@
 #define charTag_comment   '|'
 #define charTag_frameform '@'
 #define charTag_paramType '&'
-#define charTag_shareRead ':'
+#define charTag_vistateRead ':'
 #define decTag_var   "var"
 #define decTag_fn    "fn"
 #define decTag_state "state"
-#define decTag_share "share"
+#define decTag_vistate "vistate"
 #define entryPointName "enter"
 #define exitPointName  "exit"
 
@@ -330,8 +330,8 @@ void initNodes(void) {
 		nodes[curNode].evaluate = eval_varDef;
 	else if (matchStrWDelim(decTag_state, '\0', lineBuf, ' '))
 		nodes[curNode].evaluate = eval_stateDef;
-	else if (matchStrWDelim(decTag_share, '\0', lineBuf, ' '))
-		nodes[curNode].evaluate = eval_shareDef;
+	else if (matchStrWDelim(decTag_vistate, '\0', lineBuf, ' '))
+		nodes[curNode].evaluate = eval_vistateDef;
 	else {
 		putError(curLine, "decTag is not recognized\n");
 		return;
@@ -343,7 +343,7 @@ void initNodes(void) {
 	//update the relevant node reference array
 	if (
 		nodes[curNode].evaluate == eval_stateDef ||
-		nodes[curNode].evaluate == eval_shareDef
+		nodes[curNode].evaluate == eval_vistateDef
 	) {
 		if (!inFrameform) {
 			putError(curLine, "state declared outside of frameform\n");
@@ -617,7 +617,7 @@ void resolveNode(nodeIndex nodePos) {
 	
 	//check for reference to local declaration
 	if (nodeFf > -1) {
-		//check for local state or share call
+		//check for local state or vistate call
 		for (int snPos = 0; snPos <= frameforms[nodeFf].curStateNode; snPos++) {
 			nodeIndex sDef = frameforms[nodeFf].stateNodes[snPos];
 			if (matchStrWDelim(nodeName, '\0', nodesInfo[sDef].name, ' ')) {
@@ -626,8 +626,8 @@ void resolveNode(nodeIndex nodePos) {
 				free(nodeName);
 				if (nodes[sDef].evaluate == eval_stateDef)
 					nodes[nodePos].evaluate = eval_stateCall;
-				else if (nodes[sDef].evaluate == eval_shareDef)
-					nodes[nodePos].evaluate = eval_shareCall;
+				else if (nodes[sDef].evaluate == eval_vistateDef)
+					nodes[nodePos].evaluate = eval_vistateCall;
 				else _shouldNotBeHere_
 					return;
 			}
@@ -645,12 +645,12 @@ void resolveNode(nodeIndex nodePos) {
 		}
 	}
 	
-	//check for nonlocal share Call
+	//check for nonlocal vistate Call
 	for (int nnPos = 0; nodeName[nnPos]; nnPos++) {
-		if (nodeName[nnPos] == charTag_shareRead){
+		if (nodeName[nnPos] == charTag_vistateRead){
 			if (!nnPos) {
 				putError(nodeLine, "expected the name of a frameform before '");
-				printf("%c'\n", charTag_shareRead);
+				printf("%c'\n", charTag_vistateRead);
 				free(nodeName);
 				return;
 			}
@@ -659,7 +659,7 @@ void resolveNode(nodeIndex nodePos) {
 					nodeLine,
 					"expected the name of some state declared with '"
 				);
-				printf("%s' afer '%c'\n", decTag_share, charTag_shareRead);
+				printf("%s' afer '%c'\n", decTag_vistate, charTag_vistateRead);
 				free(nodeName);
 				return;
 			}
@@ -667,7 +667,7 @@ void resolveNode(nodeIndex nodePos) {
 				if (ffPos == nodeFf)
 					continue;
 				if (matchStrWDelim(
-					nodeName, charTag_shareRead, frameforms[ffPos].name, '\0'
+					nodeName, charTag_vistateRead, frameforms[ffPos].name, '\0'
 				)) {
 					for (
 						int snPos = 0;
@@ -682,7 +682,7 @@ void resolveNode(nodeIndex nodePos) {
 							if (nodes[sDef].evaluate == eval_stateDef) {
 								putError(nodeLine, "cannot read '");
 								printf("%s' from '", &nodeName[nnPos+1]);
-								printUpToThis(nodeName, charTag_shareRead);
+								printUpToThis(nodeName, charTag_vistateRead);
 								puts("'");
 								free(nodeName);
 								return;
@@ -690,22 +690,22 @@ void resolveNode(nodeIndex nodePos) {
 							nodes[nodePos].def = sDef;
 							nodesInfo[nodePos].name = nodesInfo[sDef].name;
 							free(nodeName);
-							if (nodes[sDef].evaluate == eval_shareDef)
-								nodes[nodePos].evaluate = eval_shareCall;
+							if (nodes[sDef].evaluate == eval_vistateDef)
+								nodes[nodePos].evaluate = eval_vistateCall;
 							else _shouldNotBeHere_
 								return;
 						}
 					}
 					putError(nodeLine, "did not find '");
 					printf("%s' in '", &nodeName[nnPos+1]);
-					printUpToThis(nodeName, charTag_shareRead);
+					printUpToThis(nodeName, charTag_vistateRead);
 					puts("'");
 					free(nodeName);
 					return;
 				}
 			}
 			if (matchStrWDelim(
-				nodeName, charTag_shareRead, frameforms[nodeFf].name, '\0'
+				nodeName, charTag_vistateRead, frameforms[nodeFf].name, '\0'
 			)) {
 				putError(nodeLine, "attempted to read local state '");
 				printf("%s' as if it were nonlocal\n", &nodeName[nnPos+1]);
@@ -713,7 +713,7 @@ void resolveNode(nodeIndex nodePos) {
 				return;
 			}
 			putError(nodeLine, "did not recognize frameform '");
-			printUpToThis(nodeName, charTag_shareRead);
+			printUpToThis(nodeName, charTag_vistateRead);
 			puts("'");
 			free(nodeName);
 			return;

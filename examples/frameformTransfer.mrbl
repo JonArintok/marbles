@@ -13,7 +13,7 @@ next
 
 @enter
 
-share upCounter N1
+vistate upCounter N1
 	+ upCounter increm
 
 next

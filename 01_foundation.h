@@ -173,13 +173,13 @@ outType eval_fnPass(_evalargs_) {
 outType eval_stateDef(_evalargs_) {
 	return nodes[self].cache;
 }
-outType eval_shareDef(_evalargs_) {
+outType eval_vistateDef(_evalargs_) {
 	return nodes[self].cache;
 }
 outType eval_stateCall(_evalargs_) {
 	return nodes[ nodes[self].def ].cache;
 }
-outType eval_shareCall(_evalargs_) {
+outType eval_vistateCall(_evalargs_) {
 	return nodes[ nodes[self].def ].cache;
 }
 
@@ -295,7 +295,7 @@ bool isReadOnly(nodeIndex n) {
 	return 
 		nodes[n].evaluate == eval_varCall   ||
 		nodes[n].evaluate == eval_stateCall ||
-		nodes[n].evaluate == eval_shareCall
+		nodes[n].evaluate == eval_vistateCall
 	;
 }
 
