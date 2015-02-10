@@ -42,18 +42,23 @@ fn neighborCount N1
 fn cgolFiller N1
 	x N1
 	y N1
-	sourceWidth  N1
-	sourceHeight N1
+	w N1
+	h N1
+	cgolRule (neighborCount x y) (fromN1D2 x y cells)
+
+fn cgolRule N1
+	theNeighborCount N1
+	current          N1
 	?
-		fromN1D2 x y cells
+		current
 		?
 			either
-				> 2 (neighborCount x y)
-				< 3 (neighborCount x y)
+				> theNeighborCount 3
+				< theNeighborCount 2
 			0
 			1
 		?
-			= 3 (neighborCount x y)
+			= 3 theNeighborCount
 			1
 			0
 
